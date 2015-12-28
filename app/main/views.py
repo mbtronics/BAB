@@ -103,8 +103,12 @@ def delete_user(id):
     form = DeleteUser()
     if form.validate_on_submit() and\
             form.delete.data:
-        db.session.delete(user)
-        db.session.commit()
-        return redirect(url_for('.index'))
+        if user.is_administrator():
+            flash("Can not delete administrator!", 'error')
+            return redirect(url_for('.user', username=user.username))
+        else:
+            db.session.delete(user)
+            db.session.commit()
+            return redirect(url_for('.list_users'))
 
     return render_template('delete_user.html', user=user, form=form)

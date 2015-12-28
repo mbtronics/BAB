@@ -48,6 +48,7 @@ def register():
     if form.validate_on_submit():
         user = User(email=form.email.data,
                     username=form.username.data,
+                    name=form.name.data,
                     password=form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -121,6 +122,9 @@ def password_reset(token):
         if user is None:
             return redirect(url_for('main.index'))
         if user.reset_password(token, form.password.data):
+            if not user.confirmed:
+                user.confirmed = True
+                db.session.add(user)
             flash('Your password has been updated.')
             return redirect(url_for('auth.login'))
         else:
