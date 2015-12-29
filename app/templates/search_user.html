@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}{{ config['APP_NAME'] }} - Search users{% endblock %}
+
+{% block page_content %}
+
+<div class="page-header">
+    <h1>Search users</h1>
+</div>
+
+<div class="col-md-3">
+    {{ wtf.quick_form(form) }}
+</div>
+
+<div class="col-md-9">
+{% if users %}
+    {{ macros.view_users_widget(users, pagination, '.search_users') }}
+{% else %}
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <h4>
+                Use one of the fields to find users:
+                <ul>
+                    <li><b>Id</b> brings you directly to the requested user</li>
+                    <li><b>Name</b> searches by username and real name</li>
+                </ul>
+            </h4>
+        </div>
+    </div>
+{% endif %}
+</div>
+
+{% endblock %}

@@ -128,6 +128,7 @@ def password_reset(token):
             flash('Your password has been updated.')
             return redirect(url_for('auth.login'))
         else:
+            flash('Error while updating password.')
             return redirect(url_for('main.index'))
     return render_template('auth/reset_password.html', form=form)
 

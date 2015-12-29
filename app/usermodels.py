@@ -8,14 +8,13 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 #Bit-style permissions
 class Permission:
-    ADD_USER =      (1<<0)  # add/remove user
-    EDIT_USER =     (1<<1)  # edit user profile
-    BOOK =          (1<<2)  # book resource or event
-    ADMINISTER =    0xffff  # administrator
+    BOOK =          (1<<0)
+    MANAGE_USERS =  (1<<1)
+    ADMINISTER =    0xffff
 
 roles = {
     'User': (Permission.BOOK, True),
-    'Moderator': (Permission.BOOK | Permission.ADD_USER | Permission.EDIT_USER, False),
+    'Moderator': (Permission.BOOK | Permission.MANAGE_USERS, False),
     'Administrator': (Permission.ADMINISTER, False)
 }
 

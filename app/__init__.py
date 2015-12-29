@@ -32,7 +32,9 @@ def create_app(config_name, url_prefix):
         sslify = SSLify(app)
 
     from .main import main as main_blueprint
-    app.register_blueprint(main_blueprint, url_prefix=url_prefix)
+    if url_prefix == "" or url_prefix == "/":
+        prefix=None
+    app.register_blueprint(main_blueprint, url_prefix=prefix)
 
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='%sauth'%url_prefix)

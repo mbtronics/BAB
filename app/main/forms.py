@@ -1,6 +1,6 @@
 from flask.ext.wtf import Form
-from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField
-from wtforms.validators import Required, Length, Email, Regexp
+from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField, IntegerField
+from wtforms.validators import Required, Optional, Length, Email, Regexp
 from wtforms import ValidationError
 from ..usermodels import Role, User
 
@@ -42,6 +42,11 @@ class EditProfileAdminForm(Form):
                 User.query.filter_by(username=field.data).first():
             raise ValidationError('Username already in use.')
 
-class DeleteUser(Form):
+class DeleteUserForm(Form):
     delete = BooleanField('Are you sure?')
-    DeleteButton = SubmitField('Delete user')
+    deletebutton = SubmitField('Delete user')
+
+class SearchUserForm(Form):
+    name = StringField('Name', validators=[Optional()])
+    id = IntegerField('Id', validators=[Optional()])
+    searchbutton = SubmitField('Search')

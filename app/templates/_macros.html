@@ -27,3 +27,48 @@
     </li>
 </ul>
 {% endmacro %}
+
+{% macro view_users_widget(users, pagination, endpoint) %}
+
+{% if users %}
+    <table class="table table-condensed table-hover">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Email</th>
+                <th>Username</th>
+                <th>Real name</th>
+                <th>Role</th>
+                <th>Confirmed</th>
+                <th>Member since</th>
+                <th>Last seen</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr class="clickable-row">
+                <td><img src="{{ user.gravatar(size=18) }}"></td>
+                <td>
+                     <a href="{{ url_for('main.user', username=user.username) }}"></a>
+                    {{ user.email }}
+                </td>
+                <td>{{ user.username or '' }}</td>
+                <td>{{ user.name or '' }}</td>
+                <td>{{ user.role.name }}</td>
+                <td>{{ user.confirmed }}</td>
+                <td>{{ user.member_since }}</td>
+                <td>{{ user.last_seen }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endif %}
+
+{% if pagination %}
+<div class="text-center">
+    {{ pagination_widget(pagination, endpoint) }}
+</div>
+{% endif %}
+
+{% endmacro %}
