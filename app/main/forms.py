@@ -2,7 +2,7 @@ from flask.ext.wtf import Form
 from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField, IntegerField
 from wtforms.validators import Required, Optional, Length, Email, Regexp
 from wtforms import ValidationError
-from ..usermodels import Role, User
+from ..usermodels import Role, User, Skill
 
 
 class EditProfileForm(Form):
@@ -24,7 +24,7 @@ class EditProfileAdminForm(Form):
     name = StringField('Real name', validators=[Length(0, 64)])
     location = StringField('Location', validators=[Length(0, 64)])
     about_me = TextAreaField('About me')
-    submit = SubmitField('Submit')
+    submit = SubmitField('Update information')
 
     def __init__(self, user, *args, **kwargs):
         super(EditProfileAdminForm, self).__init__(*args, **kwargs)
@@ -45,6 +45,7 @@ class EditProfileAdminForm(Form):
 class DeleteUserForm(Form):
     delete = BooleanField('Are you sure?')
     deletebutton = SubmitField('Delete user')
+
 
 class SearchUserForm(Form):
     name = StringField('Name', validators=[Optional()])

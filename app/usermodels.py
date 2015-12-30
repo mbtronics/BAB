@@ -42,6 +42,22 @@ class Role(db.Model):
         return '<Role %r>' % self.name
 
 
+class Skill(db.Model):
+    __tablename__ = 'Skills'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True)
+    description = db.Column(db.Text(), nullable=False)
+
+    def __repr__(self):
+        return '<SkillType %r>' % self.name
+
+
+UserSkills = db.Table('UserSkills',
+    db.Column('user_id', db.Integer, db.ForeignKey('Users.id')),
+    db.Column('skill_id', db.Integer, db.ForeignKey('Skills.id'))
+    )
+
+
 class User(UserMixin, db.Model):
     __tablename__ = 'Users'
     id = db.Column(db.Integer, primary_key=True)
@@ -56,6 +72,8 @@ class User(UserMixin, db.Model):
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
+
+    skills = db.relationship('Skill', secondary=UserSkills, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)

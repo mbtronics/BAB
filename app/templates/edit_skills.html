@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}{{ config['APP_NAME'] }} - Edit skills{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Edit skills</h1>
+</div>
+
+<div class="col-md-12">
+{% if skills %}
+    <form action method="POST" class="form" role="form">
+        <table class="table table-condensed table-hover">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Skill</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for skill in skills %}
+                    <tr>
+                        <td><input type="checkbox" name="{{ skill.name }}" {%  if skill.name in user_skills %}checked{% endif %}></td>
+                        <td>{{ skill.name }}</td>
+                        <td>{{ skill.description }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <input type="submit" id="submitbtn" class="btn btn-default" value="Update skills">
+    </form>
+{% endif %}
+</div>
+
+{% endblock %}

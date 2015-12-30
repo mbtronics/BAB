@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}{{ config['APP_NAME'] }} - {{ skill.name }}{% endblock %}
+
+{% block page_content %}
+
+    <div class="page-header">
+        <h1>{{ skill.name }}</h1>
+    </div>
+
+    <div class="col-md-4">
+        <p><b>Number of users who have this skill:</b> {{ users|length }}</p>
+        <p><b>Skill description:</b> {{ skill.description }}</p>
+    </div>
+
+    <div class="col-md-8">
+
+    </div>
+{% endblock %}

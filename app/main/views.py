@@ -5,8 +5,8 @@ from sqlalchemy import or_
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, DeleteUserForm, SearchUserForm
 from .. import db
-from ..usermodels import Permission, Role, User
-from ..decorators import admin_required, permission_required
+from ..usermodels import Permission, Role, User, Skill
+from ..decorators import permission_required
 
 NumPaginationItems = 20
 
@@ -42,7 +42,8 @@ def user(username):
     print username
     print User.query.filter_by(username=username).first()
     user = User.query.filter_by(username=username).first_or_404()
-    return render_template('user.html', user=user)
+    skills = user.skills.order_by(Skill.name.asc()).all()
+    return render_template('user.html', user=user, skills=skills)
 
 
 @main.route('/edit-profile', methods=['GET', 'POST'])
@@ -91,8 +92,35 @@ def edit_profile_admin(id):
     form.name.data = user.name
     form.location.data = user.location
     form.about_me.data = user.about_me
+
     return render_template('edit_profile.html', form=form, user=user)
 
+@main.route('/edit-skills/<int:id>', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.MANAGE_USERS)
+def edit_skills(id):
+    user = User.query.get_or_404(id)
+
+    if user.is_administrator() and not current_user.is_administrator():
+        flash('Only the administrator can access this!', 'error')
+        abort(404)
+
+    skills = Skill.query.order_by(Skill.name.asc()).all()
+
+    if request.method == 'POST':
+        for skill in skills:
+            if skill.name in request.form.keys():
+                if not skill in user.skills.all():
+                    user.skills.append(skill)
+            else:
+                if skill in user.skills.all():
+                    user.skills.remove(skill)
+
+        db.session.commit()
+        return redirect(url_for('.user', username=user.username))
+    else:
+        user_skills = [ skill.name for skill in user.skills.all() ]
+        return render_template('edit_skills.html', user=user, skills=skills, user_skills=user_skills)
 
 @main.route('/list-users')
 @login_required
@@ -148,7 +176,16 @@ def search_users():
 
         form = SearchUserForm(name=session['name'])
 
-        return render_template('search_user.html', form=form, users=users, pagination=pagination)
+        return render_template('search_users.html', form=form, users=users, pagination=pagination)
 
-    return render_template('search_user.html', form=form)
+    return render_template('search_users.html', form=form)
 
+@main.route('/skill/<name>')
+def skill(name):
+    skill = Skill.query.filter_by(name=name).first()
+    if skill:
+        users = skill.users.all()
+        return render_template('skill.html', skill=skill, users=users)
+    else:
+        flash('Skill not found', 'error')
+        abort(404)
