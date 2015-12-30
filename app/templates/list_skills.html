@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block title %}{{ config['APP_NAME'] }} - List skills{% endblock %}
+
+{% block page_content %}
+
+<div class="page-header">
+    <h1>List skills</h1>
+</div>
+
+<div class="col-md-12">
+{% if skills %}
+    <table class="table table-condensed table-hover">
+        <thead>
+            <tr>
+                <th>Skill</th>
+                <th>Description</th>
+                <th>Number of users</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for skill in skills %}
+                <tr class="clickable-row">
+                    <td><a href="{{ url_for('main.skill', name=skill.name) }}"></a>{{ skill.name }}</td>
+                    <td>{{ skill.description }}</td>
+                    <td>{{ skill.num_users }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+</div>
+
+{% endblock %}

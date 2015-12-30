@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}{{ config['APP_NAME'] }} - Edit skill{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Edit skill</h1>
+</div>
+<div class="col-md-6">
+    {{ wtf.quick_form(form) }}
+</div>
+
+<div class="col-md-6">
+
+</div>
+{% endblock %}

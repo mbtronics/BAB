@@ -8,9 +8,10 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 #Bit-style permissions
 class Permission:
-    BOOK =          (1<<0)
-    MANAGE_USERS =  (1<<1)
-    ADMINISTER =    0xffff
+    BOOK =              (1<<0)
+    MANAGE_USERS =      (1<<1)
+    MANAGE_SKILLS =     (1<<2)
+    ADMINISTER =        0xffff
 
 roles = {
     'User': (Permission.BOOK, True),
@@ -47,6 +48,13 @@ class Skill(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
     description = db.Column(db.Text(), nullable=False)
+
+    @property
+    def num_users(self):
+        if self.users:
+            return self.users.count()
+        else:
+            return 0
 
     def __repr__(self):
         return '<SkillType %r>' % self.name

@@ -51,3 +51,8 @@ class SearchUserForm(Form):
     name = StringField('Name', validators=[Optional()])
     id = IntegerField('Id', validators=[Optional()])
     searchbutton = SubmitField('Search')
+
+class EditSkillForm(Form):
+    name = StringField('Name', validators=[Required()])
+    description = TextAreaField('Description', validators=[Required()])
+    submit = SubmitField('Update skill')

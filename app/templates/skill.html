@@ -10,8 +10,12 @@
     </div>
 
     <div class="col-md-4">
-        <p><b>Number of users who have this skill:</b> {{ users|length }}</p>
+        <p><b>Number of users who have this skill:</b> {{ skill.num_users }}</p>
         <p><b>Skill description:</b> {{ skill.description }}</p>
+
+        {% if current_user.can(Permission.MANAGE_SKILLS) %}
+            <a class="btn btn-default" href="{{ url_for('.edit_skill', name=skill.name) }}">Edit skill</a>
+        {% endif %}
     </div>
 
     <div class="col-md-8">

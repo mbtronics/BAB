@@ -3,7 +3,7 @@ from flask.ext.login import login_required, current_user
 from flask.ext.sqlalchemy import get_debug_queries
 from sqlalchemy import or_
 from . import main
-from .forms import EditProfileForm, EditProfileAdminForm, DeleteUserForm, SearchUserForm
+from .forms import EditProfileForm, EditProfileAdminForm, DeleteUserForm, SearchUserForm, EditSkillForm
 from .. import db
 from ..usermodels import Permission, Role, User, Skill
 from ..decorators import permission_required
@@ -184,8 +184,32 @@ def search_users():
 def skill(name):
     skill = Skill.query.filter_by(name=name).first()
     if skill:
-        users = skill.users.all()
-        return render_template('skill.html', skill=skill, users=users)
+        return render_template('skill.html', skill=skill)
     else:
         flash('Skill not found', 'error')
         abort(404)
+
+@main.route('/edit-skill/<name>', methods=['GET', 'POST'])
+@permission_required(Permission.MANAGE_SKILLS)
+def edit_skill(name):
+    skill = Skill.query.filter_by(name=name).first()
+    if skill:
+        form = EditSkillForm()
+
+        if form.validate_on_submit():
+            skill.name = form.name.data
+            skill.description = form.description.data
+            db.session.add(skill)
+            return redirect(url_for('.skill', name=skill.name))
+        else:
+            form.name.data = skill.name
+            form.description.data = skill.description
+            return render_template('edit_skill.html', form=form)
+    else:
+        flash('Skill not found', 'error')
+        abort(404)
+
+@main.route('/list-skills')
+def list_skills():
+    skills = Skill.query.order_by(Skill.name.asc()).all()
+    return render_template('list_skills.html', skills=skills)
