@@ -42,9 +42,9 @@ class EditProfileAdminForm(Form):
                 User.query.filter_by(username=field.data).first():
             raise ValidationError('Username already in use.')
 
-class DeleteUserForm(Form):
+class DeleteConfirmationForm(Form):
     delete = BooleanField('Are you sure?')
-    deletebutton = SubmitField('Delete user')
+    deletebutton = SubmitField('Delete')
 
 
 class SearchUserForm(Form):
@@ -56,3 +56,9 @@ class EditSkillForm(Form):
     name = StringField('Name', validators=[Required()])
     description = TextAreaField('Description', validators=[Required()])
     submit = SubmitField('Update skill')
+
+class EditResourceForm(Form):
+    name = StringField('Name', validators=[Required()])
+    description = TextAreaField('Description', validators=[Required()])
+    active = BooleanField('Active', validators=[Required()])
+    submit = SubmitField('Update resource')

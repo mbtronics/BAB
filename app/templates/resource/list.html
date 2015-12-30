@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% import "user/_macros.html" as macros %}
+
+{% block title %}{{ config['APP_NAME'] }} - List resources{% endblock %}
+
+{% block page_content %}
+
+<div class="page-header">
+    <h1>List resources</h1>
+</div>
+
+<div class="col-md-12">
+{% if resources %}
+    <table class="table table-condensed table-hover">
+        <thead>
+            <tr>
+                <th>Resource</th>
+                <th>Description</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for resource in resources %}
+                <tr class="clickable-row">
+                    <td><a href="{{ url_for('main.resource', name=resource.name) }}"></a>{{ resource.name }}</td>
+                    <td>{{ resource.description }}</td>
+                    <td>{{ resource.active }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+</div>
+
+{% endblock %}

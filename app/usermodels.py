@@ -11,11 +11,12 @@ class Permission:
     BOOK =              (1<<0)
     MANAGE_USERS =      (1<<1)
     MANAGE_SKILLS =     (1<<2)
+    MANAGE_RESOURCES =  (1<<3)
     ADMINISTER =        0xffff
 
 roles = {
     'User': (Permission.BOOK, True),
-    'Moderator': (Permission.BOOK | Permission.MANAGE_USERS, False),
+    'Moderator': (Permission.BOOK | Permission.MANAGE_USERS | Permission.MANAGE_SKILLS | Permission.MANAGE_RESOURCES, False),
     'Administrator': (Permission.ADMINISTER, False)
 }
 

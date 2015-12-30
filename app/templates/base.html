@@ -44,6 +44,19 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li><a href="{{ url_for('main.list_skills') }}">List skills</a></li>
+                            <li><a href="{{ url_for('main.add_skill') }}">Add skill</a></li>
+                        </ul>
+                    </li>
+                {%  endif %}
+
+                {%  if current_user.is_authenticated and current_user.can(Permission.MANAGE_RESOURCES) %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Resources<b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ url_for('main.list_resources') }}">List resources</a></li>
+                            <li><a href="{{ url_for('main.add_resource') }}">Add resource</a></li>
                         </ul>
                     </li>
                 {%  endif %}

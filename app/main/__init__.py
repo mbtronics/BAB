@@ -2,7 +2,8 @@ from flask import Blueprint
 
 main = Blueprint('main', __name__)
 
-from . import views, errors
+from . import views, userviews, resourceviews, skillviews
+from . import errors
 from ..usermodels import Permission
 
 
