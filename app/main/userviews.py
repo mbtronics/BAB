@@ -11,7 +11,12 @@ NumPaginationItems = 20
 
 @main.route('/user/<username>')
 def user(username):
-    user = User.query.filter_by(username=username).first_or_404()
+    try:
+        id = int(username)
+        user = User.query.filter_by(id=id).first_or_404()
+    except:
+        user = User.query.filter_by(username=username).first_or_404()
+
     skills = user.skills.order_by(Skill.name.asc()).all()
     return render_template('user/view.html', user=user, skills=skills)
 

@@ -7,6 +7,7 @@
 
 <div class="col-md-12">
     <img class="img-rounded profile-thumbnail" src="{{ user.gravatar(size=256) }}">
+    <img style="float:right" width="150" src="{{ qrcode(url_for('.user', username=user.id, _external=True)) }}">
     <div class="profile-header">
         <h1>{{ user.username }}</h1>
         {% if user.location %}

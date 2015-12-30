@@ -4,12 +4,14 @@ from flask.ext.mail import Mail
 from flask.ext.moment import Moment
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
+from flask.ext.qrcode import QRcode
 from config import config
 
 bootstrap = Bootstrap()
 mail = Mail()
 moment = Moment()
 db = SQLAlchemy()
+qrcode = QRcode()
 
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
@@ -26,6 +28,7 @@ def create_app(config_name, url_prefix):
     moment.init_app(app)
     db.init_app(app)
     login_manager.init_app(app)
+    qrcode.init_app(app)
 
     if not app.debug and not app.testing and not app.config['SSL_DISABLE']:
         from flask.ext.sslify import SSLify
