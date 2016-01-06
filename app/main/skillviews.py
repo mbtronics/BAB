@@ -4,13 +4,15 @@ from . import main
 from .forms import DeleteConfirmationForm, EditSkillForm
 from .. import db
 from ..usermodels import Permission, Skill
+from ..resourcemodels import Resource
 from ..decorators import permission_required
 
 @main.route('/skill/<name>')
 @login_required
 def skill(name):
     skill = Skill.query.filter_by(name=name).first_or_404()
-    return render_template('skill/view.html', skill=skill)
+    resources = skill.resources.order_by(Resource.name.asc()).all()
+    return render_template('skill/view.html', skill=skill, resources=resources)
 
 
 @main.route('/skill/add', methods=['GET', 'POST'])
@@ -28,7 +30,7 @@ def add_skill():
     return render_template('skill/edit.html', form=form)
 
 
-@main.route('/skill/edit', methods=['GET', 'POST'])
+@main.route('/skill/<name>/edit', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.MANAGE_SKILLS)
 def edit_skill(name):

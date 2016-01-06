@@ -1,4 +1,5 @@
 from flask.ext.wtf import Form
+from flask.ext.pagedown.fields import PageDownField
 from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField, IntegerField
 from wtforms.validators import Required, Optional, Length, Email, Regexp, URL
 from wtforms import ValidationError
@@ -59,7 +60,7 @@ class EditSkillForm(Form):
 
 class EditResourceForm(Form):
     name = StringField('Name', validators=[Required()])
-    description = TextAreaField('Description', validators=[Required()])
+    description = PageDownField('Description', validators=[Required()])
     active = BooleanField('Active', validators=[Required()])
     image_url = StringField('Image URL', validators=[Optional(), URL()])
     price_p_per = IntegerField('Price per period (euro)', validators=[Optional()])

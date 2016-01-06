@@ -73,7 +73,7 @@ def edit_profile_admin(id):
 @main.route('/user/<int:id>/edit-skills', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.MANAGE_USERS)
-def edit_skills(id):
+def edit_user_skills(id):
     user = User.query.get_or_404(id)
 
     if user.is_administrator() and not current_user.is_administrator():

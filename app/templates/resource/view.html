@@ -10,19 +10,37 @@
     </div>
 
     <div class="col-md-4">
-        {% if resource.image_url %}
-            <img src="{{ resource.image_url }}" width="300">
-        {% endif %}
+        <img src="{{ resource.image_url or url_for('static', filename='no.png') }}" width="300">
     </div>
 
     <div class="col-md-8">
+
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {% if resource.description_html %}
+                    {{ resource.description_html | safe }}
+                {% else %}
+                    {{ resource.description }}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="panel panel-success">
+            <div class="panel-heading">Skills</div>
+            <div class="panel-body">
+                {% for skill in skills %}
+                    <a class="btn btn-info" href="{{ url_for('.skill', name=skill.name) }}">{{ skill.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+
         <p><b>Active?</b> {{ resource.active }}</p>
-        <p><b>Description:</b> {{ resource.description }}</p>
         <p><b>Reservation period (hour:min):</b> {{ resource.reservation_period }}</p>
         <p><b>Price per period:</b> {{ resource.price_p_per }}&euro;</p>
 
         {% if current_user.can(Permission.MANAGE_RESOURCES) %}
             <a class="btn btn-default" href="{{ url_for('.edit_resource', name=resource.name) }}">Edit resource</a>
+            <a class="btn btn-default" href="{{ url_for('.edit_resource_skills', id=resource.id) }}">Update skills</a>
             <a class="btn btn-danger" href="{{ url_for('.delete_resource', name=resource.name) }}">Delete resource</a>
         {% endif %}
     </div>

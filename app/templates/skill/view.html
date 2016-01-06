@@ -13,6 +13,16 @@
         <p><b>Number of users who have this skill:</b> {{ skill.num_users }}</p>
         <p><b>Skill description:</b> {{ skill.description }}</p>
 
+        <p><b>Resources that have this skill:</b></p>
+        <div class="panel panel-success">
+            <div class="panel-heading">Resources</div>
+            <div class="panel-body">
+                {% for resource in resources %}
+                    <a class="btn btn-info" href="{{ url_for('.resource', name=resource.name) }}">{{ resource.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+
         {% if current_user.can(Permission.MANAGE_SKILLS) %}
             <a class="btn btn-default" href="{{ url_for('.edit_skill', name=skill.name) }}">Edit skill</a>
             <a class="btn btn-danger" href="{{ url_for('.delete_skill', name=skill.name) }}">Delete skill</a>

@@ -1,9 +1,9 @@
-from flask import render_template, redirect, url_for, abort, flash
+from flask import render_template, redirect, url_for, request
 from flask.ext.login import login_required
 from . import main
 from .forms import DeleteConfirmationForm, EditResourceForm
 from .. import db
-from ..usermodels import Permission
+from ..usermodels import Permission, Skill
 from ..resourcemodels import Resource
 from ..decorators import permission_required
 
@@ -11,7 +11,8 @@ from ..decorators import permission_required
 @login_required
 def resource(name):
     resource = Resource.query.filter_by(name=name).first_or_404()
-    return render_template('resource/view.html', resource=resource)
+    skills = resource.skills.order_by(Skill.name.asc()).all()
+    return render_template('resource/view.html', resource=resource, skills=skills)
 
 
 @main.route('/resource/add', methods=['GET', 'POST'])
@@ -79,3 +80,26 @@ def delete_resource(name):
 def list_resources():
     resources = Resource.query.order_by(Resource.name.asc()).all()
     return render_template('resource/list.html', resources=resources)
+
+@main.route('/resource/<int:id>/edit-skills', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.MANAGE_RESOURCES)
+def edit_resource_skills(id):
+    resource = Resource.query.get_or_404(id)
+
+    skills = Skill.query.order_by(Skill.name.asc()).all()
+
+    if request.method == 'POST':
+        for skill in skills:
+            if skill.name in request.form.keys():
+                if not skill in resource.skills.all():
+                    resource.skills.append(skill)
+            else:
+                if skill in resource.skills.all():
+                    resource.skills.remove(skill)
+
+        db.session.commit()
+        return redirect(url_for('.resource', name=resource.name))
+    else:
+        resource_skills = [ skill.name for skill in resource.skills.all() ]
+        return render_template('resource/edit_skills.html', resource=resource, skills=skills, resource_skills=resource_skills)

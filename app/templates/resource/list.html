@@ -23,11 +23,7 @@
         <tbody>
             {% for resource in resources %}
                 <tr class="clickable-row">
-                    <td>
-                        {% if resource.image_url %}
-                            <img src="{{ resource.image_url }}" width="100">
-                        {% endif %}
-                    </td>
+                    <td><img src="{{ resource.image_url or url_for('static', filename='no.png') }}" width="100"></td>
                     <td><a href="{{ url_for('main.resource', name=resource.name) }}"></a>{{ resource.name }}</td>
                     <td>{{ resource.description }}</td>
                     <td>{{ resource.active }}</td>
