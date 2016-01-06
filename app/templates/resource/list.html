@@ -14,6 +14,7 @@
     <table class="table table-condensed table-hover">
         <thead>
             <tr>
+                <th></th>
                 <th>Resource</th>
                 <th>Description</th>
                 <th>Active</th>
@@ -22,6 +23,11 @@
         <tbody>
             {% for resource in resources %}
                 <tr class="clickable-row">
+                    <td>
+                        {% if resource.image_url %}
+                            <img src="{{ resource.image_url }}" width="100">
+                        {% endif %}
+                    </td>
                     <td><a href="{{ url_for('main.resource', name=resource.name) }}"></a>{{ resource.name }}</td>
                     <td>{{ resource.description }}</td>
                     <td>{{ resource.active }}</td>

@@ -62,6 +62,6 @@ class EditResourceForm(Form):
     description = TextAreaField('Description', validators=[Required()])
     active = BooleanField('Active', validators=[Required()])
     image_url = StringField('Image URL', validators=[Optional(), URL()])
-    price_p_per = IntegerField('Price per period', validators=[Optional()])
+    price_p_per = IntegerField('Price per period (euro)', validators=[Optional()])
     reserv_per = IntegerField('Reservation period (minutes)', validators=[Optional()])
     submit = SubmitField('Update resource')
