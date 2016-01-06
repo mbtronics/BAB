@@ -1,6 +1,6 @@
 from flask.ext.wtf import Form
 from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField, IntegerField
-from wtforms.validators import Required, Optional, Length, Email, Regexp
+from wtforms.validators import Required, Optional, Length, Email, Regexp, URL
 from wtforms import ValidationError
 from ..usermodels import Role, User, Skill
 
@@ -61,4 +61,7 @@ class EditResourceForm(Form):
     name = StringField('Name', validators=[Required()])
     description = TextAreaField('Description', validators=[Required()])
     active = BooleanField('Active', validators=[Required()])
+    image_url = StringField('Image URL', validators=[Optional(), URL()])
+    price_p_per = IntegerField('Price per period', validators=[Optional()])
+    reserv_per = IntegerField('Reservation period (minutes)', validators=[Optional()])
     submit = SubmitField('Update resource')
