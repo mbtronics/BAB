@@ -22,6 +22,10 @@
             <a class="navbar-brand" href="{{ url_for('main.index') }}">{{ config['APP_NAME'] }}</a>
         </div>
         <div class="navbar-collapse collapse">
+
+            <ul class="nav navbar-nav navbar-left">
+            </ul>
+
             <ul class="nav navbar-nav navbar-right">
 
                 {%  if current_user.is_authenticated and current_user.can(Permission.MANAGE_USERS) %}

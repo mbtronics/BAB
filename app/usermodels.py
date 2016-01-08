@@ -83,6 +83,7 @@ class User(UserMixin, db.Model):
     avatar_hash = db.Column(db.String(32))
 
     skills = db.relationship('Skill', secondary=UserSkills, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
+    reservations = db.relationship('Reservation', backref='User', lazy='dynamic')
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)

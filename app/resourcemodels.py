@@ -20,6 +20,7 @@ class Resource(db.Model):
     reserv_per = db.Column(db.Integer)          # reservation period in minutes
 
     skills = db.relationship('Skill', secondary=SkillsResources, backref=db.backref('resources', lazy='dynamic'), lazy='dynamic')
+    reservations = db.relationship('Reservation', backref='Resource', lazy='dynamic')
 
     @property
     def reservation_period(self):
@@ -38,3 +39,11 @@ class Resource(db.Model):
 
 
 db.event.listen(Resource.description, 'set', Resource.on_changed_description)
+
+class Reservation(db.Model):
+    __tablename__ = 'Reservations'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), index=True)
+    resource_id = db.Column(db.Integer, db.ForeignKey('Resources.id'), index=True)
+    start = db.Column(db.DateTime())
+    end = db.Column(db.DateTime())
