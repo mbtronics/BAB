@@ -31,10 +31,3 @@ def server_shutdown():
 @main.route('/', methods=['GET', 'POST'])
 def index():
     return render_template('index.html')
-
-@main.route('/reservation/<int:id>', methods=['GET', 'POST'])
-@login_required
-@permission_required(Permission.BOOK)
-def reservations(id):
-    resource = Resource.query.get_or_404(id)
-    return render_template('reservation.html', resource=resource)

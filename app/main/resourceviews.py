@@ -103,3 +103,11 @@ def edit_resource_skills(id):
     else:
         resource_skills = [ skill.name for skill in resource.skills.all() ]
         return render_template('resource/edit_skills.html', resource=resource, skills=skills, resource_skills=resource_skills)
+
+
+@main.route('/resource/reservation/<int:id>', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.BOOK)
+def reservation(id):
+    resource = Resource.query.get_or_404(id)
+    return render_template('resource/reservation.html', resource=resource)

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}{{ config['APP_NAME'] }}{% endblock %}
+
+{% block page_content %}
+
+    <div class="page-header">
+        <h1>Reservation calendar - {{ resource.name }}</h1>
+    </div>
+
+    <div class="col-md-10">
+        <div id='calendar'></div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="btn btn-default" id="confirm-reservations">Confirm reservations</div>
+        <br><br>
+        <div class="panel panel-success">
+            <div class="panel-heading">New reservations</div>
+            <div class="panel-body" id="new-reservations">
+            </div>
+        </div>
+    </div>
+
+    <div id="dialog" title="" style="display:none;">Are you sure want to delete it?</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <link rel='stylesheet' href='{{ url_for("static", filename="fullcalendar/fullcalendar.css") }}' />
+    <script src='{{ url_for("static", filename="fullcalendar/fullcalendar.js") }}'></script>
+    <script src='{{ url_for("static", filename="fullcalendar/lib/jquery-ui.custom.min.js") }}'></script>
+
+    <script>
+
+        function addEvent(event) {
+            var div = $("<div>", {id: event._id, class: "btn btn-info"});
+            var duration = moment.utc(moment(event.end,"DD/MM/YYYY HH:mm:ss").diff(moment(event.start,"DD/MM/YYYY HH:mm:ss"))).format("HH:mm:ss")
+            div.append(moment(event.start).format('DD/MM/YY HH:mm')+" - "+moment(event.end).format('DD/MM/YY HH:mm'));
+
+            $("#new-reservations").append(div);
+        }
+
+        $(document).ready(function() {
+
+            $('#calendar').fullCalendar({
+
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+
+                firstDay: 1,
+                editable: true,
+                weekends: true,
+                slotDuration: '00:20:00',
+                snapDuration: '00:20:00',
+                defaultView: 'agendaWeek',
+                draggable: true,
+
+                dayClick: function(date, allDay, jsEvent, view) {
+
+                    var tempDate = new Date(date);  //clone date
+
+                    var NewEvent = Object({ title: '{{ current_user.name }}', allDay: false });
+                    NewEvent.start = date;
+                    tempDate.setMinutes(tempDate.getMinutes()+20);
+                    NewEvent.end = tempDate;
+
+                    $('#calendar').fullCalendar('renderEvent', NewEvent, true );
+
+
+                    addEvent(NewEvent);
+                },
+
+                eventDestroy: function(event, element, view) {
+
+                },
+
+                eventClick: function(event, jsEvent, view) {
+                    var r=confirm("Delete reservation?");
+                    if (r===true)
+                    {
+                        $('#calendar').fullCalendar('removeEvents', event._id);
+                    }
+                },
+
+                eventResize: function (event, delta, revertFunc, jsEvent, ui, view) {
+                },
+            })
+
+            $('#confirm-reservations').click(function() {
+
+            })
+        });
+    </script>
+{% endblock %}
