@@ -1,10 +1,6 @@
-from flask import render_template, abort, request, current_app
+from flask import abort, request, current_app, redirect, url_for
 from flask.ext.sqlalchemy import get_debug_queries
 from . import main
-from flask.ext.login import login_required
-from ..decorators import permission_required
-from ..usermodels import Permission
-from ..resourcemodels import Resource
 
 @main.after_app_request
 def after_request(response):
@@ -30,4 +26,4 @@ def server_shutdown():
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    return redirect(url_for('.list_resources'))
