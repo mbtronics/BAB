@@ -1,11 +1,14 @@
-from flask import render_template, redirect, url_for, request
-from flask.ext.login import login_required
+from flask import render_template, redirect, url_for, request, Response, abort, jsonify
+from flask.ext.login import login_required, current_user
 from . import main
 from .forms import DeleteConfirmationForm, EditResourceForm
 from .. import db
 from ..usermodels import Permission, Skill
-from ..resourcemodels import Resource
+from ..resourcemodels import Resource, Available, Reservation
 from ..decorators import permission_required
+import json
+from sqlalchemy import and_
+from datetime import datetime, timedelta
 
 @main.route('/resource/<name>')
 @login_required
@@ -105,9 +108,161 @@ def edit_resource_skills(id):
         return render_template('resource/edit_skills.html', resource=resource, skills=skills, resource_skills=resource_skills)
 
 
+@main.route('/resource/available/<int:id>', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.MANAGE_RESOURCES)
+def available(id):
+    resource = Resource.query.get_or_404(id)
+    return render_template('resource/available.html', resource=resource)
+
+@main.route('/resource/available/<int:id>/getdata', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.MANAGE_RESOURCES)
+def available_getdata(id):
+    resource = Resource.query.get_or_404(id)
+
+    start_date = request.args.get('start', '')
+    end_date = request.args.get('end', '')
+
+    if start_date and end_date:
+        data = []
+        for a in resource.availability.filter(and_(Available.start>=start_date, Available.end<=end_date)):
+            data.append( {
+                'start': a.start.strftime("%Y-%m-%d %H:%M:%S"),
+                'end': a.end.strftime("%Y-%m-%d %H:%M:%S"),
+                'id': a.id,
+                'title': a.user.name,
+            })
+
+        return Response(json.dumps(data), mimetype='application/json')
+
+    abort(404)
+
+@main.route('/resource/available/<int:id>/setdata', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.MANAGE_RESOURCES)
+def available_setdata(id):
+    resource = Resource.query.get_or_404(id)
+    data = request.get_json()
+
+    if data and 'action' in data:
+
+        if data['action']=='update' or data['action']=='remove':
+            a=Available.query.get_or_404(data['id'])
+        elif data['action']=='new':
+            a=Available()
+        else:
+            abort(404)
+
+        if data['action']=='remove':
+            db.session.delete(a)
+        else:
+            start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
+            end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
+            #TODO: check for overlap
+            a.start = start
+            a.end = end
+            a.resource = resource
+            a.user = current_user
+            db.session.add(a)
+
+        db.session.commit()
+        return jsonify({'id': a.id})
+
+    abort(404)  #TODO: fix json error returns
+
 @main.route('/resource/reservation/<int:id>', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.BOOK)
 def reservation(id):
     resource = Resource.query.get_or_404(id)
     return render_template('resource/reservation.html', resource=resource)
+
+@main.route('/resource/reservation/<int:id>/getdata', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.BOOK)
+def reservation_getdata(id):
+    resource = Resource.query.get_or_404(id)
+
+    start_date = request.args.get('start', '')
+    end_date = request.args.get('end', '')
+
+    if start_date and end_date:
+        data = []
+        for r in resource.reservations.filter(and_(Reservation.start>=start_date, Reservation.end<=end_date)):
+
+            if r.user.id==current_user.id or current_user.can(Permission.MANAGE_RESOURCES):
+                if r.user.name:
+                    title=r.user.name
+                else:
+                    title=r.user.username
+            else:
+                title='Reserved'
+
+            if r.user.id==current_user.id:
+                color='#378006'
+            else:
+                color=''
+
+            data.append( {
+                'start': r.start.strftime("%Y-%m-%d %H:%M:%S"),
+                'end': r.end.strftime("%Y-%m-%d %H:%M:%S"),
+                'id': r.id,
+                'title': title,
+                'constraint': 'available',
+                'color': color,
+            })
+
+        for r in resource.availability.filter(and_(Available.start>=start_date, Available.end<=end_date)):
+            data.append( {
+                'start': r.start.strftime("%Y-%m-%d %H:%M:%S"),
+                'end': r.end.strftime("%Y-%m-%d %H:%M:%S"),
+                'id': 'available',
+                'rendering': 'background',
+            })
+
+        return Response(json.dumps(data), mimetype='application/json')
+
+    abort(404)#TODO: fix json error returns
+
+@main.route('/resource/reservation/<int:id>/setdata', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.BOOK)
+def reservation_setdata(id):
+    resource = Resource.query.get_or_404(id)
+
+    data = request.get_json()
+
+    if data and 'action' in data:
+
+        if data['action']=='update' or data['action']=='remove':
+            r=Reservation.query.get_or_404(data['id'])
+
+            if r.user!=current_user and not current_user.can(Permission.MANAGE_RESOURCES):
+                return jsonify()
+
+        elif data['action']=='new':
+            r=Reservation()
+        else:
+            abort(404)#TODO: fix json error returns
+
+        if data['action']=='remove':
+            db.session.delete(r)
+        else:
+            start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
+            end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
+
+            #TODO: check if these dates are in a valid (available) range and do not overlap
+            r.start = start
+            r.end = end
+            r.resource = resource
+
+            if not r.user:
+                r.user = current_user
+
+            db.session.add(r)
+
+        db.session.commit()
+        return jsonify({'id': r.id})
+
+    abort(404)#TODO: fix json error returns

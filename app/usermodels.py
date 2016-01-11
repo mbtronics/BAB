@@ -83,7 +83,8 @@ class User(UserMixin, db.Model):
     avatar_hash = db.Column(db.String(32))
 
     skills = db.relationship('Skill', secondary=UserSkills, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
-    reservations = db.relationship('Reservation', backref='User', lazy='dynamic')
+    reservations = db.relationship('Reservation', backref='user', lazy='dynamic')
+    availability = db.relationship('Available', backref='user', lazy='dynamic')
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -105,7 +106,10 @@ class User(UserMixin, db.Model):
         self.password_hash = generate_password_hash(password)
 
     def verify_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        if self.password_hash:
+            return check_password_hash(self.password_hash, password)
+        else:
+            return False
 
     def generate_confirmation_token(self, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expiration)
