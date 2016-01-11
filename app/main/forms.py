@@ -1,10 +1,12 @@
 from flask.ext.wtf import Form
+from flask.ext.wtf.file import file_allowed
 from flask.ext.pagedown.fields import PageDownField
-from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField, IntegerField
+from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField, IntegerField, validators
+from flask.ext.wtf.file import FileField
 from wtforms.validators import Required, Optional, Length, Email, Regexp, URL
 from wtforms import ValidationError
-from ..usermodels import Role, User, Skill
-
+from ..usermodels import Role, User
+from .. import photos
 
 class EditProfileForm(Form):
     name = StringField('Real name', validators=[Length(0, 64)])
@@ -25,6 +27,7 @@ class EditProfileAdminForm(Form):
     name = StringField('Real name', validators=[Length(0, 64)])
     location = StringField('Location', validators=[Length(0, 64)])
     about_me = TextAreaField('About me')
+    photo = FileField('Photo', validators=[Optional(), file_allowed(photos, "Images only!")])
     submit = SubmitField('Update information')
 
     def __init__(self, user, *args, **kwargs):

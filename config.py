@@ -19,6 +19,7 @@ class Config:
     APP_MAIL_SENDER = os.environ.get('APP_MAIL_SENDER')
     APP_ADMIN = os.environ.get('APP_ADMIN')
     APPLICATION_ROOT = os.environ.get('APPLICATION_ROOT')
+    UPLOADED_PHOTOS_DEST = os.environ.get('UPLOAD_DIR')
 
     @staticmethod
     def init_app(app):

@@ -30,6 +30,7 @@ Copy env.example to .env and fill in the variables:
 * **DEV_DATABASE_URL**: development database url (eg. mysql://test:test@localhost/test)
 * **DATABASE_URL**: production database url
 * **FLASK_CONFIG**: the config to use (development, production)
+* **UPLOAD_DIR**: the upload dir for files
 
 If you choose *development* for **FLASK_CONFIG**, you need to fill in **DEV_DATABASE_URL**.<br>
 If you choose *production* for **FLASK_CONFIG**, you need to fill in **DATABASE_URL**.

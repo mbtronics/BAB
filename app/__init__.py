@@ -6,6 +6,8 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
 from flask.ext.qrcode import QRcode
 from flask.ext.pagedown import PageDown
+from flask.ext.uploads import configure_uploads, UploadSet, IMAGES
+from flask.ext.thumbnails import Thumbnail
 from config import config
 
 bootstrap = Bootstrap()
@@ -14,6 +16,8 @@ moment = Moment()
 db = SQLAlchemy()
 qrcode = QRcode()
 pagedown = PageDown()
+photos = UploadSet('photos', IMAGES)
+thumb = Thumbnail()
 
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
@@ -32,6 +36,12 @@ def create_app(config_name, url_prefix):
     login_manager.init_app(app)
     qrcode.init_app(app)
     pagedown.init_app(app)
+    configure_uploads(app, (photos))
+
+    app.config['MEDIA_FOLDER'] = app.config['UPLOADED_PHOTOS_DEST']
+    app.config['MEDIA_URL'] = '_uploads/photos/'    #TODO: make this configurable
+
+    thumb.init_app(app)
 
     if not app.debug and not app.testing and not app.config['SSL_DISABLE']:
         from flask.ext.sslify import SSLify

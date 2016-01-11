@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}{{ config['APP_NAME'] }} - webcam{% endblock %}
+
+{% block page_content %}
+
+<div class="col-md-6">
+        <div class="panel panel-success">
+            <div class="panel-heading">Take a picture!</div>
+            <div class="panel-body">
+                <div class="row" align="center">
+                    <div class="col-xs-6">
+                        <div id="my_camera"></div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div id="results"></div>
+                    </div>
+                </div>
+                <br>
+                <div class="row" align="center">
+                    <div class="col-xs-6">
+                        <form>
+                            <input class="btn btn-info" type=button value="Take snapshot" onClick="take_snapshot()">
+                        </form>
+                    </div>
+                    <div class="col-xs-6">
+                        <form>
+                            <input class="btn btn-info" type=button value="Save snapshot" onClick="save_snapshot()">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+	<script type="text/javascript" src="{{ url_for('static', filename='webcamjs/webcam.js') }}"></script>
+
+	<script language="JavaScript">
+		Webcam.set({
+			// live preview size
+			width: 320,
+			height: 240,
+
+			// device capture size
+			dest_width: 320,
+			dest_height: 240,
+
+			// final cropped size
+			crop_width: 240,
+			crop_height: 240,
+
+			// format and quality
+			image_format: 'jpeg',
+			jpeg_quality: 90
+		});
+
+		Webcam.attach( '#my_camera' );
+
+        function take_snapshot() {
+			Webcam.snap( function(data_uri) {
+				document.getElementById('results').innerHTML = '<img src="'+data_uri+'" id="data"/>';
+			} );
+		}
+
+        function save_snapshot() {
+            var data_uri = $('#data').attr('src');
+            Webcam.upload(data_uri, "{{ url_for('.webcam', id=user.id) }}", function(code, text) {
+                $(location).attr('href', '{{ url_for('.user', username=user.username) }}')
+           } );
+        }
+	</script>
+{% endblock %}

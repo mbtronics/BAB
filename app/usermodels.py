@@ -5,6 +5,9 @@ from flask import current_app, request
 from werkzeug.security import generate_password_hash, check_password_hash
 import hashlib
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from . import photos
+from . import thumb
+
 
 #Bit-style permissions
 class Permission:
@@ -81,6 +84,7 @@ class User(UserMixin, db.Model):
     member_since = db.Column(db.DateTime(), default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
+    photo_filename = db.Column(db.String(100))
 
     skills = db.relationship('Skill', secondary=UserSkills, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
     reservations = db.relationship('Reservation', backref='user', lazy='dynamic')
@@ -176,6 +180,13 @@ class User(UserMixin, db.Model):
     def ping(self):
         self.last_seen = datetime.utcnow()
         db.session.add(self)
+
+    def photo_url(self, size=100):
+        if self.photo_filename:
+            print photos.url(self.photo_filename)
+            return '/' + thumb.thumbnail(self.photo_filename, '%dx%d' % (size, size))
+        else:
+            return self.gravatar(size)
 
     def gravatar(self, size=100, default='identicon', rating='g'):
         if request.is_secure:

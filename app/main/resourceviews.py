@@ -160,6 +160,7 @@ def available_setdata(id):
             start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
             end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
             #TODO: check for overlap
+            #TODO: don't move if somebody made a reservation
             a.start = start
             a.end = end
             a.resource = resource

@@ -6,6 +6,10 @@ from .forms import EditProfileForm, EditProfileAdminForm, DeleteConfirmationForm
 from .. import db
 from ..usermodels import Permission, Role, User, Skill
 from ..decorators import permission_required
+from werkzeug import secure_filename
+from flask import current_app
+import os
+from .. import photos
 
 NumPaginationItems = 20
 
@@ -57,9 +61,14 @@ def edit_profile_admin(id):
         user.name = form.name.data
         user.location = form.location.data
         user.about_me = form.about_me.data
+
+        if form.photo.data.filename:
+            user.photo_filename = photos.save(form.photo.data)
+
         db.session.add(user)
         flash('The profile has been updated.')
         return redirect(url_for('.user', username=user.username))
+
     form.email.data = user.email
     form.username.data = user.username
     form.confirmed.data = user.confirmed
@@ -154,3 +163,20 @@ def search_users():
         return render_template('user/search.html', form=form, users=users, pagination=pagination)
 
     return render_template('user/search.html', form=form)
+
+@main.route('/user/<int:id>/webcam', methods=['GET', 'POST'])
+@login_required
+def webcam(id):
+
+    if id!=current_user.id and not current_user.can(Permission.MANAGE_USERS):
+        abort(404)
+
+    user = User.query.get_or_404(id)
+
+    if request.method == 'POST':
+        file = request.files['webcam']
+        if file:
+            user.photo_filename = photos.save(file)
+            return ""
+
+    return render_template('user/webcam.html', user=user)
