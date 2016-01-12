@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% import "user/_macros.html" as macros %}
 
 {% block title %}{{ config['APP_NAME'] }} - {{ resource.name }}{% endblock %}
 
@@ -39,7 +38,7 @@
         <p><b>Price per period:</b> {{ resource.price_p_per }}&euro;</p>
 
         {% if current_user.can(Permission.BOOK) %}
-            <a class="btn btn-warning" href="{{ url_for('.reservation', id=resource.id) }}">Make reservation</a>
+            <a class="btn btn-warning" href="{{ url_for('.make_reservation', id=resource.id) }}">Make reservation</a>
         {% endif %}
 
         {% if current_user.can(Permission.MANAGE_RESOURCES) %}

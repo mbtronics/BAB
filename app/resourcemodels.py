@@ -2,6 +2,7 @@ from . import db
 import time
 from markdown import markdown
 import bleach
+import datetime
 
 SkillsResources = db.Table('SkillsResources',
     db.Column('resource_id', db.Integer, db.ForeignKey('Resources.id')),
@@ -16,8 +17,8 @@ class Resource(db.Model):
     description_html = db.Column(db.Text)
     active = db.Column(db.Boolean, nullable=False, default=False)
     image_url = db.Column(db.String, nullable=True)
-    price_p_per = db.Column(db.Integer)         # price per period in euro
-    reserv_per = db.Column(db.Integer)          # reservation period in minutes
+    price_p_per = db.Column(db.Integer, default=0)         # price per period in euro
+    reserv_per = db.Column(db.Integer, default=20)          # reservation period in minutes
 
     skills = db.relationship('Skill', secondary=SkillsResources, backref=db.backref('resources', lazy='dynamic'), lazy='dynamic')
     reservations = db.relationship('Reservation', backref='resource', lazy='dynamic')
@@ -48,6 +49,27 @@ class Reservation(db.Model):
     resource_id = db.Column(db.Integer, db.ForeignKey('Resources.id'), index=True)
     start = db.Column(db.DateTime())
     end = db.Column(db.DateTime())
+    reason = db.Column(db.String, nullable=True)
+    paid = db.Column(db.Float, default=0)
+
+    @property
+    def duration(self):
+        d=self.end-self.start
+        hours, remainder = divmod(d.total_seconds(), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return hours, minutes
+
+    @property
+    def duration_str(self):
+        hours, minutes = self.duration
+        duration_formatted = '%02d:%02d' % (hours, minutes)
+        return duration_formatted
+
+    @property
+    def cost(self):
+        hours, minutes = self.duration
+        cost_per_minute = float(self.resource.price_p_per)/float(self.resource.reserv_per)
+        return ((hours*60)+minutes)*cost_per_minute
 
 class Available(db.Model):
     __tablename__ = "Availability"

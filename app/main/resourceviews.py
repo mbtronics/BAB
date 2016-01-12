@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request, Response, abort, jsonify
 from flask.ext.login import login_required, current_user
 from . import main
-from .forms import DeleteConfirmationForm, EditResourceForm
+from .forms import DeleteConfirmationForm, EditResourceForm, PayReservationForm
 from .. import db
 from ..usermodels import Permission, Skill
 from ..resourcemodels import Resource, Available, Reservation
@@ -175,9 +175,9 @@ def available_setdata(id):
 @main.route('/resource/reservation/<int:id>', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.BOOK)
-def reservation(id):
+def make_reservation(id):
     resource = Resource.query.get_or_404(id)
-    return render_template('resource/reservation.html', resource=resource)
+    return render_template('resource/make_reservation.html', resource=resource)
 
 @main.route('/resource/reservation/<int:id>/getdata', methods=['GET', 'POST'])
 @login_required
@@ -194,9 +194,9 @@ def reservation_getdata(id):
 
             if r.user.id==current_user.id or current_user.can(Permission.MANAGE_RESOURCES):
                 if r.user.name:
-                    title=r.user.name
+                    title='%s\n%s' % (r.user.name, r.reason)
                 else:
-                    title=r.user.username
+                    title='%s\n%s' % (r.user.username, r.reason)
             else:
                 title='Reserved'
 
@@ -253,6 +253,8 @@ def reservation_setdata(id):
             start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
             end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
 
+            r.reason = data['reason']
+
             #TODO: check if these dates are in a valid (available) range and do not overlap
             r.start = start
             r.end = end
@@ -267,3 +269,18 @@ def reservation_setdata(id):
         return jsonify({'id': r.id})
 
     abort(404)#TODO: fix json error returns
+
+
+@main.route('/reservation/<int:id>', methods=['GET', 'POST'])
+@login_required
+def reservation(id):
+    if id!=current_user.id and not current_user.can(Permission.MANAGE_RESERVATIONS):
+        abort(404)
+
+    reservation = Reservation.query.get_or_404(id)
+    form = PayReservationForm()
+    if form.validate_on_submit() and form.amount.data:
+        reservation.paid += form.amount.data
+        return redirect(url_for('.reservation', id=reservation.id))
+
+    return render_template('resource/reservation.html', reservation=reservation, form=form)

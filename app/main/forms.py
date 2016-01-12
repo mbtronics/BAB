@@ -1,7 +1,7 @@
 from flask.ext.wtf import Form
 from flask.ext.wtf.file import file_allowed
 from flask.ext.pagedown.fields import PageDownField
-from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField, IntegerField, validators
+from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField, IntegerField, FloatField
 from flask.ext.wtf.file import FileField
 from wtforms.validators import Required, Optional, Length, Email, Regexp, URL
 from wtforms import ValidationError
@@ -69,3 +69,7 @@ class EditResourceForm(Form):
     price_p_per = IntegerField('Price per period (euro)', validators=[Optional()])
     reserv_per = IntegerField('Reservation period (minutes)', validators=[Optional()])
     submit = SubmitField('Update resource')
+
+class PayReservationForm(Form):
+    amount = FloatField('Amount', validators=[Optional()])
+    submit = SubmitField('Pay')
