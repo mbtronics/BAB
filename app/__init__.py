@@ -47,15 +47,21 @@ def create_app(config_name, url_prefix):
         from flask.ext.sslify import SSLify
         sslify = SSLify(app)
 
-    from .main import main as main_blueprint
-    if url_prefix == "" or url_prefix == "/":
-        prefix=None
-    else:
-        prefix=url_prefix
 
-    app.register_blueprint(main_blueprint, url_prefix=prefix)
+    if url_prefix == "" or url_prefix == "/":
+        main_prefix=None
+        auth_prefix='/auth'
+    else:
+        if url_prefix.endswith('/'):
+            url_prefix=url_prefix[:-1]
+
+        main_prefix=url_prefix
+        auth_prefix=url_prefix+'/auth'
+
+    from .main import main as main_blueprint
+    app.register_blueprint(main_blueprint, url_prefix=main_prefix)
 
     from .auth import auth as auth_blueprint
-    app.register_blueprint(auth_blueprint, url_prefix='%s/auth'%url_prefix)
+    app.register_blueprint(auth_blueprint, url_prefix=auth_prefix)
 
     return app

@@ -26,7 +26,7 @@ Copy env.example to .env and fill in the variables:
 * **APP_MAIL_SUBJECT_PREFIX**: prefix for email subjects (eg. [MyCoolApp])
 * **APP_MAIL_SENDER**: the 'from' in emails (eg. App Admin \<app_admin@mycoolapp.blah\>)   
 * **APP_ADMIN**: the administrator's email address
-* **APP_URL_PREFIX**: default '/'
+* **APP_URL_PREFIX**: default '/', no '/' at the end
 * **DEV_DATABASE_URL**: development database url (eg. mysql://test:test@localhost/test)
 * **DATABASE_URL**: production database url
 * **FLASK_CONFIG**: the config to use (development, production)
@@ -66,7 +66,7 @@ Start service:
     $ service flaskapp restart
 
 ### uwsgi gateway configuration
-    location /APP_URL_PREFIX/ {
+    location /APP_URL_PREFIX {
         include uwsgi_params;
         uwsgi_pass unix:/tmp/flask_app.sock;
     }
