@@ -22,6 +22,7 @@ Jinja2==2.8
 Mako==1.0.3
 Markdown==2.6.5
 MarkupSafe==0.23
+MySQL-python==1.2.5
 Pillow==2.6.0
 python-editor==0.5
 qrcode==5.1

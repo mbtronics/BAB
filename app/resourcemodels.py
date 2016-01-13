@@ -16,7 +16,7 @@ class Resource(db.Model):
     description = db.Column(db.Text, nullable=False)
     description_html = db.Column(db.Text)
     active = db.Column(db.Boolean, nullable=False, default=False)
-    image_url = db.Column(db.String, nullable=True)
+    image_url = db.Column(db.String(200), nullable=True)
     price_p_per = db.Column(db.Integer, default=0)         # price per period in euro
     reserv_per = db.Column(db.Integer, default=20)          # reservation period in minutes
 
@@ -49,7 +49,7 @@ class Reservation(db.Model):
     resource_id = db.Column(db.Integer, db.ForeignKey('Resources.id'), index=True)
     start = db.Column(db.DateTime())
     end = db.Column(db.DateTime())
-    reason = db.Column(db.String, nullable=True)
+    reason = db.Column(db.String(300), nullable=True)
     paid = db.Column(db.Float, default=0)
 
     @property
