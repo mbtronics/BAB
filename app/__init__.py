@@ -50,6 +50,9 @@ def create_app(config_name, url_prefix):
     from .main import main as main_blueprint
     if url_prefix == "" or url_prefix == "/":
         prefix=None
+    else:
+        prefix=url_prefix
+
     app.register_blueprint(main_blueprint, url_prefix=prefix)
 
     from .auth import auth as auth_blueprint
