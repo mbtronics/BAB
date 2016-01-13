@@ -21,7 +21,7 @@ def upgrade():
     sa.Column('name', sa.String(length=64), nullable=True),
     sa.Column('description', sa.Text(), nullable=False),
     sa.Column('active', sa.Boolean(), nullable=False),
-    sa.Column('image_url', sa.String(), nullable=True),
+    sa.Column('image_url', sa.String(length=200), nullable=True),
     sa.Column('price_p_per', sa.Integer(), nullable=True),
     sa.Column('reserv_per', sa.Integer(), nullable=True),
     sa.Column('cons_name', sa.String(length=64), nullable=True),
