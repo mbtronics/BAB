@@ -73,6 +73,7 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
+                        <li><a href="{{ url_for('main.list_reservations', id=current_user.id) }}">Reservations</a></li>
                         <li><a href="{{ url_for('auth.change_password') }}">Change password</a></li>
                         <li><a href="{{ url_for('auth.change_email_request') }}">Change email</a></li>
                         <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>

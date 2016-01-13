@@ -5,10 +5,8 @@ from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, DeleteConfirmationForm, SearchUserForm
 from .. import db
 from ..usermodels import Permission, Role, User, Skill
-from ..decorators import permission_required
-from werkzeug import secure_filename
-from flask import current_app
-import os
+from ..resourcemodels import Reservation
+from ..decorators import permission_required, admin_required
 from .. import photos
 
 NumPaginationItems = 20
@@ -117,7 +115,7 @@ def list_users():
 
 @main.route('/user/<int:id>/delete', methods=['GET', 'POST'])
 @login_required
-@permission_required(Permission.MANAGE_USERS)
+@admin_required
 def delete_user(id):
     user = User.query.get_or_404(id)
 
@@ -180,3 +178,15 @@ def webcam(id):
             return ""
 
     return render_template('user/webcam.html', user=user)
+
+@main.route('/user/<int:id>/reservations', methods=['GET'])
+@login_required
+def list_reservations(id):
+
+    if id!=current_user.id and not current_user.can(Permission.MANAGE_USERS):
+        abort(404)
+
+    user = User.query.get_or_404(id)
+    reservations = user.reservations.order_by(Reservation.start.desc()).all()
+
+    return render_template('user/reservations.html', user=user, reservations=reservations)

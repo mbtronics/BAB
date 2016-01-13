@@ -8,6 +8,9 @@
     <script src='{{ url_for("static", filename="fullcalendar/fullcalendar.js") }}'></script>
     <script src='{{ url_for("static", filename="fullcalendar/lib/jquery-ui.custom.min.js") }}'></script>
 
+    <link href='{{ url_for("static", filename="bootstrap-dialog/css/bootstrap-dialog.min.css") }}' rel="stylesheet" type="text/css" />
+    <script src='{{ url_for("static", filename="bootstrap-dialog/js/bootstrap-dialog.min.js") }}'></script>
+
     <script>
 
         function isOverlapping(event){
@@ -31,13 +34,14 @@
                 $('#calendar').fullCalendar('refetchEvents');
                 return;
             }
-            var offset = new Date().getTimezoneOffset();
 
+            var offset = new Date().getTimezoneOffset();
             var data = Object({ action: action,
                                 id: event._id,
                                 start: Math.round(event.start / 1000) ,
                                 end: Math.round(event.end / 1000),
-                                offset: offset});
+                                offset: offset,
+                                reason: event.reason});
 
             $.ajax({
                 type: 'POST',
@@ -95,8 +99,33 @@
                 {% endif %}
 
                 select: function(start, end, jsEvent, view) {
-                    var NewEvent = Object({ allDay: false , start: start, end: end});
-                    postEvent('new', NewEvent);
+                    var offset = new Date().getTimezoneOffset();
+                    console.log(duration);
+                    BootstrapDialog.show({
+                        title: 'Reservation for {{ resource.name }}',
+                        message: 'You are making a new reservation at '+ moment(start).format("MMM Do HH:mm")  +'.<br>What are you planning to do?<input type="text" class="form-control">',
+                        closable: true,
+                        draggable: true,
+                        buttons: [{
+                                    label: 'Save',
+                                    action: function(dialogRef) {
+                                        var reason = dialogRef.getModalBody().find('input').val();
+                                        if (reason=='') {
+                                            return false;
+                                        }
+                                        else {
+                                            var NewEvent = Object({allDay: false, start: start, end: end, reason: reason});
+                                            postEvent('new', NewEvent);
+                                            dialogRef.close();
+                                        }
+                                    }
+                                  }, {
+                                    label: 'Cancel',
+                                    action: function(dialogRef) {
+                                        dialogRef.close();
+                                    }
+                        }]
+                    });
                 },
 
                 eventClick: function(event, jsEvent, view) {

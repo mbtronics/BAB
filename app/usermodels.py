@@ -15,11 +15,12 @@ class Permission:
     MANAGE_USERS =      (1<<1)
     MANAGE_SKILLS =     (1<<2)
     MANAGE_RESOURCES =  (1<<3)
+    MANAGE_RESERVATIONS=(1<<4)
     ADMINISTER =        0xffff
 
 roles = {
     'User': (Permission.BOOK, True),
-    'Moderator': (Permission.BOOK | Permission.MANAGE_USERS | Permission.MANAGE_SKILLS | Permission.MANAGE_RESOURCES, False),
+    'Moderator': (Permission.BOOK | Permission.MANAGE_USERS | Permission.MANAGE_SKILLS | Permission.MANAGE_RESOURCES | Permission.MANAGE_RESERVATIONS, False),
     'Administrator': (Permission.ADMINISTER, False)
 }
 
@@ -183,10 +184,11 @@ class User(UserMixin, db.Model):
 
     def photo_url(self, size=100):
         if self.photo_filename:
-            print photos.url(self.photo_filename)
-            return '/' + thumb.thumbnail(self.photo_filename, '%dx%d' % (size, size))
-        else:
-            return self.gravatar(size)
+            thumb_url=thumb.thumbnail(self.photo_filename, '%dx%d' % (size, size))
+            if thumb_url:
+                return '/' + thumb_url
+
+        return self.gravatar(size)
 
     def gravatar(self, size=100, default='identicon', rating='g'):
         if request.is_secure:

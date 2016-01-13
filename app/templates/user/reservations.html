@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}{{ config['APP_NAME'] }} - List reservations for {{ user.username }}{% endblock %}
+
+{% block page_content %}
+
+<div class="page-header">
+    <h1>List reservations for {{ user.username }}</h1>
+</div>
+
+<div class="col-md-12">
+{% if reservations %}
+    <table class="table table-condensed table-hover">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Resource</th>
+                <th>Date</th>
+                <th>Reason</th>
+                <th>Cost</th>
+                <th>Paid</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for reservation in reservations %}
+            <tr class="clickable-row" {% if reservation.paid!=reservation.cost %}style="background-color: red"{% endif %}>
+                <td><a href="{{ url_for('.reservation', id=reservation.id) }}"></a>{{ reservation.id }}</td>
+                <td>{{ reservation.resource.name }}</td>
+                <td>{{ reservation.start }}</td>
+                <td>{{ reservation.reason }}</td>
+                <td>{{ reservation.cost }}&euro;</td>
+                <td>{{ reservation.paid }}&euro;</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endif %}
+</div>
+
+{% endblock %}
