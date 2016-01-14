@@ -11,7 +11,13 @@
     <!-- <img style="float:right" width="150" src="{{ qrcode(url_for('.user', username=user.id, _external=True)) }}"> -->
 
     <div class="profile-header">
-        <h1>{{ user.username }}</h1>
+        <h1>
+            {% if user.name %}
+                {{ user.name }} ({{ user.username }})
+            {% else %}
+                {{ user.username }}
+            {% endif %}
+        </h1>
         {% if user.location %}
             From <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a>
         {% endif %}
