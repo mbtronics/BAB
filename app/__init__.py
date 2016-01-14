@@ -25,7 +25,24 @@ login_manager.login_view = 'auth.login'
 
 
 def create_app(config_name, url_prefix):
-    app = Flask(__name__, static_url_path='%sstatic'%url_prefix)
+
+    if url_prefix == "" or url_prefix == "/":
+        main_prefix=None
+        auth_prefix='/auth'
+        static_prefix='/static'
+        media_url='_uploads/photos/'
+    else:
+        if url_prefix.endswith('/'):
+            url_prefix=url_prefix[:-1]
+        main_prefix=url_prefix
+        auth_prefix=url_prefix+'/auth'
+        static_prefix='%s/static' % url_prefix
+        media_url='%s/_uploads/photos/' % url_prefix[1:]
+
+        from flask_uploads import uploads_mod
+        uploads_mod.url_prefix = '%s/_uploads' % url_prefix
+
+    app = Flask(__name__, static_url_path=static_prefix)
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
 
@@ -39,24 +56,13 @@ def create_app(config_name, url_prefix):
     configure_uploads(app, (photos))
 
     app.config['MEDIA_FOLDER'] = app.config['UPLOADED_PHOTOS_DEST']
-    app.config['MEDIA_URL'] = '_uploads/photos/'    #TODO: make this configurable
+    app.config['MEDIA_URL'] = media_url
 
     thumb.init_app(app)
 
     if not app.debug and not app.testing and not app.config['SSL_DISABLE']:
         from flask.ext.sslify import SSLify
         sslify = SSLify(app)
-
-
-    if url_prefix == "" or url_prefix == "/":
-        main_prefix=None
-        auth_prefix='/auth'
-    else:
-        if url_prefix.endswith('/'):
-            url_prefix=url_prefix[:-1]
-
-        main_prefix=url_prefix
-        auth_prefix=url_prefix+'/auth'
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint, url_prefix=main_prefix)
