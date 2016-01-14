@@ -1,9 +1,11 @@
 {% macro fullcalendar_content() %}
+
+    <div id="error_msg"></div>
     <div id='calendar'></div>
     <div id="dialog" title="" style="display:none;">Are you sure want to delete it?</div>
 {% endmacro %}
 
-{% macro fullcalendar_scripts(resource, setdata, getdata, eventOverlap, selectConstraint, eventColor) %}
+{% macro fullcalendar_scripts(type, resource, setdata, getdata, eventOverlap, selectConstraint, eventColor) %}
     <link rel='stylesheet' href='{{ url_for("static", filename="fullcalendar/fullcalendar.css") }}' />
     <script src='{{ url_for("static", filename="fullcalendar/fullcalendar.js") }}'></script>
     <script src='{{ url_for("static", filename="fullcalendar/lib/jquery-ui.custom.min.js") }}'></script>
@@ -13,19 +15,28 @@
 
     <script>
 
-        function isOverlapping(event){
+        function isOverlapping(event) {
             var array = $('#calendar').fullCalendar('clientEvents');
 
             for(i in array) {
                 if(array[i].id != event.id) {
                     if(!(array[i].start._d >= event.end._d || array[i].end._d <= event.start._d)) {
-                        if (array[i].id!='available') {
+                        if (array[i].id!='available' && array[i].id!='reservation') {
                             return true;
                         }
                     }
                 }
             }
             return false;
+        }
+
+        function showErrorMsg(msg) {
+            $('#error_msg').html('<div class="container">'+
+                                    '<div class="alert alert-warning">'+
+                                        '<button type="button" class="close" data-dismiss="alert">&times;</button>'+
+                                        msg+
+                                    '</div>'+
+                                '</div>');
         }
 
         function postEvent(action, event) {
@@ -51,7 +62,10 @@
                 url: '{{ url_for(setdata, id=resource.id) }}',
 
                 success: function(response) {
-                    if (response.id) {
+
+                    if (response.err) {
+                        showErrorMsg(response.err);
+                    } else if (response.id) {
                         event.id = response.id;
                         event._start = event.start;
                         $('#calendar').fullCalendar('updateEvent', event);
@@ -60,7 +74,6 @@
                 },
 
                 error: function(e) {
-                    console.log(e.responseText);
                     $('#calendar').fullCalendar('refetchEvents');
                 }
             });
@@ -99,40 +112,56 @@
                 {% endif %}
 
                 select: function(start, end, jsEvent, view) {
-                    var offset = new Date().getTimezoneOffset();
-                    console.log(duration);
-                    BootstrapDialog.show({
-                        title: 'Reservation for {{ resource.name }}',
-                        message: 'You are making a new reservation at '+ moment(start).format("MMM Do HH:mm")  +'.<br>What are you planning to do?<input type="text" class="form-control">',
-                        closable: true,
-                        draggable: true,
-                        buttons: [{
-                                    label: 'Save',
-                                    action: function(dialogRef) {
-                                        var reason = dialogRef.getModalBody().find('input').val();
-                                        if (reason=='') {
-                                            return false;
+                    {% if type=='reservation' %}
+                        var offset = new Date().getTimezoneOffset();
+                        BootstrapDialog.show({
+                            title: 'Reservation for {{ resource.name }}',
+                            message: 'You are making a new reservation at '+ moment(start).format("MMM Do HH:mm")  +'.<br>What are you planning to do?<input type="text" class="form-control">',
+                            closable: true,
+                            draggable: true,
+                            buttons: [{
+                                        label: 'Save',
+                                        action: function(dialogRef) {
+                                            var reason = dialogRef.getModalBody().find('input').val();
+                                            if (reason=='') {
+                                                return false;
+                                            }
+                                            else {
+                                                var NewEvent = Object({allDay: false, start: start, end: end, reason: reason});
+                                                postEvent('new', NewEvent);
+                                                dialogRef.close();
+                                            }
                                         }
-                                        else {
-                                            var NewEvent = Object({allDay: false, start: start, end: end, reason: reason});
-                                            postEvent('new', NewEvent);
+                                      }, {
+                                        label: 'Cancel',
+                                        action: function(dialogRef) {
                                             dialogRef.close();
                                         }
-                                    }
-                                  }, {
-                                    label: 'Cancel',
-                                    action: function(dialogRef) {
-                                        dialogRef.close();
-                                    }
-                        }]
-                    });
+                            }]
+                        });
+                    {% else %}
+                        var NewEvent = Object({allDay: false, start: start, end: end});
+                        postEvent('new', NewEvent);
+                    {% endif %}
                 },
 
                 eventClick: function(event, jsEvent, view) {
-                    var r=confirm("Delete reservation?");
-                    if (r===true)
-                    {
-                        postEvent('remove', event);
+
+                    if (event.title!='Reserved') {
+                        BootstrapDialog.confirm({
+                            title: 'Remove ' + {% if type=='reservation' %}'reservation'{% endif %}
+                            {% if type=='available' %}'timespan'{% endif %}+ '?',
+                            message: moment(event.start).format('MMMM Do YYYY, HH:mm') + '<br>' + event.title,
+                            type: BootstrapDialog.TYPE_WARNING,
+                            closable: true,
+                            draggable: true,
+                            btnOKClass: 'btn-warning',
+                            callback: function (result) {
+                                if (result) {
+                                    postEvent('remove', event)
+                                }
+                            }
+                        });
                     }
                 },
 

@@ -17,5 +17,5 @@
 
 {% block scripts %}
     {{ super() }}
-    {{ calendar.fullcalendar_scripts(resource, '.available_setdata', '.available_getdata', false, false, '#378006') }}
+    {{ calendar.fullcalendar_scripts('available', resource, '.available_setdata', '.available_getdata', true, false, '#378006') }}
 {% endblock %}

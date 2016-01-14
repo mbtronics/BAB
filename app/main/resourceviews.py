@@ -90,6 +90,7 @@ def list_resources():
     resources = Resource.query.order_by(Resource.name.asc()).all()
     return render_template('resource/list.html', resources=resources)
 
+
 @main.route('/resource/<int:id>/edit-skills', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.MANAGE_RESOURCES)
@@ -121,6 +122,7 @@ def available(id):
     resource = Resource.query.get_or_404(id)
     return render_template('resource/available.html', resource=resource)
 
+
 @main.route('/resource/available/<int:id>/getdata', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.MANAGE_RESOURCES)
@@ -140,9 +142,20 @@ def available_getdata(id):
                 'title': a.user.name,
             })
 
+        for r in resource.reservations.filter(and_(Reservation.start>=start_date, Reservation.end<=end_date)):
+            data.append( {
+                'start': r.start.strftime("%Y-%m-%d %H:%M:%S"),
+                'end': r.end.strftime("%Y-%m-%d %H:%M:%S"),
+                'id': 'reservation',
+                'title': r.user.name,
+                'rendering': 'background',
+                'color': '#6aa4c1'
+            })
+
         return Response(json.dumps(data), mimetype='application/json')
 
     abort(404)
+
 
 @main.route('/resource/available/<int:id>/setdata', methods=['GET', 'POST'])
 @login_required
@@ -166,7 +179,16 @@ def available_setdata(id):
             start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
             end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
             #TODO: check for overlap
-            #TODO: don't move if somebody made a reservation
+
+            if data['action']=='update':
+                #Get all reservations in the old region
+                reservations = resource.reservations.filter(and_(Reservation.start>=a.start, Reservation.end<=a.end)).all()
+
+                #Check if they are still in the new region
+                for reservation in reservations:
+                    if reservation.start<start or reservation.end>end:
+                        return jsonify({'err': "Existing reservation within new availability range"})
+
             a.start = start
             a.end = end
             a.resource = resource
@@ -178,12 +200,14 @@ def available_setdata(id):
 
     abort(404)  #TODO: fix json error returns
 
+
 @main.route('/resource/reservation/<int:id>', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.BOOK)
 def make_reservation(id):
     resource = Resource.query.get_or_404(id)
     return render_template('resource/make_reservation.html', resource=resource)
+
 
 @main.route('/resource/reservation/<int:id>/getdata', methods=['GET', 'POST'])
 @login_required
@@ -204,7 +228,7 @@ def reservation_getdata(id):
                 else:
                     title='%s\n%s' % (r.user.username, r.reason)
             else:
-                title='Reserved'
+                title='Reserved'    #'Reserved' used in _calendar.html
 
             if r.user.id==current_user.id:
                 color='#378006'
@@ -232,6 +256,7 @@ def reservation_getdata(id):
 
     abort(404)#TODO: fix json error returns
 
+
 @main.route('/resource/reservation/<int:id>/setdata', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.BOOK)
@@ -246,7 +271,7 @@ def reservation_setdata(id):
             r=Reservation.query.get_or_404(data['id'])
 
             if r.user!=current_user and not current_user.can(Permission.MANAGE_RESOURCES):
-                return jsonify()
+                return jsonify({'err': "Permission denied"})
 
         elif data['action']=='new':
             r=Reservation()
@@ -259,7 +284,8 @@ def reservation_setdata(id):
             start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
             end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
 
-            r.reason = data['reason']
+            if data['action']=='new':
+                r.reason = data['reason']
 
             #TODO: check if these dates are in a valid (available) range and do not overlap
             r.start = start
@@ -280,10 +306,11 @@ def reservation_setdata(id):
 @main.route('/reservation/<int:id>', methods=['GET', 'POST'])
 @login_required
 def reservation(id):
-    if id!=current_user.id and not current_user.can(Permission.MANAGE_RESERVATIONS):
+    reservation = Reservation.query.get_or_404(id)
+
+    if reservation.user_id!=current_user.id and not current_user.can(Permission.MANAGE_RESERVATIONS):
         abort(404)
 
-    reservation = Reservation.query.get_or_404(id)
     form = PayReservationForm()
     if form.validate_on_submit() and form.amount.data:
         reservation.paid += form.amount.data

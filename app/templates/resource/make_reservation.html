@@ -17,5 +17,5 @@
 
 {% block scripts %}
     {{ super() }}
-    {{ calendar.fullcalendar_scripts(resource, '.reservation_setdata', '.reservation_getdata', true, 'available', '') }}
+    {{ calendar.fullcalendar_scripts('reservation', resource, '.reservation_setdata', '.reservation_getdata', true, 'available', '') }}
 {% endblock %}
