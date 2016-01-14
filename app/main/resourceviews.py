@@ -165,34 +165,34 @@ def available_setdata(id):
     data = request.get_json()
 
     if data and 'action' in data:
-
         if data['action']=='update' or data['action']=='remove':
             a=Available.query.get_or_404(data['id'])
         elif data['action']=='new':
-            a=Available()
+            a=Available(resource=resource, user=current_user)
         else:
             abort(404)
 
         if data['action']=='remove':
-            db.session.delete(a)
+            reservations = resource.reservations.filter(and_(Reservation.start>=a.start, Reservation.end<=a.end)).all()
+            if len(reservations)>0:
+                return jsonify({'err': 'There reservations in this availability range'})
+            else:
+                db.session.delete(a)
         else:
             start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
             end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
             #TODO: check for overlap
 
             if data['action']=='update':
-                #Get all reservations in the old region
                 reservations = resource.reservations.filter(and_(Reservation.start>=a.start, Reservation.end<=a.end)).all()
 
-                #Check if they are still in the new region
                 for reservation in reservations:
                     if reservation.start<start or reservation.end>end:
                         return jsonify({'err': "Existing reservation within new availability range"})
 
             a.start = start
             a.end = end
-            a.resource = resource
-            a.user = current_user
+
             db.session.add(a)
 
         db.session.commit()
@@ -262,11 +262,9 @@ def reservation_getdata(id):
 @permission_required(Permission.BOOK)
 def reservation_setdata(id):
     resource = Resource.query.get_or_404(id)
-
     data = request.get_json()
 
     if data and 'action' in data:
-
         if data['action']=='update' or data['action']=='remove':
             r=Reservation.query.get_or_404(data['id'])
 
@@ -274,7 +272,7 @@ def reservation_setdata(id):
                 return jsonify({'err': "Permission denied"})
 
         elif data['action']=='new':
-            r=Reservation()
+            r=Reservation(resource=resource, user=current_user, reason=data['reason'])
         else:
             abort(404)#TODO: fix json error returns
 
@@ -284,16 +282,9 @@ def reservation_setdata(id):
             start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
             end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
 
-            if data['action']=='new':
-                r.reason = data['reason']
-
             #TODO: check if these dates are in a valid (available) range and do not overlap
             r.start = start
             r.end = end
-            r.resource = resource
-
-            if not r.user:
-                r.user = current_user
 
             db.session.add(r)
 
