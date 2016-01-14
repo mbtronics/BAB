@@ -2,7 +2,7 @@ from . import db
 import time
 from markdown import markdown
 import bleach
-import datetime
+from . import thumb
 
 SkillsResources = db.Table('SkillsResources',
     db.Column('resource_id', db.Integer, db.ForeignKey('Resources.id')),
@@ -16,9 +16,9 @@ class Resource(db.Model):
     description = db.Column(db.Text, nullable=False)
     description_html = db.Column(db.Text)
     active = db.Column(db.Boolean, nullable=False, default=False)
-    image_url = db.Column(db.String(200), nullable=True)
     price_p_per = db.Column(db.Integer, default=0)         # price per period in euro
     reserv_per = db.Column(db.Integer, default=20)          # reservation period in minutes
+    photo_filename = db.Column(db.String(100))
 
     skills = db.relationship('Skill', secondary=SkillsResources, backref=db.backref('resources', lazy='dynamic'), lazy='dynamic')
     reservations = db.relationship('Reservation', backref='resource', lazy='dynamic')
@@ -29,7 +29,7 @@ class Resource(db.Model):
         if self.reserv_per:
             return time.strftime("%H:%M", time.gmtime(self.reserv_per*60))
         else:
-            return ""
+            return None
 
     @staticmethod
     def on_changed_description(target, value, oldvalue, initiator):
@@ -38,6 +38,13 @@ class Resource(db.Model):
                         'h1', 'h2', 'h3', 'p']
         target.description_html = bleach.linkify(bleach.clean(markdown(value, output_format='html'),
                                                  tags=allowed_tags, strip=True))
+
+    def photo_url(self, size=100):
+        if self.photo_filename:
+            thumb_url=thumb.thumbnail(self.photo_filename, '%dx%d' % (size, size))
+            if thumb_url:
+                return '/' + thumb_url
+        return ''
 
 
 db.event.listen(Resource.description, 'set', Resource.on_changed_description)

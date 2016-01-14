@@ -5,7 +5,6 @@ from flask import current_app, request
 from werkzeug.security import generate_password_hash, check_password_hash
 import hashlib
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from . import photos
 from . import thumb
 
 

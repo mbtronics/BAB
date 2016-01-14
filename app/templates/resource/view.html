@@ -9,7 +9,7 @@
     </div>
 
     <div class="col-md-4">
-        <img src="{{ resource.image_url or url_for('static', filename='no.png') }}" width="300">
+        <img src="{{ resource.photo_url(300) or url_for('static', filename='no.png') }}" width="300">
     </div>
 
     <div class="col-md-8">
