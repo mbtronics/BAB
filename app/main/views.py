@@ -1,6 +1,7 @@
-from flask import abort, request, current_app, redirect, url_for
+from flask import abort, request, current_app, render_template, g
 from flask.ext.sqlalchemy import get_debug_queries
 from . import main
+from ..resourcemodels import Resource
 
 @main.after_app_request
 def after_request(response):
@@ -11,6 +12,11 @@ def after_request(response):
                 % (query.statement, query.parameters, query.duration,
                    query.context))
     return response
+
+
+@main.before_app_request
+def before_request():
+    g.resources = Resource.query.filter_by(active=True).all()
 
 
 @main.route('/shutdown')
@@ -26,4 +32,4 @@ def server_shutdown():
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    return redirect(url_for('.list_resources'))
+    return render_template('index.html')

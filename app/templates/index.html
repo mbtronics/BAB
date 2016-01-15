@@ -3,6 +3,9 @@
 {% block title %}{{ config['APP_NAME'] }}{% endblock %}
 
 {% block page_content %}
-<h1>BUDA::lab Administrative Backend</h1>
-<p>This is the BUDA::lab Administrative Backend, or <b>BAB</b> for short.</p>
+    <h1>BUDA::lab Administrative Backend</h1>
+    <p>This is the BUDA::lab Administrative Backend, or <b>BAB</b> for short.</p>
+    <p>After <a href="{{ url_for('auth.register') }}">registration</a> and <a href="{{ url_for('auth.login') }}">login</a>,
+        you can use it to make <a href="{{ url_for('main.list_resources') }}">reservations</a> or
+        <a href="{{ url_for('main.edit_profile') }}">manage your account</a>.</p>
 {% endblock %}
