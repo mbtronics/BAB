@@ -166,39 +166,50 @@ def available_setdata(id):
 
     if data and 'action' in data:
 
-        if data['action']=='update' or data['action']=='remove':
-            a=Available.query.get_or_404(data['id'])
-        elif data['action']=='new':
-            a=Available()
-        else:
-            abort(404)
-
-        if data['action']=='remove':
-            db.session.delete(a)
-        else:
+        if data['action']=='new':
             start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
             end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
-            #TODO: check for overlap
 
-            if data['action']=='update':
-                #Get all reservations in the old region
-                reservations = resource.reservations.filter(and_(Reservation.start>=a.start, Reservation.end<=a.end)).all()
+            if start < datetime.now() or end < datetime.now():
+                return jsonify({'err': "You can't make this resource available in the past!"})
 
-                #Check if they are still in the new region
-                for reservation in reservations:
-                    if reservation.start<start or reservation.end>end:
-                        return jsonify({'err': "Existing reservation within new availability range"})
+            a=Available(start=start, end=end, resource=resource, user=current_user)
+            db.session.add(a)
+            db.session.commit()
+            return jsonify({'id': a.id})
+
+        elif data['action']=='update':
+            a=Available.query.get_or_404(data['id'])
+
+            start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
+            end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
+
+            if (start!=a.start and start < datetime.now()) or (end!=a.end and end < datetime.now()):
+                return jsonify({'err': "You can't update availability in the past!"})
+
+            reservations = resource.reservations.filter(and_(Reservation.start>=a.start, Reservation.end<=a.end)).all()
+            for reservation in reservations:
+                if reservation.start<start or reservation.end>end:
+                    return jsonify({'err': "Existing reservation within new availability range"})
 
             a.start = start
             a.end = end
-            a.resource = resource
-            a.user = current_user
             db.session.add(a)
+            return jsonify()
 
-        db.session.commit()
-        return jsonify({'id': a.id})
+        elif data['action']=='remove':
+            a=Available.query.get_or_404(data['id'])
 
-    abort(404)  #TODO: fix json error returns
+            if a.start < datetime.now() or a.end < datetime.now():
+                return jsonify({'err': "You can't update availability in the past!"})
+
+            reservations = resource.reservations.filter(and_(Reservation.start>=a.start, Reservation.end<=a.end)).all()
+            if len(reservations)>0:
+                return jsonify({'err': 'There are reservations in this availability range'})
+
+            db.session.delete(a)
+
+    abort(404)
 
 
 @main.route('/resource/reservation/<int:id>', methods=['GET', 'POST'])
@@ -267,40 +278,48 @@ def reservation_setdata(id):
 
     if data and 'action' in data:
 
-        if data['action']=='update' or data['action']=='remove':
+        if data['action']=='new':
+            start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
+            end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
+
+            if start < datetime.now() or end < datetime.now():
+                return jsonify({'err': "You can't make reservations in the past!"})
+
+            r=Reservation(start=start, end=end, resource=resource, user=current_user, reason=data['reason'])
+            db.session.add(r)
+            db.session.commit()
+            return jsonify({'id': r.id})
+
+        elif data['action']=='update':
             r=Reservation.query.get_or_404(data['id'])
 
             if r.user!=current_user and not current_user.can(Permission.MANAGE_RESOURCES):
                 return jsonify({'err': "Permission denied"})
 
-        elif data['action']=='new':
-            r=Reservation()
-        else:
-            abort(404)#TODO: fix json error returns
-
-        if data['action']=='remove':
-            db.session.delete(r)
-        else:
             start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
             end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
 
-            if data['action']=='new':
-                r.reason = data['reason']
+            if (start!=r.start and start < datetime.now()) or (end!=r.end and end < datetime.now()):
+                return jsonify({'err': "You can't update reservations in the past!"})
 
-            #TODO: check if these dates are in a valid (available) range and do not overlap
             r.start = start
             r.end = end
-            r.resource = resource
-
-            if not r.user:
-                r.user = current_user
-
             db.session.add(r)
+            return jsonify()
 
-        db.session.commit()
-        return jsonify({'id': r.id})
+        elif data['action']=='remove':
+            r=Reservation.query.get_or_404(data['id'])
 
-    abort(404)#TODO: fix json error returns
+            if r.user!=current_user and not current_user.can(Permission.MANAGE_RESOURCES):
+                return jsonify({'err': "Permission denied"})
+
+            if r.start < datetime.now() or r.end < datetime.now():
+                return jsonify({'err': "You can't delete reservations in the past!"})
+
+            db.session.delete(r)
+            return jsonify()
+
+    abort(404)
 
 
 @main.route('/reservation/<int:id>', methods=['GET', 'POST'])
