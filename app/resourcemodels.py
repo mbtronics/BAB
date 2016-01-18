@@ -59,6 +59,8 @@ class Reservation(db.Model):
     reason = db.Column(db.String(300), nullable=True)
     paid = db.Column(db.Float, default=0)
 
+    payments = db.relationship('Payment', backref='reservation', lazy='dynamic')
+
     @property
     def duration(self):
         d=self.end-self.start
@@ -77,6 +79,14 @@ class Reservation(db.Model):
         hours, minutes = self.duration
         cost_per_minute = float(self.resource.price_p_per)/float(self.resource.reserv_per)
         return ((hours*60)+minutes)*cost_per_minute
+
+    @property
+    def amount_paid(self):
+        paid = 0
+        for payment in self.payments:
+            paid = paid + payment.amount
+
+        return paid
 
 class Available(db.Model):
     __tablename__ = "Availability"

@@ -18,13 +18,10 @@
                 <p><b>Reason: </b>{{ reservation.reason }}</p>
                 <p><b>Duration: </b>{{ reservation.duration_str }}</p>
                 <p><b>Cost ({{ reservation.resource.price_p_per }}&euro; per {{ reservation.resource.reservation_period }}): </b> {{ reservation.cost }}&euro;</p>
-                <p {% if reservation.paid!=reservation.cost %}style="background-color: red"{% endif %}><b>Paid: </b>{{ reservation.paid}}&euro;</p>
             </div>
         </div>
 
-        {% if current_user.can(Permission.MANAGE_RESERVATIONS) %}
-            {{ wtf.quick_form(form) }}
-        {% endif %}
+        <a class="btn btn-default" href="{{ url_for('.pay_reservation', id=reservation.id) }}">Pay</a>
     </div>
 
     <div class="col-md-8">

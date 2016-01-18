@@ -15,11 +15,13 @@ class Permission:
     MANAGE_SKILLS =     (1<<2)
     MANAGE_RESOURCES =  (1<<3)
     MANAGE_RESERVATIONS=(1<<4)
+    MANAGE_PAYMENTS =   (1<<5)
     ADMINISTER =        0xffff
 
 roles = {
     'User': (Permission.BOOK, True),
-    'Moderator': (Permission.BOOK | Permission.MANAGE_USERS | Permission.MANAGE_SKILLS | Permission.MANAGE_RESOURCES | Permission.MANAGE_RESERVATIONS, False),
+    'Moderator': (Permission.BOOK | Permission.MANAGE_USERS | Permission.MANAGE_SKILLS |
+                  Permission.MANAGE_RESOURCES | Permission.MANAGE_RESERVATIONS | Permission.MANAGE_PAYMENTS, False),
     'Administrator': (Permission.ADMINISTER, False)
 }
 
@@ -89,6 +91,7 @@ class User(UserMixin, db.Model):
     skills = db.relationship('Skill', secondary=UserSkills, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
     reservations = db.relationship('Reservation', backref='user', lazy='dynamic')
     availability = db.relationship('Available', backref='user', lazy='dynamic')
+    payments = db.relationship('Payment', backref='user', lazy='dynamic')
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -216,3 +219,15 @@ login_manager.anonymous_user = AnonymousUser
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+class Payment(db.Model):
+    __tablename__ = 'Payments'
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(100), unique=False)
+    type = db.Column(db.Enum(u'membership', u'reservation', u'consumable', u'event', u'custom'), index=True, nullable=False)
+    method = db.Column(db.Enum(u'terminal', u'cash', u'online'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
+    reservation_id = db.Column(db.Integer, db.ForeignKey('Reservations.id'))
+    amount = db.Column(db.Float)
+    date = db.Column(db.DateTime(), default=datetime.utcnow)

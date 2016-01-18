@@ -5,7 +5,7 @@ from wtforms import StringField, TextAreaField, BooleanField, SelectField, Submi
 from flask.ext.wtf.file import FileField
 from wtforms.validators import Required, Optional, Length, Email, Regexp, URL
 from wtforms import ValidationError
-from ..usermodels import Role, User
+from ..usermodels import Role, User, Payment
 from .. import photos
 
 class EditProfileForm(Form):
@@ -70,6 +70,14 @@ class EditResourceForm(Form):
     reserv_per = IntegerField('Reservation period (minutes)', validators=[Optional()])
     submit = SubmitField('Update resource')
 
-class PayReservationForm(Form):
-    amount = FloatField('Amount', validators=[Optional()])
+class SelectPaymentTypeForm(Form):
+    paymenttypes = [(val, val) for val in Payment.type.property.columns[0].type.enums]
+    type = SelectField('Payment type', choices=paymenttypes, default=paymenttypes[0], validators=[Required()])
+    submit = SubmitField('Select type')
+
+class PayForm(Form):
+    methods = [(val, val) for val in Payment.method.property.columns[0].type.enums]
+    description = StringField('Description', validators=[Required()])
+    method = SelectField('Payment method', choices=methods, default=methods[0], validators=[Required()])
+    amount = FloatField('Amount', validators=[Required()])
     submit = SubmitField('Pay')

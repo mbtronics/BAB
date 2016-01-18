@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, abort, flash, request, ses
 from flask.ext.login import login_required, current_user
 from sqlalchemy import or_
 from . import main
-from .forms import EditProfileForm, EditProfileAdminForm, DeleteConfirmationForm, SearchUserForm
+from .forms import EditProfileForm, EditProfileAdminForm, DeleteConfirmationForm, SearchUserForm, SelectPaymentTypeForm
 from .. import db
 from ..usermodels import Permission, Role, User, Skill
 from ..resourcemodels import Reservation
@@ -190,3 +190,18 @@ def list_reservations(id):
     reservations = user.reservations.order_by(Reservation.start.desc()).all()
 
     return render_template('user/reservations.html', user=user, reservations=reservations)
+
+@main.route('/user/<int:id>/payments', methods=['GET', 'POST'])
+@login_required
+def payments(id):
+
+    if id!=current_user.id and not current_user.can(Permission.MANAGE_PAYMENTS):
+        abort(404)
+
+    user = User.query.get_or_404(id)
+    form = SelectPaymentTypeForm()
+    if form.validate_on_submit():
+        if form.type.data=='reservation':
+            return redirect(url_for('.list_reservations', id=id))
+
+    return render_template('user/payments.html', user=user, form=form)
