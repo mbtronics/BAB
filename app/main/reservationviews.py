@@ -1,14 +1,13 @@
-from flask import render_template, request, Response, abort, jsonify, session, redirect, url_for
+from flask import render_template, request, Response, abort, jsonify
 from flask.ext.login import login_required, current_user
 from . import main
 from .. import db
-from ..usermodels import Permission, Payment
+from ..usermodels import Permission
 from ..resourcemodels import Resource, Available, Reservation
 from ..decorators import permission_required
 import json
 from sqlalchemy import and_
 from datetime import datetime, timedelta
-from forms import PayForm
 
 @main.route('/resource/reservation/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -129,27 +128,3 @@ def reservation(id):
 
     return render_template('resource/reservation.html', reservation=reservation)
 
-
-@main.route('/reservation/<int:id>/pay', methods=['GET', 'POST'])
-@login_required
-def pay_reservation(id):
-
-    reservation = Reservation.query.get_or_404(id)
-
-    if not current_user.can(Permission.MANAGE_PAYMENTS):
-        abort(404)
-
-    form = PayForm(amount=reservation.cost, description=reservation.reason)
-
-
-    if form.validate_on_submit():
-        if form.amount.data and form.description.data:
-            p = Payment(user=reservation.user, description=form.description.data, method=form.method.data,
-                        type='reservation', reservation=reservation, amount=form.amount.data)
-            db.session.add(p)
-            db.session.commit()
-            return redirect(url_for('.pay_reservation', id=reservation.id))
-
-    payments = Payment.query.filter_by(reservation=reservation, user=reservation.user).all()
-
-    return render_template('user/pay.html', type='reservation', form=form, user=reservation.user, reservation=reservation, payments=payments)

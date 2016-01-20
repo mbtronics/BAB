@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import hashlib
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from . import thumb
+from paymentmodels import Payment
 
 
 #Bit-style permissions
@@ -202,6 +203,16 @@ class User(UserMixin, db.Model):
         return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
             url=url, hash=hash, size=size, default=default, rating=rating)
 
+    @property
+    def membership_days_left(self):
+        payment = self.payments.filter_by(type='membership').order_by(Payment.date.desc()).first()
+        if payment:
+            left = 365-(datetime.now()-payment.date).days
+            if left>0:
+                return left
+
+        return 0
+
     def __repr__(self):
         return '<User %r>' % self.username
 
@@ -220,14 +231,3 @@ login_manager.anonymous_user = AnonymousUser
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-
-class Payment(db.Model):
-    __tablename__ = 'Payments'
-    id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(100), unique=False)
-    type = db.Column(db.Enum(u'membership', u'reservation', u'consumable', u'event', u'custom'), index=True, nullable=False)
-    method = db.Column(db.Enum(u'terminal', u'cash', u'online'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
-    reservation_id = db.Column(db.Integer, db.ForeignKey('Reservations.id'))
-    amount = db.Column(db.Float)
-    date = db.Column(db.DateTime(), default=datetime.utcnow)

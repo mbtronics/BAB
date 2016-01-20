@@ -5,7 +5,7 @@
 
 {% block page_content %}
 <div class="page-header">
-    <h1>Make a payment for {{ user.username }} {% if user.name %}({{ user.name }}){% endif %}</h1>
+    <h1>Make a payment for {{ user.name }} ({{ user.username }})</h1>
 </div>
 <div class="col-md-6">
 
@@ -13,7 +13,14 @@
         <b>Type:</b> {{ type }}<br>
 
         {% if reservation %}
-            <b>Total cost:</b> {{ reservation.cost }}&euro;<br>
+            <p>
+                <b>Resource: </b>{{ reservation.resource.name }}<br>
+                <b>Date: </b>{{ reservation.start }}<br>
+                <b>Reason: </b>{{ reservation.reason }}<br>
+                <b>Duration: </b>{{ reservation.duration_str }}<br>
+                <b>Cost ({{ reservation.resource.price_p_per }}&euro; per {{ reservation.resource.reservation_period }}): </b> {{ reservation.cost }}&euro;<br>
+            </p>
+
             <b>Total paid:</b> {{ reservation.amount_paid }}&euro;<br>
         {% endif %}
 

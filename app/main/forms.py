@@ -5,7 +5,8 @@ from wtforms import StringField, TextAreaField, BooleanField, SelectField, Submi
 from flask.ext.wtf.file import FileField
 from wtforms.validators import Required, Optional, Length, Email, Regexp, URL
 from wtforms import ValidationError
-from ..usermodels import Role, User, Payment
+from ..usermodels import Role, User
+from ..paymentmodels import Payment
 from .. import photos
 
 class EditProfileForm(Form):

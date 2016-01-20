@@ -27,7 +27,17 @@
         {% if user.about_me %}
             <p>{{ user.about_me }}</p>
         {% endif %}
-        <p>Member since {{ moment(user.member_since).format('L') }}. Last seen {{ moment(user.last_seen).fromNow() }}.</p>
+        <p>
+            Registered member since {{ moment(user.member_since).format('L') }}. Last seen {{ moment(user.last_seen).fromNow() }}.
+        </p>
+        <p>
+            Paid member:
+            {% if user.membership_days_left %}
+                {{ user.membership_days_left }} days left
+            {% else %}
+                no
+            {% endif %}
+        </p>
 
         <div class="panel panel-success">
             <div class="panel-heading">Skills</div>
@@ -55,10 +65,9 @@
             {% if current_user.is_administrator() %}
                 <a class="btn btn-danger" href="{{ url_for('.delete_user', id=user.id) }}">Delete user</a>
             {% endif %}
-
         </p>
-        <p>
 
+        <p>
             {% if current_user.can(Permission.MANAGE_USERS) or user==current_user %}
                 <a class="btn btn-default" href="{{ url_for('.list_reservations', id=user.id) }}">Reservations</a>
             {% endif %}

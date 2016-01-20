@@ -12,7 +12,7 @@
     <div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-body">
-                <p><b>User: </b>{{ reservation.user.username }} ({{ reservation.user.name }})</p>
+                <p><b>User: </b>{{ reservation.user.name }} ({{ reservation.user.username    }})</p>
                 <p><b>Resource: </b>{{ reservation.resource.name }}</p>
                 <p><b>Date: </b>{{ reservation.start }}</p>
                 <p><b>Reason: </b>{{ reservation.reason }}</p>
@@ -21,7 +21,7 @@
             </div>
         </div>
 
-        <a class="btn btn-default" href="{{ url_for('.pay_reservation', id=reservation.id) }}">Pay</a>
+        <a class="btn btn-default" href="{{ url_for('.pay_reservation', user_id=reservation.user_id, reser_id=reservation.id) }}">Pay</a>
     </div>
 
     <div class="col-md-8">
