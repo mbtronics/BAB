@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% import "user/_macros.html" as macros %}
+{% import "user/_macros.html" as macros with context %}
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block title %}{{ config['APP_NAME'] }} - Search users{% endblock %}

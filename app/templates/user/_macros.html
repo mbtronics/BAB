@@ -56,12 +56,14 @@
                 <td>{{ user.name or '' }}</td>
                 <td>{{ user.role.name }}</td>
                 <td>{{ user.confirmed }}</td>
-                <td>{{ user.member_since }}</td>
-                <td>{{ user.last_seen }}</td>
+                <td>{{ moment(user.member_since).format('DD/MM/YYYY') }}</td>
+                <td>{{ moment(user.last_seen).format('DD/MM/YYYY HH:mm') }}</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
+
+
 
 {% endif %}
 
