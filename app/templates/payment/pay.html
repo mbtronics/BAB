@@ -18,7 +18,7 @@
                 <b>Date: </b>{{ reservation.start }}<br>
                 <b>Reason: </b>{{ reservation.reason }}<br>
                 <b>Duration: </b>{{ reservation.duration_str }}<br>
-                <b>Cost ({{ reservation.resource.price_p_per }}&euro; per {{ reservation.resource.reservation_period }}): </b> {{ reservation.cost }}&euro;<br>
+                <b>Cost: </b> {{ reservation.cost }}&euro;<br>
             </p>
 
             <b>Total paid:</b> {{ reservation.amount_paid }}&euro;<br>

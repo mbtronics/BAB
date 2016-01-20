@@ -82,6 +82,7 @@ def reservation_setdata(id):
                 return jsonify({'err': "You can't make reservations in the past!"})
 
             r=Reservation(start=start, end=end, resource=resource, user=current_user, reason=data['reason'])
+            r.cost = r.calculated_cost
             db.session.add(r)
             db.session.commit()
             return jsonify({'id': r.id})
@@ -100,6 +101,7 @@ def reservation_setdata(id):
 
             r.start = start
             r.end = end
+            r.cost = r.calculated_cost
             db.session.add(r)
             return jsonify()
 

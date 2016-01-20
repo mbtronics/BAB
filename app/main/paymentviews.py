@@ -78,11 +78,11 @@ def pay_custom(id):
 def pay_reservation(user_id, reser_id):
 
     if not current_user.can(Permission.MANAGE_PAYMENTS):
-        abort(404)
+        abort(403)
 
     reservation = Reservation.query.get_or_404(reser_id)
     if reservation.user_id!=user_id:
-        abort(404)
+        abort(403)
 
     form = PayForm(amount=reservation.cost, description=reservation.reason)
     if form.validate_on_submit():
@@ -91,7 +91,7 @@ def pay_reservation(user_id, reser_id):
                         type='reservation', reservation=reservation, amount=form.amount.data)
             db.session.add(p)
             db.session.commit()
-            return redirect(url_for('.pay_reservation', id=reser_id))
+            return redirect(url_for('.pay_reservation', user_id=user_id, reser_id=reser_id))
 
     payments = Payment.query.filter_by(reservation=reservation, user=reservation.user).all()
 
