@@ -42,7 +42,6 @@
         {% endif %}
 
         {% if current_user.can(Permission.MANAGE_RESOURCES) %}
-            <a class="btn btn-warning" href="{{ url_for('.available', id=resource.id) }}">Make available</a>
             <a class="btn btn-default" href="{{ url_for('.edit_resource', name=resource.name) }}">Edit resource</a>
             <a class="btn btn-default" href="{{ url_for('.edit_resource_skills', id=resource.id) }}">Update skills</a>
             <a class="btn btn-danger" href="{{ url_for('.delete_resource', name=resource.name) }}">Delete resource</a>
