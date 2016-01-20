@@ -22,7 +22,6 @@ class Resource(db.Model):
 
     skills = db.relationship('Skill', secondary=SkillsResources, backref=db.backref('resources', lazy='dynamic'), lazy='dynamic')
     reservations = db.relationship('Reservation', backref='resource', lazy='dynamic')
-    availability = db.relationship('Available', backref='resource', lazy='dynamic')
 
     @property
     def reservation_period(self):
@@ -91,7 +90,6 @@ class Reservation(db.Model):
 class Available(db.Model):
     __tablename__ = "Availability"
     id = db.Column(db.Integer, primary_key=True)
-    resource_id = db.Column(db.Integer, db.ForeignKey('Resources.id'), index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), index=True)
     start = db.Column(db.DateTime())
     end = db.Column(db.DateTime())

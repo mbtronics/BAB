@@ -9,7 +9,22 @@
         <h1>Reservation calendar - {{ resource.name }}</h1>
     </div>
 
-    <div class="col-md-12">
+    <div class="col-md-6">
+        <ul>
+            <li>Create a reservation by clicking</li>
+            <li>Update a reservation by dragging and resizing</li>
+            <li>Delete a reservation by clicking on it</li>
+        </ul>
+    </div>
+
+    <div class="col-md-6">
+        <ul>
+            <li>Delete your reservation if you can't make it</li>
+            <li>All reservations will have to be paid</li>
+        </ul>
+    </div>
+
+    <div class="col-md-10">
         {{ calendar.fullcalendar_content() }}
     </div>
 

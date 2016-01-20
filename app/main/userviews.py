@@ -12,6 +12,7 @@ from .. import photos
 NumPaginationItems = 20
 
 @main.route('/user/<username>')
+@login_required
 def user(username):
     try:
         id = int(username)
@@ -19,8 +20,14 @@ def user(username):
     except:
         user = User.query.filter_by(username=username).first_or_404()
 
-    skills = user.skills.order_by(Skill.name.asc()).all()
-    return render_template('user/view.html', user=user, skills=skills)
+    if user==current_user or \
+       current_user.can(Permission.MANAGE_USERS) or \
+       user.is_moderator():
+
+        skills = user.skills.order_by(Skill.name.asc()).all()
+        return render_template('user/view.html', user=user, skills=skills)
+
+    abort(403)
 
 
 @main.route('/user/edit', methods=['GET', 'POST'])

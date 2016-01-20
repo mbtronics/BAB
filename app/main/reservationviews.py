@@ -52,7 +52,7 @@ def reservation_getdata(id):
                 'color': color,
             })
 
-        for r in resource.availability.filter(and_(Available.start>=start_date, Available.end<=end_date)):
+        for r in Available.query.filter(and_(Available.start>=start_date, Available.end<=end_date)):
             data.append( {
                 'start': r.start.strftime("%Y-%m-%d %H:%M:%S"),
                 'end': r.end.strftime("%Y-%m-%d %H:%M:%S"),

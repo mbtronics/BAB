@@ -41,6 +41,7 @@
 
         function postEvent(action, event) {
 
+        {% if setdata %}
             if (isOverlapping(event)) {
                 $('#calendar').fullCalendar('refetchEvents');
                 return;
@@ -59,7 +60,11 @@
                 contentType: 'application/json',
                 data: JSON.stringify(data),
                 dataType: 'json',
-                url: '{{ url_for(setdata, id=resource.id) }}',
+                {% if resource %}
+                    url: '{{ url_for(setdata, id=resource.id) }}',
+                {% else %}
+                    url: '{{ url_for(setdata) }}',
+                {% endif %}
 
                 success: function(response) {
 
@@ -77,11 +82,16 @@
                     $('#calendar').fullCalendar('refetchEvents');
                 }
             });
+            {% endif %}
         }
 
         $(document).ready(function() {
 
-            var duration = moment.utc( {{ resource.reserv_per }}*1000*60 ).format("HH:mm:ss");
+            {% if resource %}
+                var duration = moment.utc( {{ resource.reserv_per }}*1000*60 ).format("HH:mm:ss");
+            {% else %}
+                var duration = '00:20:00';
+            {% endif %}
 
             $('#calendar').fullCalendar({
 
@@ -92,13 +102,11 @@
                 },
 
                 firstDay: 1,
-                editable: true,
                 weekends: true,
                 slotDuration: duration,
                 snapDuration: duration,
                 defaultTimedEventDuration: duration,
                 defaultView: 'agendaWeek',
-                draggable: true,
                 forceEventDuration: true,
                 eventOverlap: {% if eventOverlap %}true{% else %}false{% endif %},
                 scrollTime :  "13:00:00",
@@ -106,10 +114,15 @@
                 timeFormat: "HH:mm",
                 allDaySlot: false,
                 columnFormat: 'ddd D/M',
-                selectable: true,
+
                 {% if selectConstraint %}
                     selectConstraint: '{{ selectConstraint }}',
                 {% endif %}
+
+            {% if setdata %}
+                draggable: true,
+                selectable: true,
+                editable: true,
 
                 select: function(start, end, jsEvent, view) {
                     {% if type=='reservation' %}
@@ -145,32 +158,36 @@
                     {% endif %}
                 },
 
-                eventClick: function(event, jsEvent, view) {
-
-                    if (event.title!='Reserved') {
-                        BootstrapDialog.confirm({
-                            title: 'Remove ' + {% if type=='reservation' %}'reservation'{% endif %}
-                            {% if type=='available' %}'timespan'{% endif %}+ '?',
-                            message: moment(event.start).format('MMMM Do YYYY, HH:mm') + '<br>' + event.title,
-                            type: BootstrapDialog.TYPE_WARNING,
-                            closable: true,
-                            draggable: true,
-                            btnOKClass: 'btn-warning',
-                            callback: function (result) {
-                                if (result) {
-                                    postEvent('remove', event)
-                                }
-                            }
-                        });
-                    }
-                },
-
                 eventResize: function( event, delta, revertFunc, jsEvent, ui, view ) {
                     postEvent('update', event);
                 },
 
                 eventDrop: function(event, delta, revertFunc) {
                     postEvent('update', event);
+                },
+            {% endif %}
+
+                eventClick: function(event, jsEvent, view) {
+                    {% if setdata %}
+                        if (event.title!='Reserved') {
+                            BootstrapDialog.confirm({
+                                title: 'Remove ' + {% if type=='reservation' %}'reservation'{% endif %}
+                                {% if type=='available' %}'timespan'{% endif %}+ '?',
+                                message: moment(event.start).format('MMMM Do YYYY, HH:mm') + '<br>' + event.title,
+                                type: BootstrapDialog.TYPE_WARNING,
+                                closable: true,
+                                draggable: true,
+                                btnOKClass: 'btn-warning',
+                                callback: function (result) {
+                                    if (result) {
+                                        postEvent('remove', event)
+                                    }
+                                }
+                            });
+                        }
+                    {% else %}
+                        $(location).attr('href', '{{ url_for('.user_by_available', id=0) }}' + event.id);
+                    {% endif %}
                 },
 
                 events: {

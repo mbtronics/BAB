@@ -1,11 +1,36 @@
 {% extends "base.html" %}
+{% import "resource/_calendar.html" as calendar %}
 
 {% block title %}{{ config['APP_NAME'] }}{% endblock %}
 
 {% block page_content %}
-    <h1>BUDA::lab Administrative Backend</h1>
-    <p>This is the BUDA::lab Administrative Backend, or <b>BAB</b> for short.</p>
-    <p>After <a href="{{ url_for('auth.register') }}">registration</a> and <a href="{{ url_for('auth.login') }}">login</a>,
-        you can use it to make <a href="{{ url_for('main.list_resources') }}">reservations</a> or
-        <a href="{{ url_for('main.edit_profile') }}">manage your account</a>.</p>
+    <div class="page-header">
+        <h1>BUDA::lab Administrative Backend</h1>
+    </div>
+
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <p>After <a href="{{ url_for('auth.register') }}">registration</a> and <a href="{{ url_for('auth.login') }}">login</a>,
+                you can make <a href="{{ url_for('main.list_resources') }}">reservations</a> or
+                <a href="{{ url_for('main.edit_profile') }}">manage your account</a>.</p>
+
+                This is the availability calendar. It shows you when the lab is open and what volunteer will be present. You can click on a block for more info.<br>
+                Always remember to make a reservation if you want to use a machine!
+            </div>
+        </div>
+
+        {{ calendar.fullcalendar_content() }}
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    {% if current_user.can(Permission.MANAGE_RESOURCES) %}
+        {{ calendar.fullcalendar_scripts('available', none, '.available_setdata', '.available_getdata', true, false, '#378006') }}
+    {% else %}
+        {{ calendar.fullcalendar_scripts('available', none, none, '.available_getdata', true, false, '#378006') }}
+    {% endif %}
 {% endblock %}

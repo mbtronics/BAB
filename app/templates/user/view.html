@@ -4,41 +4,47 @@
 
 {% block page_content %}
 
-<div class="col-md-12">
+    <div class="page-header">
+        <h1>{{ user.name }} ({{ user.username }})</h1>
+    </div>
 
-    <img class="img-rounded profile-thumbnail" src="{{ user.photo_url(size=256) }}">
+    <div class="col-md-2">
+        <img class="img-rounded profile-thumbnail" src="{{ user.photo_url(size=256) }}">
+    </div>
 
-    <!-- <img style="float:right" width="150" src="{{ qrcode(url_for('.user', username=user.id, _external=True)) }}"> -->
+    <div class="col-md-8">
 
-    <div class="profile-header">
-        <h1>
-            {% if user.name %}
-                {{ user.name }} ({{ user.username }})
-            {% else %}
-                {{ user.username }}
-            {% endif %}
-        </h1>
-        {% if user.location %}
-            From <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a>
+        {# Private information, only for the user himself or moderator #}
+        {% if current_user.can(Permission.MANAGE_USERS) or user==current_user %}
+            {% if user.location %}From <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a>{% endif %}
+            <p>E-mail: <a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+            <p>Registered member since {{ moment(user.member_since).format('DD/MM/YYYY') }}. Last seen {{ moment(user.last_seen).fromNow() }}.</p>
+
+            <p>
+                Paid member:
+                {% if user.membership_days_left %}
+                    {{ user.membership_days_left }} days left
+                {% else %}
+                    no
+                {% endif %}
+            </p>
         {% endif %}
-        {% if current_user.can(Permission.MANAGE_USERS) %}
-            <p>email: <a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+
+        {# Public information, for everyone #}
+        {% if user.is_moderator() %}
+            <p>Moderator</p>
         {% endif %}
+
         {% if user.about_me %}
-            <p>{{ user.about_me }}</p>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    About me:<br>
+                    {{ user.about_me }}
+                </div>
+            </div>
         {% endif %}
-        <p>
-            Registered member since {{ moment(user.member_since).format('L') }}. Last seen {{ moment(user.last_seen).fromNow() }}.
-        </p>
-        <p>
-            Paid member:
-            {% if user.membership_days_left %}
-                {{ user.membership_days_left }} days left
-            {% else %}
-                no
-            {% endif %}
-        </p>
 
+        {# Skills #}
         <div class="panel panel-success">
             <div class="panel-heading">Skills</div>
             <div class="panel-body">
@@ -48,6 +54,7 @@
             </div>
         </div>
 
+        {# Buttons #}
         <p>
             {% if current_user.can(Permission.MANAGE_USERS) %}
                 <a class="btn btn-default" href="{{ url_for('.edit_profile_admin', id=user.id) }}">Edit profile</a>
@@ -77,6 +84,9 @@
             {% endif %}
         </p>
     </div>
-</div>
+
+    <div class="col-md-2">
+        <!-- <img style="float:right" width="150" src="{{ qrcode(url_for('.user', username=user.id, _external=True)) }}"> -->
+    </div>
 
 {% endblock %}

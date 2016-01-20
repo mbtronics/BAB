@@ -21,6 +21,6 @@ def upgrade():
 
 def downgrade():
     with op.batch_alter_table('Resources') as batch_op:
-        batch_op.add_column(sa.Column('image_url', sa.VARCHAR(), nullable=True))
+        batch_op.add_column(sa.Column('image_url', sa.VARCHAR(100), nullable=True))
         batch_op.drop_column('photo_filename')
 
