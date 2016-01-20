@@ -31,6 +31,7 @@
                         <th>Id</th>
                         <th>Description</th>
                         <th>Amount</th>
+                        <th>Method</th>
                         <th>Date</th>
                     </tr>
                 </thead>
@@ -40,6 +41,7 @@
                         <td>{{ payment.id }}</td>
                         <td>{{ payment.description }}</td>
                         <td>{{ payment.amount }}&euro;</td>
+                        <td>{{ payment.method }}</td>
                         <td>{{ moment(payment.date).format('DD/MM/YYYY HH:mm') }}</td>
                     </tr>
                 {% endfor %}
