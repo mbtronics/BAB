@@ -42,7 +42,7 @@
                         <td>{{ payment.description }}</td>
                         <td>{{ payment.amount }}&euro;</td>
                         <td>{{ payment.method }}</td>
-                        <td>{{ moment(payment.date).format('DD/MM/YYYY HH:mm') }}</td>
+                        <td>{{ moment(payment.date, local=False).format('DD/MM/YYYY HH:mm') }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

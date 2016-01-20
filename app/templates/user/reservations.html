@@ -26,7 +26,7 @@
             <tr class="clickable-row">
                 <td><a href="{{ url_for('.reservation', id=reservation.id) }}"></a>{{ reservation.id }}</td>
                 <td>{{ reservation.resource.name }}</td>
-                <td>{{ moment(reservation.start).format('DD/MM/YYYY HH:mm') }}</td>
+                <td>{{ moment(reservation.start, local=True).format('DD/MM/YYYY HH:mm') }}</td>
                 <td>{{ reservation.reason }}</td>
                 <td>{{ reservation.cost }}</td>
                 <td>{{ reservation.amount_paid }}</td>
