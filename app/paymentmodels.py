@@ -8,6 +8,7 @@ class Payment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     amount = db.Column(db.Float)
     date = db.Column(db.DateTime(), default=datetime.utcnow)
+    operator_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
 
     paymentdescriptions = db.relationship('PaymentDescription', backref='payment', lazy='dynamic')
 

@@ -43,7 +43,7 @@ def payments(id):
             total = total + amounts[i]
             i+=1
 
-        p = Payment(method=request.form.get('method'), user=user, amount=total)
+        p = Payment(method=request.form.get('method'), user=user, amount=total, operator=current_user.id)
         db.session.add(p)
         db.session.flush()
         for payment in payments:

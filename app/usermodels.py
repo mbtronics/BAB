@@ -92,7 +92,8 @@ class User(UserMixin, db.Model):
     skills = db.relationship('Skill', secondary=UserSkills, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
     reservations = db.relationship('Reservation', backref='user', lazy='dynamic')
     availability = db.relationship('Available', backref='user', lazy='dynamic')
-    payments = db.relationship('Payment', backref='user', lazy='dynamic')
+    payments = db.relationship('Payment', backref='user', lazy='dynamic', foreign_keys=[Payment.user_id])
+    payments_made = db.relationship('Payment', backref='operator', lazy='dynamic', foreign_keys=[Payment.operator_id])
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)

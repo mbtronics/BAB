@@ -35,6 +35,7 @@
         <b>Date:</b> {{ moment(payment.date, local=False).format('DD/MM/YYYY HH:mm') }}<br>
         <b>Total:</b> &euro;{{ payment.amount }}<br>
         <b>Method:</b> {{ payment.method }}<br>
+        <b>Operator:</b> {{ payment.operator.name }}<br>
         <b>Payment reference ID:</b> {{ payment.id }}
     </h4>
 {% endif %}
