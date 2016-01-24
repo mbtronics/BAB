@@ -59,7 +59,7 @@ class Reservation(db.Model):
     cost = db.Column(db.Float)
     paid = db.Column(db.Float, default=0)
 
-    payments = db.relationship('Payment', backref='reservation', lazy='dynamic')
+    paymentdescriptions = db.relationship('PaymentDescription', backref='reservation', lazy='dynamic')
 
     @property
     def duration(self):

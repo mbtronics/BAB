@@ -92,8 +92,6 @@
                     <thead>
                         <tr>
                             <th>Id</th>
-                            <th>Type</th>
-                            <th>Description</th>
                             <th>Amount</th>
                             <th>Method</th>
                             <th>Date</th>
@@ -101,10 +99,9 @@
                     </thead>
                     <tbody>
                     {% for payment in user.payments.all() %}
-                        <tr>
-                            <td>{{ payment.id }}</td>
-                            <td>{{ payment.type }}</td>
-                            <td>{{ payment.description }}</td>
+                        <tr class="clickable-row">
+                            <td><a href="{{ url_for('.payment', id=payment.id) }}"></a>
+                                {{ payment.id }}</td>
                             <td>{{ payment.amount }}&euro;</td>
                             <td>{{ payment.method }}</td>
                             <td>{{ moment(payment.date, local=False).format('DD/MM/YYYY HH:mm') }}</td>

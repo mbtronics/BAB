@@ -1,70 +1,108 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}{{ config['APP_NAME'] }} - Pay{% endblock %}
+{% block title %}{{ config['APP_NAME'] }} - Make payment for {{ user.username }}{% endblock %}
 
 {% block page_content %}
-<div class="page-header">
-    <h1>Make a payment for {{ user.name }} ({{ user.username }})</h1>
-</div>
-<div class="col-md-6">
 
-    <p>
-        <b>Type:</b> {{ type }}<br>
-
-        {% if reservation %}
-            <p>
-                <b>Resource: </b>{{ reservation.resource.name }}<br>
-                <b>Date: </b>{{ reservation.start }}<br>
-                <b>Reason: </b>{{ reservation.reason }}<br>
-                <b>Duration: </b>{{ reservation.duration_str }}<br>
-                <b>Cost: </b> {{ reservation.cost }}&euro;<br>
-            </p>
-
-            <b>Total paid:</b> {{ reservation.amount_paid }}&euro;<br>
-        {% endif %}
-
-        {% if payments %}
-            <table class="table table-condensed table-hover">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Method</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for payment in payments %}
-                    <tr>
-                        <td>{{ payment.id }}</td>
-                        <td>{{ payment.description }}</td>
-                        <td>{{ payment.amount }}&euro;</td>
-                        <td>{{ payment.method }}</td>
-                        <td>{{ moment(payment.date, local=False).format('DD/MM/YYYY HH:mm') }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
-    </p>
-
-    {{ wtf.quick_form(form) }}
-</div>
-
-<div class="col-md-6">
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <h4>
-                How to make a payment:
-                <ol>
-                    <li>Fill in the correct amount and click 'Pay'</li>
-                    <li>Use the id from the table as payment reference id</li>
-                </ol>
-            </h4>
-        </div>
+<div class="col-md-12">
+    <div class="page-header">
+        <h1>Make payment for {{ user.name }} ({{ user.username }})</h1>
     </div>
+
+    <form action="" method="post" class="form" role="form">
+        <fieldset>
+            <legend>Add Entries</legend>
+
+            <div class="payment-row">
+                <label>Type:</label>
+                <select name="type[]" required>
+                    <option value="custom">custom</option>
+                    <option value="reservation">reservation</option>
+                    <option value="membership">membership</option>
+                </select>
+
+                <label>Reservation:</label>
+                <select name="reservation[]" style="max-width:30%;" onchange="reservationChange(this);">
+                        <option value="0"></option>
+                    {% for reservation in user.reservations.all() %}
+                        <option value="{{ reservation.id }}">{{ reservation.start }} ({{ reservation.reason }})</option>
+                    {% endfor %}
+                </select>
+
+                <label>Description:</label>
+                <input name="description[]" required size="30"/>
+
+                <label>Amount:</label>
+                <input type="float" name="amount[]" required style="width: 50px;;"/>
+            </div>
+            <div id="end"></div>
+
+            <br>
+            <label>Method:</label>
+            <select name="method" required>
+                {% for method in methods %}
+                    <option value="{{ method }}">{{ method }}</option>
+                {% endfor %}
+            </select>
+
+            <br>
+            <input class="btn btn-default" type="button" id="add-row" name="add-row" value="Add row" />
+            <input class="btn btn-default" type="submit" value="Pay">
+
+        </fieldset>
+    </form>
 </div>
+
+{% endblock %}
+
+{% block scripts %}
+
+    {{ super() }}
+
+    <script type="application/javascript">
+
+        var reservations = [
+            {% for reservation in user.reservations.all() %}
+                {
+                    'reason': '{{ reservation.reason }}',
+                    'cost': {{ reservation.cost }}
+                },
+            {% endfor %}
+        ];
+
+        jQuery(function($){
+            var button = $('#add-row');
+            var row = $('.payment-row').clone();
+
+            button.click(function(){
+                row.clone().insertBefore($('#end'));
+            });
+        });
+
+        function getElementIdInArray(element, type) {
+            var rows = document.getElementsByName(type).length;
+            var i = 0;
+            for (i=0; i<rows; i++) {
+                if (document.getElementsByName(type)[i]==element) {
+                    return i
+                }
+            }
+            return -1;
+        }
+
+        function reservationChange(reservation) {
+            var i = getElementIdInArray(reservation, 'reservation[]');
+
+            if (reservation.selectedIndex==0) {
+                document.getElementsByName('description[]')[i].value = '';
+                document.getElementsByName('amount[]')[i].value = '';
+            } else {
+                document.getElementsByName('description[]')[i].value = reservations[reservation.selectedIndex-1]['reason'];
+                document.getElementsByName('amount[]')[i].value = reservations[reservation.selectedIndex-1]['cost'];
+            }
+        }
+
+    </script>
 
 {% endblock %}

@@ -1,11 +1,9 @@
-from flask import render_template, redirect, url_for, abort
+from flask import render_template, redirect, url_for, abort, request
 from flask.ext.login import login_required, current_user
 from . import main
-from .forms import SelectPaymentTypeForm, PayForm
 from .. import db
-from ..resourcemodels import Reservation
 from ..usermodels import Permission, User
-from ..paymentmodels import Payment
+from ..paymentmodels import Payment, PaymentDescription
 
 @main.route('/user/<int:id>/payments', methods=['GET', 'POST'])
 @login_required
@@ -15,84 +13,59 @@ def payments(id):
         abort(404)
 
     user = User.query.get_or_404(id)
-    form = SelectPaymentTypeForm()
-    if form.validate_on_submit():
-        if form.type.data=='reservation':
-            return redirect(url_for('.list_reservations', id=id))
-        elif form.type.data=='membership':
-            return redirect(url_for('.pay_membership', id=id))
-        elif form.type.data=='custom':
-            return redirect(url_for('.pay_custom', id=id))
 
-    return render_template('payment/payments.html', user=user, form=form)
+    if request.form:
+        try:
+            types = request.form.getlist('type[]')
+            reservations = []
+            for r in request.form.getlist('reservation[]'):
+                try:
+                    reservations.append(int(r))
+                except:
+                    reservations.append(0)
+            descriptions = request.form.getlist('description[]')
+            amounts = [float(a) for a in request.form.getlist('amount[]')]
+        except Exception, e:
+            print e
+            abort(404)
+
+        payments = []
+        i = 0
+        total = 0
+        for type in types:
+            payment = {
+                'type': types[i],
+                'reservation': reservations[i],
+                'description': descriptions[i],
+                'amount': amounts[i]
+            }
+            payments.append(payment)
+            total = total + amounts[i]
+            i+=1
+
+        p = Payment(method=request.form.get('method'), user=user, amount=total)
+        db.session.add(p)
+        db.session.flush()
+        for payment in payments:
+            pd = PaymentDescription(payment_id=p.id, type=payment['type'], description=payment['description'], amount=payment['amount'])
+            if payment['reservation'] and payment['reservation']!=0:
+                pd.reservation_id = payment['reservation']
+            db.session.add(pd)
+        db.session.commit()
+
+        return redirect(url_for('.payment', id=p.id))
+
+    methods = [val for val in Payment.method.property.columns[0].type.enums]
+    return render_template('payment/pay.html', user=user, methods=methods)
 
 
-@main.route('/user/<int:id>/pay-membership', methods=['GET', 'POST'])
+@main.route('/payment/<int:id>', methods=['GET', 'POST'])
 @login_required
-def pay_membership(id):
+def payment(id):
 
-    if not current_user.can(Permission.MANAGE_PAYMENTS):
-        abort(404)
-
-    user = User.query.get_or_404(id)
-
-    form = PayForm(amount=12, description='Membership %s' % user.name)
-    if form.validate_on_submit():
-        if form.amount.data and form.description.data:
-            p = Payment(user=user, description=form.description.data, method=form.method.data,
-                        type='membership', amount=form.amount.data)
-            db.session.add(p)
-            db.session.commit()
-            return redirect(url_for('.pay_membership', id=user.id))
-
-    payments = Payment.query.filter_by(user=user, type='membership').all()
-
-    return render_template('payment/pay.html', type='membership', form=form, user=user, payments=payments)
-
-
-@main.route('/user/<int:id>/pay-custom', methods=['GET', 'POST'])
-@login_required
-def pay_custom(id):
-
-    if not current_user.can(Permission.MANAGE_PAYMENTS):
-        abort(404)
-
-    user = User.query.get_or_404(id)
-
-    form = PayForm(amount=0, description='Custom payment for %s' % user.name)
-    if form.validate_on_submit():
-        if form.amount.data and form.description.data:
-            p = Payment(user=user, description=form.description.data, method=form.method.data,
-                        type='custom', amount=form.amount.data)
-            db.session.add(p)
-            db.session.commit()
-            return redirect(url_for('.pay_custom', id=user.id))
-
-    payments = Payment.query.filter_by(user=user, type='custom').all()
-
-    return render_template('payment/pay.html', type='membership', form=form, user=user, payments=payments)
-
-
-@main.route('/user/<int:user_id>/pay-reservation/<int:reser_id>', methods=['GET', 'POST'])
-@login_required
-def pay_reservation(user_id, reser_id):
-
-    if not current_user.can(Permission.MANAGE_PAYMENTS):
+    p = Payment.query.get_or_404(id)
+    if p.user!=current_user and not current_user.can(Permission.MANAGE_PAYMENTS):
         abort(403)
 
-    reservation = Reservation.query.get_or_404(reser_id)
-    if reservation.user_id!=user_id:
-        abort(403)
-
-    form = PayForm(amount=reservation.cost, description=reservation.reason)
-    if form.validate_on_submit():
-        if form.amount.data and form.description.data:
-            p = Payment(user=reservation.user, description=form.description.data, method=form.method.data,
-                        type='reservation', reservation=reservation, amount=form.amount.data)
-            db.session.add(p)
-            db.session.commit()
-            return redirect(url_for('.pay_reservation', user_id=user_id, reser_id=reser_id))
-
-    payments = Payment.query.filter_by(reservation=reservation, user=reservation.user).all()
-
-    return render_template('payment/pay.html', type='reservation', form=form, user=reservation.user, reservation=reservation, payments=payments)
+    descriptions = p.paymentdescriptions.all()
+    return render_template('payment/payment.html', user=p.user, payment=p, descriptions=descriptions)

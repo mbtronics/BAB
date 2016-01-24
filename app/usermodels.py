@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import hashlib
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from . import thumb
-from paymentmodels import Payment
+from paymentmodels import PaymentDescription, Payment
 
 
 #Bit-style permissions
@@ -211,11 +211,19 @@ class User(UserMixin, db.Model):
 
     @property
     def membership_days_left(self):
-        payment = self.payments.filter_by(type='membership').order_by(Payment.date.desc()).first()
-        if payment:
-            left = 365-(datetime.now()-payment.date).days
-            if left>0:
-                return left
+        payment = db.session.query(Payment).filter(Payment.user==self)\
+                    .join(PaymentDescription, Payment.id==PaymentDescription.payment_id)\
+                    .filter(PaymentDescription.type=='membership')\
+                    .order_by(Payment.date.desc()).first()
+        print payment.type
+        print payment.amount
+        print payment.date
+        print payment.user.name
+        #payment = db.session.query(Payment)
+        #if payment:
+        #    left = 365-(datetime.now()-payment.date).days
+        #    if left>0:
+        #        return left
 
         return 0
 
