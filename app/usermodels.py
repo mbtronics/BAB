@@ -215,15 +215,10 @@ class User(UserMixin, db.Model):
                     .join(PaymentDescription, Payment.id==PaymentDescription.payment_id)\
                     .filter(PaymentDescription.type=='membership')\
                     .order_by(Payment.date.desc()).first()
-        print payment.type
-        print payment.amount
-        print payment.date
-        print payment.user.name
-        #payment = db.session.query(Payment)
-        #if payment:
-        #    left = 365-(datetime.now()-payment.date).days
-        #    if left>0:
-        #        return left
+        if payment:
+            left = 365-(datetime.now()-payment.date).days
+            if left>0:
+                return left
 
         return 0
 

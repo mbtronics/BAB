@@ -41,16 +41,7 @@ def deploy():
 
     # create user roles
     Role.insert_roles()
-
-@manager.command
-def fixpayments():
-    from app.usermodels import Payment, PaymentDescription
-
-    for payment in Payment.query.all():
-        pd = PaymentDescription(payment=payment, type=payment.type, description=payment.description,
-                                reservation_id=payment.reservation_id, amount=payment.amount)
-        db.session.add(pd)
-    db.session.commit()
+    
 
 if __name__ == '__main__':
     manager.run()

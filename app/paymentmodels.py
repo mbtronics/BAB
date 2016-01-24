@@ -9,13 +9,6 @@ class Payment(db.Model):
     amount = db.Column(db.Float)
     date = db.Column(db.DateTime(), default=datetime.utcnow)
 
-    #To be removed
-    description = db.Column(db.String(100), unique=False)
-    type = db.Column(db.Enum(u'reservation', u'membership', u'custom'), index=True, nullable=False)
-    reservation_id = db.Column(db.Integer, db.ForeignKey('Reservations.id'))
-
-
-
     paymentdescriptions = db.relationship('PaymentDescription', backref='payment', lazy='dynamic')
 
 class PaymentDescription(db.Model):
