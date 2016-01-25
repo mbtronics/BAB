@@ -20,8 +20,6 @@
                 <p><b>Cost ({{ reservation.resource.price_p_per }}&euro; per {{ reservation.resource.reservation_period }}): </b> {{ reservation.cost }}&euro;</p>
             </div>
         </div>
-
-        <a class="btn btn-default" href="{{ url_for('.pay_reservation', user_id=reservation.user_id, reser_id=reservation.id) }}">Pay</a>
     </div>
 
     <div class="col-md-8">
