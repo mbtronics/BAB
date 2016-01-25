@@ -4,6 +4,9 @@ from . import main
 from .. import db
 from ..usermodels import Permission, User
 from ..paymentmodels import Payment, PaymentDescription
+from ..decorators import permission_required
+
+NumPaginationItems = 20
 
 @main.route('/user/<int:id>/payments', methods=['GET', 'POST'])
 @login_required
@@ -69,3 +72,13 @@ def payment(id):
 
     descriptions = p.paymentdescriptions.all()
     return render_template('payment/payment.html', user=p.user, payment=p, descriptions=descriptions)
+
+
+@main.route('/payments')
+@login_required
+@permission_required(Permission.MANAGE_PAYMENTS)
+def list_payments():
+    page = request.args.get('page', 1, type=int)
+    pagination = Payment.query.order_by(Payment.id.desc()).paginate(page, per_page=NumPaginationItems, error_out=False)
+    payments = pagination.items
+    return render_template('payment/list.html', payments=payments, pagination=pagination)

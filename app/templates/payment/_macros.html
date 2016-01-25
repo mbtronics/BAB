@@ -1,0 +1,38 @@
+{% import "_macros.html" as macros with context %}
+
+{% macro view_payments_widget(payments, pagination, endpoint) %}
+
+{% if payments %}
+    <table class="table table-condensed table-hover">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>User</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for payment in payments %}
+            <tr class="clickable-row">
+                <td><a href="{{ url_for('.payment', id=payment.id) }}"></a>
+                    {{ payment.id }}
+                </td>
+                <td>{{ payment.user.name }}</td>
+                <td>{{ payment.amount }}&euro;</td>
+                <td>{{ payment.method }}</td>
+                <td>{{ moment(payment.date, local=False).format('DD/MM/YYYY HH:mm') }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+{% if pagination %}
+<div class="text-center">
+    {{ macros.pagination_widget(pagination, endpoint) }}
+</div>
+{% endif %}
+
+{% endmacro %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% import "payment/_macros.html" as macros with context %}
+
+{% block title %}{{ config['APP_NAME'] }} - List payments{% endblock %}
+
+{% block page_content %}
+
+<div class="page-header">
+    <h1>List payments</h1>
+</div>
+
+<div class="col-md-12">
+    {{ macros.view_payments_widget(payments, pagination, '.list_payments') }}
+</div>
+
+{% endblock %}
