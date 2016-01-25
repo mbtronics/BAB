@@ -29,7 +29,7 @@
                 <td>{{ moment(reservation.start, local=True).format('DD/MM/YYYY HH:mm') }}</td>
                 <td>{{ reservation.reason }}</td>
                 <td>{{ reservation.cost }}</td>
-                <td>{{ reservation.amount_paid }}</td>
+                <td>{{ reservation.paid }}</td>
             </tr>
         {% endfor %}
         </tbody>

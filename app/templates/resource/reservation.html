@@ -17,7 +17,8 @@
                 <p><b>Date: </b>{{ moment(reservation.start, local=True).format('DD/MM/YYYY HH:mm') }}</p>
                 <p><b>Reason: </b>{{ reservation.reason }}</p>
                 <p><b>Duration: </b>{{ reservation.duration_str }}</p>
-                <p><b>Cost ({{ reservation.resource.price_p_per }}&euro; per {{ reservation.resource.reservation_period }}): </b> {{ reservation.cost }}&euro;</p>
+                <p><b>Cost: </b> &euro;{{ reservation.cost }}</p>
+                <p><b>Paid: </b>&euro;{{ reservation.paid }}</p>
             </div>
         </div>
     </div>

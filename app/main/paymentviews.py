@@ -48,7 +48,7 @@ def payments(id):
         db.session.flush()
         for payment in payments:
             pd = PaymentDescription(payment_id=p.id, type=payment['type'], description=payment['description'], amount=payment['amount'])
-            if payment['reservation'] and payment['reservation']!=0:
+            if payment['type']=='reservation' and payment['reservation'] and payment['reservation']!=0:
                 pd.reservation_id = payment['reservation']
             db.session.add(pd)
         db.session.commit()

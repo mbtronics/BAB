@@ -16,7 +16,7 @@
 
             <div class="payment-row">
                 <label>Type:</label>
-                <select name="type[]" required>
+                <select name="type[]" required onchange="typeChange(this);">
                     <option value="custom">custom</option>
                     <option value="reservation">reservation</option>
                     <option value="membership">membership</option>
@@ -34,7 +34,7 @@
                 <input name="description[]" required size="30"/>
 
                 <label>Amount:</label>
-                <input type="float" name="amount[]" required style="width: 50px;;"/>
+                <input type="float" name="amount[]" required style="width: 50px;" value="0"/>
             </div>
             <div id="end"></div>
 
@@ -91,15 +91,33 @@
             return -1;
         }
 
+        function typeChange(type) {
+            var i = getElementIdInArray(type, 'type[]');
+
+            document.getElementsByName('reservation[]')[i].value = 0;
+            document.getElementsByName('amount[]')[i].value = 0;
+            document.getElementsByName('description[]')[i].value = '';
+
+            if (type.value=='membership') {
+                document.getElementsByName('amount[]')[i].value = 12;
+                document.getElementsByName('description[]')[i].value = 'Membership {{ user.name }}';
+            }
+        }
+
         function reservationChange(reservation) {
             var i = getElementIdInArray(reservation, 'reservation[]');
+            var type = document.getElementsByName('type[]')[i].value;
 
-            if (reservation.selectedIndex==0) {
-                document.getElementsByName('description[]')[i].value = '';
-                document.getElementsByName('amount[]')[i].value = '';
+            if (type=='reservation') {
+                if (reservation.selectedIndex == 0) {
+                    document.getElementsByName('description[]')[i].value = '';
+                    document.getElementsByName('amount[]')[i].value = '';
+                } else {
+                    document.getElementsByName('description[]')[i].value = reservations[reservation.selectedIndex - 1]['reason'];
+                    document.getElementsByName('amount[]')[i].value = reservations[reservation.selectedIndex - 1]['cost'];
+                }
             } else {
-                document.getElementsByName('description[]')[i].value = reservations[reservation.selectedIndex-1]['reason'];
-                document.getElementsByName('amount[]')[i].value = reservations[reservation.selectedIndex-1]['cost'];
+                reservation.value = 0;
             }
         }
 
