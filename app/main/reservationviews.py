@@ -6,7 +6,7 @@ from ..usermodels import Permission
 from ..resourcemodels import Resource, Available, Reservation
 from ..decorators import permission_required
 import json
-from sqlalchemy import and_
+from sqlalchemy import and_, or_, between
 from datetime import datetime, timedelta
 
 @main.route('/resource/reservation/<int:id>', methods=['GET', 'POST'])
@@ -81,6 +81,14 @@ def reservation_setdata(id):
             if start < datetime.now() or end < datetime.now():
                 return jsonify({'err': "You can't make reservations in the past!"})
 
+            #Check for overlap
+            reservations = Reservation.query.filter(or_(\
+                                                        and_(Reservation.start<=start, Reservation.end>=end), \
+                                                        and_(Reservation.start>=start, Reservation.start<end), \
+                                                        and_(Reservation.end>start, Reservation.end<=end))).all()
+            if len(reservations)>0:
+                return jsonify({'err': "Overlap with existing reservation"})
+
             r=Reservation(start=start, end=end, resource=resource, user=current_user, reason=data['reason'])
             r.cost = r.calculated_cost
             db.session.add(r)
@@ -98,6 +106,15 @@ def reservation_setdata(id):
 
             if (start!=r.start and start < datetime.now()) or (end!=r.end and end < datetime.now()):
                 return jsonify({'err': "You can't update reservations in the past!"})
+
+            #Check for overlap
+            reservations = Reservation.query.filter(or_(\
+                                                        and_(Reservation.start<=start, Reservation.end>=end), \
+                                                        and_(Reservation.start>=start, Reservation.start<end), \
+                                                        and_(Reservation.end>start, Reservation.end<=end)))\
+                                            .filter(Reservation.id!=r.id).all()
+            if len(reservations)>0:
+                return jsonify({'err': "Overlap with existing reservation"})
 
             r.start = start
             r.end = end

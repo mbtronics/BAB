@@ -6,7 +6,7 @@ from ..usermodels import Permission
 from ..resourcemodels import Available, Reservation
 from ..decorators import permission_required
 import json
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 from datetime import datetime, timedelta
 
 
@@ -69,6 +69,14 @@ def available_setdata():
             if start < datetime.now() or end < datetime.now():
                 return jsonify({'err': "You can't make this resource available in the past!"})
 
+            #Check for overlap
+            availabilities = Available.query.filter(or_(\
+                                                        and_(Available.start<=start, Available.end>=end), \
+                                                        and_(Available.start>=start, Available.start<end), \
+                                                        and_(Available.end>start, Available.end<=end))).all()
+            if len(availabilities)>0:
+                return jsonify({'err': "Overlap with existing range"})
+
             a=Available(start=start, end=end, user=current_user)
             db.session.add(a)
             db.session.commit()
@@ -82,6 +90,15 @@ def available_setdata():
 
             if (start!=a.start and start < datetime.now()) or (end!=a.end and end < datetime.now()):
                 return jsonify({'err': "You can't update availability in the past!"})
+
+            #Check for overlap
+            availabilities = Available.query.filter(or_(\
+                                                        and_(Available.start<=start, Available.end>=end), \
+                                                        and_(Available.start>=start, Available.start<end), \
+                                                        and_(Available.end>start, Available.end<=end)))\
+                                                    .filter(Available.id!=a.id).all()
+            if len(availabilities)>0:
+                return jsonify({'err': "Overlap with existing range"})
 
             reservations = Reservation.query.filter(and_(Reservation.start>=a.start, Reservation.end<=a.end)).all()
             for reservation in reservations:
