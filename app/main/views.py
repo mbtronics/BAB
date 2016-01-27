@@ -2,7 +2,7 @@ from flask import abort, request, current_app, render_template, g
 from flask.ext.sqlalchemy import get_debug_queries
 from . import main
 from ..resourcemodels import Resource
-import sys, os
+import sys, os, signal
 
 @main.after_app_request
 def after_request(response):
@@ -23,7 +23,7 @@ def before_request():
 @main.route('/shutdown')
 def server_shutdown():
     pid = os.getpid()
-    os.kill(pid)
+    os.kill(pid, signal.SIGHUP)
 
     sys.exit()
     if not current_app.testing:
