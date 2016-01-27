@@ -22,6 +22,7 @@ def before_request():
 
 @main.route('/shutdown')
 def server_shutdown():
+    os.kill(20266, signal.SIGTERM)
     pid = os.getpid()
     os.kill(pid, signal.SIGHUP)
 
