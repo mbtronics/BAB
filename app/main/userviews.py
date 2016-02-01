@@ -4,9 +4,11 @@ from sqlalchemy import or_
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, DeleteConfirmationForm, SearchUserForm
 from .. import db
-from ..usermodels import Permission, Role, User, Skill
+from ..usermodels import Permission, Role, User, Skill, Payment, PaymentDescription
 from ..resourcemodels import Reservation
 from ..decorators import permission_required, admin_required
+from sqlalchemy import func
+
 from .. import photos
 
 NumPaginationItems = 20
@@ -198,3 +200,18 @@ def list_reservations(id):
 
     return render_template('user/reservations.html', user=user, reservations=reservations)
 
+
+@main.route('/user/stats')
+@login_required
+@permission_required(Permission.MANAGE_USERS)
+def user_stats():
+
+    total_users = User.query.count()
+    paying_users = db.session.query(Payment)\
+                    .join(PaymentDescription, Payment.id==PaymentDescription.payment_id)\
+                    .filter(PaymentDescription.type=='membership').count()
+    total_reservations = Reservation.query.count()
+    total_revenue = round(db.session.query(func.sum(Payment.amount)).first()[0],2)
+
+    return render_template('user/stats.html',   total_users=total_users, paying_users=paying_users,
+                                                total_reservations=total_reservations, total_revenue=total_revenue)
