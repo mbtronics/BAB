@@ -1,7 +1,14 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}{{ config['APP_NAME'] }} - Payment made for {{ user.username }}{% endblock %}
+{% block title %}
+    {{ config['APP_NAME'] }} -
+    {% if user %}
+        Payment made for {{ user.name }}
+    {% else %}
+        Anonymous payment
+    {% endif %}
+{% endblock %}
 
 {% block page_content %}
 
@@ -9,7 +16,13 @@
 
 {% if payment %}
     <div class="page-header">
-        <h1>Payment made for {{ user.name }} ({{ user.username }})</h1>
+        <h1>
+            {% if user %}
+                Payment made for {{ user.name }}
+            {% else %}
+                Anonymous payment
+            {% endif %}
+        </h1>
     </div>
 
     <table class="table table-condensed table-hover">

@@ -8,24 +8,25 @@ from ..decorators import permission_required
 
 NumPaginationItems = 20
 
-@main.route('/user/<int:id>/payments', methods=['GET', 'POST'])
+@main.route('/payment/user/<int:id>', methods=['GET', 'POST'])
 @login_required
-def payments(id):
-
+def make_payment(id):
     if id!=current_user.id and not current_user.can(Permission.MANAGE_PAYMENTS):
         abort(404)
 
-    user = User.query.get_or_404(id)
+    user = User.query.get(id)
 
     if request.form:
         try:
             types = request.form.getlist('type[]')
-            reservations = []
-            for r in request.form.getlist('reservation[]'):
-                try:
-                    reservations.append(int(r))
-                except:
-                    reservations.append(0)
+
+            if user:
+                reservations = []
+                for r in request.form.getlist('reservation[]'):
+                    try:
+                        reservations.append(int(r))
+                    except:
+                        reservations.append(0)
             descriptions = request.form.getlist('description[]')
             amounts = [float(a) for a in request.form.getlist('amount[]')]
         except Exception, e:
@@ -38,10 +39,13 @@ def payments(id):
         for type in types:
             payment = {
                 'type': types[i],
-                'reservation': reservations[i],
                 'description': descriptions[i],
                 'amount': amounts[i]
             }
+            if user:
+                payment['reservation'] = reservations[i]
+            else:
+                payment['reservation'] = None
             payments.append(payment)
             total = total + amounts[i]
             i+=1
@@ -65,7 +69,6 @@ def payments(id):
 @main.route('/payment/<int:id>', methods=['GET', 'POST'])
 @login_required
 def payment(id):
-
     p = Payment.query.get_or_404(id)
     if p.user!=current_user and not current_user.can(Permission.MANAGE_PAYMENTS):
         abort(403)
@@ -74,7 +77,7 @@ def payment(id):
     return render_template('payment/payment.html', user=p.user, payment=p, descriptions=descriptions)
 
 
-@main.route('/payments')
+@main.route('/payment/all')
 @login_required
 @permission_required(Permission.MANAGE_PAYMENTS)
 def list_payments():
@@ -82,3 +85,10 @@ def list_payments():
     pagination = Payment.query.order_by(Payment.id.desc()).paginate(page, per_page=NumPaginationItems, error_out=False)
     payments = pagination.items
     return render_template('payment/list.html', payments=payments, pagination=pagination)
+
+
+@main.route('/payment/new', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.MANAGE_PAYMENTS)
+def anonymous_payment():
+    return make_payment(0)

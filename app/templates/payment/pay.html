@@ -1,34 +1,57 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}{{ config['APP_NAME'] }} - Make payment for {{ user.username }}{% endblock %}
+{% block title %}
+    {{ config['APP_NAME'] }} -
+    {% if user %}
+        Make payment for {{ user.username }}
+    {% else %}
+        Make anonymous payment
+    {% endif %}
+{% endblock %}
 
 {% block page_content %}
 
 <div class="col-md-12">
     <div class="page-header">
-        <h1>Make payment for {{ user.name }} ({{ user.username }})</h1>
+        <h1>
+            {% if user %}
+                Make payment for {{ user.username }}
+            {% else %}
+                Make anonymous payment
+            {% endif %}
+        </h1>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            This is only for payments for which no registered user exists!<br>
+            It can not be used for reservations or memberships.
+        </div>
     </div>
 
     <form action="" method="post" class="form" role="form">
         <fieldset>
-            <legend>Add Entries</legend>
-
             <div class="payment-row">
                 <label>Type:</label>
                 <select name="type[]" required onchange="typeChange(this);">
                     <option value="custom">custom</option>
+
+                    {% if user %}
                     <option value="reservation">reservation</option>
                     <option value="membership">membership</option>
+                    {% endif %}
                 </select>
 
-                <label>Reservation:</label>
-                <select name="reservation[]" style="max-width:30%;" onchange="reservationChange(this);">
-                        <option value="0"></option>
-                    {% for reservation in user.reservations.all() %}
-                        <option value="{{ reservation.id }}">{{ reservation.start }} ({{ reservation.reason }})</option>
-                    {% endfor %}
-                </select>
+                {% if user %}
+                    <label>Reservation:</label>
+                    <select name="reservation[]" style="max-width:30%;" onchange="reservationChange(this);">
+                            <option value="0"></option>
+                        {% for reservation in user.reservations.all() %}
+                            <option value="{{ reservation.id }}">{{ reservation.start }} ({{ reservation.reason }})</option>
+                        {% endfor %}
+                    </select>
+                {% endif %}
 
                 <label>Description:</label>
                 <input name="description[]" required size="30"/>
@@ -62,6 +85,7 @@
 
     <script type="application/javascript">
 
+    {% if user %}
         var reservations = [
             {% for reservation in user.reservations.all() %}
                 {
@@ -70,15 +94,6 @@
                 },
             {% endfor %}
         ];
-
-        jQuery(function($){
-            var button = $('#add-row');
-            var row = $('.payment-row').clone();
-
-            button.click(function(){
-                row.clone().insertBefore($('#end'));
-            });
-        });
 
         function getElementIdInArray(element, type) {
             var rows = document.getElementsByName(type).length;
@@ -120,6 +135,16 @@
                 reservation.value = 0;
             }
         }
+    {% endif %}
+
+        jQuery(function($){
+            var button = $('#add-row');
+            var row = $('.payment-row').clone();
+
+            button.click(function(){
+                row.clone().insertBefore($('#end'));
+            });
+        });
 
     </script>
 
