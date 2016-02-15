@@ -98,7 +98,7 @@ def reservation_setdata(id):
         elif data['action']=='update':
             r=Reservation.query.get_or_404(data['id'])
 
-            if r.user!=current_user and not current_user.can(Permission.MANAGE_RESOURCES):
+            if r.user!=current_user and not current_user.can(Permission.MANAGE_RESERVATIONS):
                 return jsonify({'err': "Permission denied"})
 
             start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
@@ -125,7 +125,7 @@ def reservation_setdata(id):
         elif data['action']=='remove':
             r=Reservation.query.get_or_404(data['id'])
 
-            if r.user!=current_user and not current_user.can(Permission.MANAGE_RESOURCES):
+            if r.user!=current_user and not current_user.can(Permission.MANAGE_RESERVATIONS):
                 return jsonify({'err': "Permission denied"})
 
             if r.start < datetime.now() or r.end < datetime.now():
@@ -142,7 +142,7 @@ def reservation_setdata(id):
 def reservation(id):
     reservation = Reservation.query.get_or_404(id)
 
-    if reservation.user_id!=current_user.id and not current_user.can(Permission.MANAGE_RESERVATIONS):
+    if reservation.user!=current_user and not current_user.can(Permission.MANAGE_RESERVATIONS):
         abort(404)
 
     return render_template('resource/reservation.html', reservation=reservation)

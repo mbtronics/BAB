@@ -21,9 +21,54 @@
                 <p><b>Paid: </b>&euro;{{ reservation.paid }}</p>
             </div>
         </div>
+
+        {% if current_user.can(Permission.MANAGE_RESERVATIONS) or reservation.user==current_user %}
+            <a class="btn btn-danger" onclick="delete_reservation({{ reservation.id }});">Delete reservation</a>
+        {% endif %}
     </div>
 
     <div class="col-md-8">
 
     </div>
+{% endblock %}
+
+{% block scripts %}
+    {% if current_user.can(Permission.MANAGE_RESERVATIONS) or reservation.user==current_user %}
+        {{ super() }}
+
+        <link href='{{ url_for("static", filename="bootstrap-dialog/css/bootstrap-dialog.min.css") }}' rel="stylesheet" type="text/css" />
+        <script src='{{ url_for("static", filename="bootstrap-dialog/js/bootstrap-dialog.min.js") }}'></script>
+        <script>
+            function delete_reservation(id) {
+
+                BootstrapDialog.confirm({
+                    title: 'Remove reservation?',
+                    message: '{{ reservation.user.name }}: {{ reservation.reason }}',
+                    type: BootstrapDialog.TYPE_WARNING,
+                    closable: true,
+                    draggable: true,
+                    btnOKClass: 'btn-warning',
+                    callback: function (result) {
+                        if (result) {
+                            var data = Object({ action: 'remove',
+                                                id: id});
+
+                            $.ajax({
+                                type: 'POST',
+                                contentType: 'application/json',
+                                data: JSON.stringify(data),
+                                dataType: 'json',
+                                url: '{{ url_for('.reservation_setdata', id=reservation.resource.id) }}',
+
+                                success: function(response) {
+                                    $(location).attr('href', '{{ url_for('.make_reservation', id=reservation.resource.id) }}');
+                                },
+                            });
+                        }
+                    }
+                });
+            }
+
+        </script>
+    {% endif %}
 {% endblock %}

@@ -170,9 +170,9 @@
                 eventClick: function(event, jsEvent, view) {
                     {% if setdata %}
                         if (event.title!='Reserved') {
+                            {% if type=='available' %}
                             BootstrapDialog.confirm({
-                                title: 'Remove ' + {% if type=='reservation' %}'reservation'{% endif %}
-                                {% if type=='available' %}'timespan'{% endif %}+ '?',
+                                title: 'Remove timespan?',
                                 message: moment(event.start).format('MMMM Do YYYY, HH:mm') + '<br>' + event.title,
                                 type: BootstrapDialog.TYPE_WARNING,
                                 closable: true,
@@ -184,6 +184,9 @@
                                     }
                                 }
                             });
+                            {% else %}
+                                $(location).attr('href', '{{ url_for('.reservation', id=0) }}' + event.id);
+                            {% endif %}
                         }
                     {% else %}
                         $(location).attr('href', '{{ url_for('.user_by_available', id=0) }}' + event.id);
