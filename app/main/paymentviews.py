@@ -6,6 +6,8 @@ from ..usermodels import Permission, User
 from ..paymentmodels import Payment, PaymentDescription
 from ..decorators import permission_required
 
+import Mollie, time
+
 NumPaginationItems = 20
 
 @main.route('/payment/user/<int:id>', methods=['GET', 'POST'])
@@ -92,3 +94,83 @@ def list_payments():
 @permission_required(Permission.MANAGE_PAYMENTS)
 def anonymous_payment():
     return make_payment(0)
+
+@main.route('/payment/mollie/new')
+@login_required
+@permission_required(Permission.MANAGE_PAYMENTS)
+def online_payment():
+    #
+    # Initialize the Mollie API library with your API key.
+    #
+    # See: https://www.mollie.nl/beheer/account/profielen/
+    #
+    mollie = Mollie.API.Client()
+    mollie.setApiKey('test_rnJXrBM2pvH9PBB7kkFkssZMZSDCtN')
+
+    #
+    # Generate a unique order number for this example. It is important to include this unique attribute
+    # in the redirectUrl (below) so a proper return page can be shown to the customer.
+    #
+    order_nr = int(time.time())
+
+    #
+    # Payment parameters:
+    # amount        Amount in EUROs. This example creates a  10,- payment.
+    # description   Description of the payment.
+    # redirectUrl   Redirect location. The customer will be redirected there after the payment.
+    # metadata      Custom metadata that is stored with the payment.
+    #
+
+    print url_for('.mollie_redirect', id=order_nr, _external=True)
+
+    payment = mollie.payments.create({
+        'amount': 10.00,
+        'description': 'My first API payment',
+        'webhookUrl':  url_for('.mollie_webhook', id=order_nr, _external=True),
+        'redirectUrl': url_for('.mollie_redirect', id=order_nr, _external=True),
+        'metadata': {'order_nr': order_nr}
+    })
+
+    return redirect(payment.getPaymentUrl())
+
+@main.route('/payment/mollie/webhook/<int:id>')
+@login_required
+@permission_required(Permission.MANAGE_PAYMENTS)
+def mollie_webhook(id):
+    #
+    # Initialize the Mollie API library with your API key.
+    #
+    # See: https://www.lib.nl/beheer/account/profielen/
+    #
+    mollie = Mollie.API.Client()
+    mollie.setApiKey('test_rnJXrBM2pvH9PBB7kkFkssZMZSDCtN')
+
+    payment = mollie.payments.get(id)
+    order_nr = payment['metadata']['order_nr']
+
+    if payment.isPaid():
+        #
+        # At this point you'd probably want to start the process of delivering the product to the customer.
+        #
+        return 'Paid'
+    elif payment.isPending():
+        #
+        # The payment has started but is not complete yet.
+        #
+        return 'Pending'
+    elif payment.isOpen():
+        #
+        # The payment has not started yet. Wait for it.
+        #
+        return 'Open'
+    else:
+        #
+        # The payment isn't paid, pending nor open. We can assume it was aborted.
+        #
+        return 'Cancelled'
+
+@main.route('/payment/mollie/redirect/<int:id>')
+@login_required
+@permission_required(Permission.MANAGE_PAYMENTS)
+def mollie_redirect(id):
+    return id
