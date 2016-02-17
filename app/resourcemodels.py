@@ -1,5 +1,5 @@
 from . import db
-import time
+import math
 from markdown import markdown
 import bleach
 from . import thumb
@@ -24,11 +24,14 @@ class Resource(db.Model):
     reservations = db.relationship('Reservation', backref='resource', lazy='dynamic')
 
     @property
-    def reservation_period(self):
-        if self.reserv_per:
-            return time.strftime("%H:%M", time.gmtime(self.reserv_per*60))
+    def reservation_period_pretty(self):
+        if (self.reserv_per % 60)==0:
+            return "%s hours" % (self.reserv_per/60)
         else:
-            return None
+            if (self.reserv_per/60)==0:
+                return "%s min" % (self.reserv_per)
+            else:
+                return "%s hours %s min" % (self.reserv_per/60, self.reserv_per%60)
 
     @staticmethod
     def on_changed_description(target, value, oldvalue, initiator):
@@ -76,8 +79,7 @@ class Reservation(db.Model):
     @property
     def calculated_cost(self):
         hours, minutes = self.duration
-        cost_per_minute = float(self.resource.price_p_per)/float(self.resource.reserv_per)
-        return ((hours*60)+minutes)*cost_per_minute
+        return int(math.ceil((hours*60+minutes)/self.resource.reserv_per))*self.resource.price_p_per
 
     @property
     def paid(self):

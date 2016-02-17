@@ -14,6 +14,10 @@ from datetime import datetime, timedelta
 @permission_required(Permission.BOOK)
 def make_reservation(id):
     resource = Resource.query.get_or_404(id)
+
+    if not resource.active and not current_user.can(Permission.MANAGE_RESOURCES):
+        abort(403)
+
     return render_template('resource/make_reservation.html', resource=resource)
 
 
@@ -82,7 +86,7 @@ def reservation_setdata(id):
                 return jsonify({'err': "You can't make reservations in the past!"})
 
             #Check for overlap
-            reservations = Reservation.query.filter(or_(\
+            reservations = Reservation.query.filter(Reservation.resource==resource).filter(or_(\
                                                         and_(Reservation.start<=start, Reservation.end>=end), \
                                                         and_(Reservation.start>=start, Reservation.start<end), \
                                                         and_(Reservation.end>start, Reservation.end<=end))).all()
@@ -108,7 +112,7 @@ def reservation_setdata(id):
                 return jsonify({'err': "You can't update reservations in the past!"})
 
             #Check for overlap
-            reservations = Reservation.query.filter(or_(\
+            reservations = Reservation.query.filter(Reservation.resource==resource).filter(or_(\
                                                         and_(Reservation.start<=start, Reservation.end>=end), \
                                                         and_(Reservation.start>=start, Reservation.start<end), \
                                                         and_(Reservation.end>start, Reservation.end<=end)))\

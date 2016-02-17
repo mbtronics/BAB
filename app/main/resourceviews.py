@@ -1,5 +1,5 @@
-from flask import render_template, redirect, url_for, request
-from flask.ext.login import login_required
+from flask import render_template, redirect, url_for, request, abort
+from flask.ext.login import login_required, current_user
 from . import main
 from .forms import DeleteConfirmationForm, EditResourceForm
 from .. import db
@@ -12,6 +12,10 @@ from .. import photos
 @login_required
 def resource(name):
     resource = Resource.query.filter_by(name=name).first_or_404()
+
+    if not resource.active and not current_user.can(Permission.MANAGE_RESOURCES):
+        abort(403)
+
     skills = resource.skills.order_by(Skill.name.asc()).all()
     return render_template('resource/view.html', resource=resource, skills=skills)
 

@@ -87,11 +87,7 @@
 
         $(document).ready(function() {
 
-            {% if resource %}
-                var duration = moment.utc( {{ resource.reserv_per }}*1000*60 ).format("HH:mm:ss");
-            {% else %}
-                var duration = '00:20:00';
-            {% endif %}
+            var duration = '00:20:00';
 
             $('#calendar').fullCalendar({
 
