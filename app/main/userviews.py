@@ -40,12 +40,14 @@ def edit_profile():
         current_user.name = form.name.data
         current_user.location = form.location.data
         current_user.about_me = form.about_me.data
+        current_user.organisation = form.organisation.data
         db.session.add(current_user)
         flash('Your profile has been updated.')
         return redirect(url_for('.user', username=current_user.username))
     form.name.data = current_user.name
     form.location.data = current_user.location
     form.about_me.data = current_user.about_me
+    form.organisation.data = current_user.organisation
     return render_template('user/edit.html', form=form)
 
 
@@ -64,10 +66,16 @@ def edit_profile_admin(id):
         user.email = form.email.data
         user.username = form.username.data
         user.confirmed = form.confirmed.data
-        user.role = Role.query.get(form.role.data)
         user.name = form.name.data
         user.location = form.location.data
         user.about_me = form.about_me.data
+        user.organisation = form.organisation.data
+
+        if not user.is_administrator():
+            if form.moderator.data:
+                user.role = Role.query.filter_by(Name='Moderator').first()
+            else:
+                user.role = Role.query.filter_by(Name='User').first()
 
         if form.photo.data.filename:
             user.photo_filename = photos.save(form.photo.data)
@@ -79,10 +87,15 @@ def edit_profile_admin(id):
     form.email.data = user.email
     form.username.data = user.username
     form.confirmed.data = user.confirmed
-    form.role.data = user.role_id
     form.name.data = user.name
     form.location.data = user.location
     form.about_me.data = user.about_me
+    form.organisation.data = user.organisation
+
+    if user.role.name=='Moderator':
+        form.moderator.data = True
+    else:
+        form.moderator.data = False
 
     return render_template('user/edit.html', form=form, user=user)
 
