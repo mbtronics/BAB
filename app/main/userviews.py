@@ -73,9 +73,9 @@ def edit_profile_admin(id):
 
         if not user.is_administrator():
             if form.moderator.data:
-                user.role = Role.query.filter_by(Name='Moderator').first()
+                user.role = Role.query.filter_by(name='Moderator').first()
             else:
-                user.role = Role.query.filter_by(Name='User').first()
+                user.role = Role.query.filter_by(name='User').first()
 
         if form.photo.data.filename:
             user.photo_filename = photos.save(form.photo.data)
