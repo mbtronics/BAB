@@ -88,6 +88,7 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
     photo_filename = db.Column(db.String(100))
+    organisation = db.Column(db.String(50))
 
     skills = db.relationship('Skill', secondary=UserSkills, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
     reservations = db.relationship('Reservation', backref='user', lazy='dynamic')

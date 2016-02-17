@@ -18,6 +18,7 @@
         {# Private information, only for the user himself or moderator #}
         {% if current_user.can(Permission.MANAGE_USERS) or user==current_user %}
             {% if user.location %}From <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a>{% endif %}
+            {% if user.organisation %}<p>Organisation or company: {{ user.organisation }}</p>{% endif %}
             <p>E-mail: <a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
             <p>Registered member since {{ moment(user.member_since).format('DD/MM/YYYY') }}. Last seen {{ moment(user.last_seen).fromNow() }}.</p>
 

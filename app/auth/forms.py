@@ -1,6 +1,6 @@
 from flask.ext.wtf import Form
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import Required, Length, Email, Regexp, EqualTo
+from wtforms.validators import Required, Optional, Length, Email, Regexp, EqualTo
 from wtforms import ValidationError
 from ..usermodels import User
 
@@ -15,8 +15,12 @@ class LoginForm(Form):
 class RegistrationForm(Form):
     email = StringField('Email', validators=[Required(), Length(1, 64),
                                            Email()])
-    name = StringField('Real name', validators=[Required()])
-    username = StringField('Username', validators=[
+
+    organisation = StringField('Organisation or company (optional)', validators=[Optional()])
+    first_name = StringField('First name', validators=[Required(), Regexp('^([A-Z])', 0, 'Names must start with a capital')])
+    last_name = StringField('Last name', validators=[Required(), Regexp('^([A-Z])', 0, 'Names must start with a capital')])
+
+    username = StringField('Username (only letters, numbers, dots or underscores)', validators=[
         Required(), Length(1, 64), Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
                                           'Usernames must have only letters, '
                                           'numbers, dots or underscores')])
