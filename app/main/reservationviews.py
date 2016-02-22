@@ -6,8 +6,9 @@ from ..usermodels import Permission
 from ..resourcemodels import Resource, Available, Reservation
 from ..decorators import permission_required
 import json
-from sqlalchemy import and_, or_, between
-from datetime import datetime, timedelta
+from sqlalchemy import and_, or_
+from datetime import datetime
+import dateutil.parser
 
 @main.route('/resource/reservation/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -79,8 +80,8 @@ def reservation_setdata(id):
     if data and 'action' in data:
 
         if data['action']=='new':
-            start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
-            end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
+            start = dateutil.parser.parse(data['start'], ignoretz=True)
+            end = dateutil.parser.parse(data['end'], ignoretz=True)
 
             if start < datetime.now() or end < datetime.now():
                 return jsonify({'err': "You can't make reservations in the past!"})
@@ -105,8 +106,8 @@ def reservation_setdata(id):
             if r.user!=current_user and not current_user.can(Permission.MANAGE_RESERVATIONS):
                 return jsonify({'err': "Permission denied"})
 
-            start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
-            end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
+            start = dateutil.parser.parse(data['start'], ignoretz=True)
+            end = dateutil.parser.parse(data['end'], ignoretz=True)
 
             if (start!=r.start and start < datetime.now()) or (end!=r.end and end < datetime.now()):
                 return jsonify({'err': "You can't update reservations in the past!"})

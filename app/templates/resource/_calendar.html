@@ -47,12 +47,10 @@
                 return;
             }
 
-            var offset = new Date().getTimezoneOffset();
             var data = Object({ action: action,
                                 id: event._id,
-                                start: Math.round(event.start / 1000) ,
-                                end: Math.round(event.end / 1000),
-                                offset: offset,
+                                start: event.start,
+                                end: event.end,
                                 reason: event.reason});
 
             $.ajax({
@@ -110,6 +108,8 @@
                 timeFormat: "HH:mm",
                 allDaySlot: false,
                 columnFormat: 'ddd D/M',
+                nowIndicator: true,
+                timezone: 'false',
 
                 {% if selectConstraint %}
                     selectConstraint: '{{ selectConstraint }}',

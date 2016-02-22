@@ -218,7 +218,7 @@ class User(UserMixin, db.Model):
                     .filter(PaymentDescription.type=='membership')\
                     .order_by(Payment.date.desc()).first()
         if payment:
-            left = 365-(datetime.now()-payment.date).days
+            left = 365-(datetime.utcnow()-payment.date).days
             if left>0:
                 return left
 

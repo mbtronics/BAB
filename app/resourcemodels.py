@@ -56,8 +56,8 @@ class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), index=True)
     resource_id = db.Column(db.Integer, db.ForeignKey('Resources.id'), index=True)
-    start = db.Column(db.DateTime())
-    end = db.Column(db.DateTime())
+    start = db.Column(db.DateTime())    #Timestamp in local timezone, not UTC!
+    end = db.Column(db.DateTime())      #Timestamp in local timezone, not UTC!
     reason = db.Column(db.String(300), nullable=True)
     cost = db.Column(db.Float)
 
@@ -93,5 +93,5 @@ class Available(db.Model):
     __tablename__ = "Availability"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), index=True)
-    start = db.Column(db.DateTime())
-    end = db.Column(db.DateTime())
+    start = db.Column(db.DateTime())    #Timestamp in local timezone, not UTC!
+    end = db.Column(db.DateTime())      #Timestamp in local timezone, not UTC!
