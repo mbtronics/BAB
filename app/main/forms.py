@@ -1,36 +1,34 @@
 from flask.ext.wtf import Form
 from flask.ext.wtf.file import file_allowed
 from flask.ext.pagedown.fields import PageDownField
-from wtforms import StringField, TextAreaField, BooleanField, SelectField, SubmitField, IntegerField, FloatField
+from wtforms import StringField, TextAreaField, BooleanField, SubmitField, IntegerField
 from flask.ext.wtf.file import FileField
-from wtforms.validators import Required, Optional, Length, Email, Regexp, URL
+from wtforms.validators import Required, Optional, Length, Email, Regexp
 from wtforms import ValidationError
-from ..usermodels import Role, User
-from ..paymentmodels import Payment
+from ..usermodels import User
 from .. import photos
 
-class EditProfileForm(Form):
+class EditProfileFormBasic(Form):
     name = StringField('Real name', validators=[Length(0, 64)])
     organisation = StringField('Organisation or company')
+    organisation = StringField('Organisation or company')
+    invoice_details = TextAreaField('Invoice details (name + address + VAT number)')
     location = StringField('Location', validators=[Length(0, 64)])
     about_me = TextAreaField('About me')
-    submit = SubmitField('Submit')
 
+class EditProfileForm(EditProfileFormBasic):
+    submit = SubmitField('Update information')
 
-class EditProfileAdminForm(Form):
-    email = StringField('Email', validators=[Required(), Length(1, 64),
-                                             Email()])
+class EditProfileAdminForm(EditProfileFormBasic):
     username = StringField('Username', validators=[
         Required(), Length(1, 64), Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
                                           'Usernames must have only letters, '
                                           'numbers, dots or underscores')])
     confirmed = BooleanField('Confirmed')
     moderator = BooleanField('Moderator (not applicable for the admin)')
-    name = StringField('Real name', validators=[Length(0, 64)])
-    organisation = StringField('Organisation or company')
-    location = StringField('Location', validators=[Length(0, 64)])
-    about_me = TextAreaField('About me')
+
     photo = FileField('Photo', validators=[Optional(), file_allowed(photos, "Images only!")])
+
     submit = SubmitField('Update information')
 
     def __init__(self, user, *args, **kwargs):

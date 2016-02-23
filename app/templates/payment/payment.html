@@ -51,6 +51,8 @@
         <b>Operator:</b> {{ payment.operator.name }}<br>
         <b>Payment reference ID:</b> {{ payment.id }}
     </h4>
+
+    <a class="btn btn-default" href="{{ url_for('.payment_invoice', id=payment.id) }}">Print invoice</a>
 {% endif %}
 </div>
 

@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, abort, request
+from flask import render_template, redirect, url_for, abort, request, flash
 from flask.ext.login import login_required, current_user
 from . import main
 from .. import db
@@ -75,6 +75,21 @@ def payment(id):
 
     descriptions = p.paymentdescriptions.all()
     return render_template('payment/payment.html', user=p.user, payment=p, descriptions=descriptions)
+
+
+@main.route('/payment/<int:id>/invoice', methods=['GET', 'POST'])
+@login_required
+def payment_invoice(id):
+    p = Payment.query.get_or_404(id)
+    if p.user!=current_user and not current_user.can(Permission.MANAGE_PAYMENTS):
+        abort(403)
+
+    if not p.user.invoice_details or p.user.invoice_details=='':
+        flash('User does not have invoice details, please edit user profile')
+        return redirect(url_for('.payment', id=id))
+
+    descriptions = p.paymentdescriptions.all()
+    return render_template('payment/payment_invoice.html', user=p.user, payment=p, descriptions=descriptions)
 
 
 @main.route('/payment/all')

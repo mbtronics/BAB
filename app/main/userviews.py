@@ -31,23 +31,32 @@ def user(username):
 
     abort(403)
 
+def profile_form_to_user(form, user):
+    user.name = form.name.data
+    user.location = form.location.data
+    user.about_me = form.about_me.data
+    user.organisation = form.organisation.data
+    user.invoice_details = form.invoice_details.data
+
+def user_to_profile_form(form, user):
+    form.name.data = user.name
+    form.location.data = user.location
+    form.about_me.data = user.about_me
+    form.organisation.data = user.organisation
+    form.invoice_details.data = user.invoice_details
 
 @main.route('/user/edit', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
     form = EditProfileForm()
+
     if form.validate_on_submit():
-        current_user.name = form.name.data
-        current_user.location = form.location.data
-        current_user.about_me = form.about_me.data
-        current_user.organisation = form.organisation.data
+        profile_form_to_user(form, current_user)
         db.session.add(current_user)
         flash('Your profile has been updated.')
         return redirect(url_for('.user', username=current_user.username))
-    form.name.data = current_user.name
-    form.location.data = current_user.location
-    form.about_me.data = current_user.about_me
-    form.organisation.data = current_user.organisation
+
+    user_to_profile_form(form, current_user)
     return render_template('user/edit.html', form=form)
 
 
@@ -62,14 +71,11 @@ def edit_profile_admin(id):
         abort(404)
 
     form = EditProfileAdminForm(user=user)
+
     if form.validate_on_submit():
-        user.email = form.email.data
+        profile_form_to_user(form, user)
         user.username = form.username.data
         user.confirmed = form.confirmed.data
-        user.name = form.name.data
-        user.location = form.location.data
-        user.about_me = form.about_me.data
-        user.organisation = form.organisation.data
 
         if not user.is_administrator():
             if form.moderator.data:
@@ -84,13 +90,10 @@ def edit_profile_admin(id):
         flash('The profile has been updated.')
         return redirect(url_for('.user', username=user.username))
 
-    form.email.data = user.email
+    user_to_profile_form(form, user)
+
     form.username.data = user.username
     form.confirmed.data = user.confirmed
-    form.name.data = user.name
-    form.location.data = user.location
-    form.about_me.data = user.about_me
-    form.organisation.data = user.organisation
 
     if user.role.name=='Moderator':
         form.moderator.data = True

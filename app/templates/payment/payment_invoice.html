@@ -1,0 +1,88 @@
+{% extends "bootstrap/base.html" %}
+
+{% block head %}
+{{ super() }}
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+{% endblock %}
+
+{% block title %}
+    {{ config['APP_NAME'] }} - invoice {{ payment.id }}
+{% endblock %}
+
+{% block content %}
+
+{% if payment and user %}
+<div class="container">
+
+<div class="col-md-12">
+
+    <div class="page-header">
+        <img src="{{ url_for('static', filename='drk.png') }}" height="100" align="right">
+        <h1>Invoice</h1>
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-4 pull-left">
+            <h2>for:</h2>
+            <pre>{{ user.invoice_details }}</pre>
+        </div>
+
+        <div class="col-md-4 pull-right">
+
+            <h2>from:</h2>
+
+            <pre>Designregio Kortrijk vzw
+Broelkaai 6
+8500 Kortrijk
+VAT: BE 0445.962.547
+BE68 0688 9577 6334</pre>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+
+        <h4>
+            <b>Date:</b> {{ moment(payment.date).format('DD/MM/YYYY HH:mm') }}<br>
+            <b>Method:</b> {{ payment.method }}<br>
+            <b>Payment reference ID:</b> {{ payment.id }}
+        </h4>
+
+        <table class="table table-condensed table-hover">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Amount (&euro;)</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for description in descriptions %}
+                <tr>
+                    <td>{{ description['type'] }}</td>
+                    <td>{{ description['description'] }}</td>
+                    <td>{{ description['amount'] }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <h4><b>Total:</b> &euro;{{ payment.amount }}<br></h4>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment() }}
+
+<script>
+    $(document).ready(function() {
+        window.print();
+    });
+</script>
+
+{% endblock %}
