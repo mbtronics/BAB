@@ -17,12 +17,13 @@
 
         {# Private information, only for the user himself or moderator #}
         {% if current_user.can(Permission.MANAGE_USERS) or user==current_user %}
-            {% if user.location %}From <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a>{% endif %}
-            <p>E-mail: <a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
-            <p>Registered member since {{ moment(user.member_since).format('DD/MM/YYYY') }}. Last seen {{ moment(user.last_seen).fromNow() }}.</p>
+            {% if user.location %}<b>From:</b> <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a>{% endif %}
+            {% if user.organisation %}<p><b>Organisation or company:</b> {{ user.organisation }}</p>{% endif %}
+            <p><b>E-mail:</b> <a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+            <p><b>Registered member since:</b> {{ moment(user.member_since).format('DD/MM/YYYY') }}. Last seen {{ moment(user.last_seen).fromNow() }}.</p>
 
             <p>
-                Paid member:
+                <b>Paid member:</b>
                 {% if user.membership_days_left %}
                     {{ user.membership_days_left }} days left
                 {% else %}
@@ -33,7 +34,11 @@
 
         {# Public information, for everyone #}
         {% if user.is_moderator() %}
-            <p>Moderator</p>
+            {% if user.is_administrator() %}
+                <h3>Administrator</h3>
+            {% else %}
+                <h3>Moderator</h3>
+            {% endif %}
         {% endif %}
 
         {% if user.about_me %}
@@ -55,7 +60,17 @@
             </div>
         </div>
 
-        {# Buttons #}
+        {# Private information, only for the user himself or moderator #}
+        {% if current_user.can(Permission.MANAGE_USERS) or user==current_user %}
+            <div class="panel panel-success">
+                <div class="panel-heading">Payments</div>
+                <div class="panel-body">
+                    {{ macros.view_payments_widget(user.payments.all(), pagination, '.user') }}
+                </div>
+            </div>
+        {% endif %}
+
+            {# Buttons #}
         <p>
             {% if current_user.can(Permission.MANAGE_USERS) %}
                 <a class="btn btn-default" href="{{ url_for('.edit_profile_admin', id=user.id) }}">Edit profile</a>
@@ -84,14 +99,6 @@
                 <a class="btn btn-default" href="{{ url_for('.make_payment', id=user.id) }}">Make payment</a>
             {% endif %}
         </p>
-
-        {# Private information, only for the user himself or moderator #}
-        {% if current_user.can(Permission.MANAGE_USERS) or user==current_user %}
-            {% if user.payments.all() %}
-                <br><br>Payments:
-                {{ macros.view_payments_widget(user.payments.all(), pagination, '.user') }}
-            {% endif %}
-        {% endif %}
     </div>
 
     <div class="col-md-2">

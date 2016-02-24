@@ -4,9 +4,11 @@ from sqlalchemy import or_
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, DeleteConfirmationForm, SearchUserForm
 from .. import db
-from ..usermodels import Permission, Role, User, Skill
+from ..usermodels import Permission, Role, User, Skill, Payment, PaymentDescription
 from ..resourcemodels import Reservation
 from ..decorators import permission_required, admin_required
+from sqlalchemy import func
+
 from .. import photos
 
 NumPaginationItems = 20
@@ -38,12 +40,14 @@ def edit_profile():
         current_user.name = form.name.data
         current_user.location = form.location.data
         current_user.about_me = form.about_me.data
+        current_user.organisation = form.organisation.data
         db.session.add(current_user)
         flash('Your profile has been updated.')
         return redirect(url_for('.user', username=current_user.username))
     form.name.data = current_user.name
     form.location.data = current_user.location
     form.about_me.data = current_user.about_me
+    form.organisation.data = current_user.organisation
     return render_template('user/edit.html', form=form)
 
 
@@ -62,10 +66,16 @@ def edit_profile_admin(id):
         user.email = form.email.data
         user.username = form.username.data
         user.confirmed = form.confirmed.data
-        user.role = Role.query.get(form.role.data)
         user.name = form.name.data
         user.location = form.location.data
         user.about_me = form.about_me.data
+        user.organisation = form.organisation.data
+
+        if not user.is_administrator():
+            if form.moderator.data:
+                user.role = Role.query.filter_by(name='Moderator').first()
+            else:
+                user.role = Role.query.filter_by(name='User').first()
 
         if form.photo.data.filename:
             user.photo_filename = photos.save(form.photo.data)
@@ -77,10 +87,15 @@ def edit_profile_admin(id):
     form.email.data = user.email
     form.username.data = user.username
     form.confirmed.data = user.confirmed
-    form.role.data = user.role_id
     form.name.data = user.name
     form.location.data = user.location
     form.about_me.data = user.about_me
+    form.organisation.data = user.organisation
+
+    if user.role.name=='Moderator':
+        form.moderator.data = True
+    else:
+        form.moderator.data = False
 
     return render_template('user/edit.html', form=form, user=user)
 
@@ -198,3 +213,18 @@ def list_reservations(id):
 
     return render_template('user/reservations.html', user=user, reservations=reservations)
 
+
+@main.route('/user/stats')
+@login_required
+@permission_required(Permission.MANAGE_USERS)
+def user_stats():
+
+    total_users = User.query.count()
+    paying_users = db.session.query(Payment)\
+                    .join(PaymentDescription, Payment.id==PaymentDescription.payment_id)\
+                    .filter(PaymentDescription.type=='membership').count()
+    total_reservations = Reservation.query.count()
+    total_revenue = round(db.session.query(func.sum(Payment.amount)).first()[0],2)
+
+    return render_template('user/stats.html',   total_users=total_users, paying_users=paying_users,
+                                                total_reservations=total_reservations, total_revenue=total_revenue)

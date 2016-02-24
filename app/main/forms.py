@@ -11,6 +11,7 @@ from .. import photos
 
 class EditProfileForm(Form):
     name = StringField('Real name', validators=[Length(0, 64)])
+    organisation = StringField('Organisation or company')
     location = StringField('Location', validators=[Length(0, 64)])
     about_me = TextAreaField('About me')
     submit = SubmitField('Submit')
@@ -24,8 +25,9 @@ class EditProfileAdminForm(Form):
                                           'Usernames must have only letters, '
                                           'numbers, dots or underscores')])
     confirmed = BooleanField('Confirmed')
-    role = SelectField('Role', coerce=int)
+    moderator = BooleanField('Moderator (not applicable for the admin)')
     name = StringField('Real name', validators=[Length(0, 64)])
+    organisation = StringField('Organisation or company')
     location = StringField('Location', validators=[Length(0, 64)])
     about_me = TextAreaField('About me')
     photo = FileField('Photo', validators=[Optional(), file_allowed(photos, "Images only!")])
@@ -33,8 +35,6 @@ class EditProfileAdminForm(Form):
 
     def __init__(self, user, *args, **kwargs):
         super(EditProfileAdminForm, self).__init__(*args, **kwargs)
-        self.role.choices = [(role.id, role.name)
-                             for role in Role.query.order_by(Role.name).all()]
         self.user = user
 
     def validate_email(self, field):

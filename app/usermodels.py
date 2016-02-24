@@ -88,6 +88,7 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
     photo_filename = db.Column(db.String(100))
+    organisation = db.Column(db.String(50))
 
     skills = db.relationship('Skill', secondary=UserSkills, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
     reservations = db.relationship('Reservation', backref='user', lazy='dynamic')
@@ -217,7 +218,7 @@ class User(UserMixin, db.Model):
                     .filter(PaymentDescription.type=='membership')\
                     .order_by(Payment.date.desc()).first()
         if payment:
-            left = 365-(datetime.now()-payment.date).days
+            left = 365-(datetime.utcnow()-payment.date).days
             if left>0:
                 return left
 
