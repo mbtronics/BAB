@@ -10,6 +10,18 @@ import Mollie, time
 
 NumPaginationItems = 20
 
+def make_mollie_payment(p):
+    mollie = Mollie.API.Client()
+    mollie.setApiKey(current_app.config['MOLLIE_KEY'])
+    payment = mollie.payments.create({
+        'amount': p.amount,
+        'description': 'BUDA::lab payment',
+        'webhookUrl':  url_for('.mollie_webhook', id=p.id, _external=True, _scheme="https"),
+        'redirectUrl': url_for('.mollie_redirect', id=p.id, _external=True, _scheme="https"),
+        'metadata': {'order_nr': p.id}
+    })
+    return redirect(payment.getPaymentUrl())
+
 @main.route('/payment/user/<int:id>', methods=['GET', 'POST'])
 @login_required
 def make_payment(id):
@@ -53,6 +65,13 @@ def make_payment(id):
             i+=1
 
         p = Payment(method=request.form.get('method'), user=user, amount=total, operator=current_user)
+        if p.method=='cash' or p.method=='terminal':
+            p.paid = True
+        elif p.method=='online':
+            p.paid = False
+        else:
+            abort(404)
+
         db.session.add(p)
         db.session.flush()
         for payment in payments:
@@ -61,6 +80,9 @@ def make_payment(id):
                 pd.reservation_id = payment['reservation']
             db.session.add(pd)
         db.session.commit()
+
+        if p.method == 'online':
+            return make_mollie_payment(p)
 
         return redirect(url_for('.payment', id=p.id))
 
@@ -95,82 +117,40 @@ def list_payments():
 def anonymous_payment():
     return make_payment(0)
 
-@main.route('/payment/mollie/new')
-@login_required
-@permission_required(Permission.MANAGE_PAYMENTS)
-def online_payment():
-    #
-    # Initialize the Mollie API library with your API key.
-    #
-    # See: https://www.mollie.nl/beheer/account/profielen/
-    #
-    mollie = Mollie.API.Client()
-    mollie.setApiKey(current_app.config['MOLLIE_KEY'])
 
-    #
-    # Generate a unique order number for this example. It is important to include this unique attribute
-    # in the redirectUrl (below) so a proper return page can be shown to the customer.
-    #
-    order_nr = int(time.time())
-
-    #
-    # Payment parameters:
-    # amount        Amount in EUROs. This example creates a  10,- payment.
-    # description   Description of the payment.
-    # redirectUrl   Redirect location. The customer will be redirected there after the payment.
-    # metadata      Custom metadata that is stored with the payment.
-    #
-
-    print url_for('.mollie_redirect', id=order_nr, _external=True)
-
-    payment = mollie.payments.create({
-        'amount': 10.00,
-        'description': 'My first API payment',
-        'webhookUrl':  url_for('.mollie_webhook', id=order_nr, _external=True),
-        'redirectUrl': url_for('.mollie_redirect', id=order_nr, _external=True),
-        'metadata': {'order_nr': order_nr}
-    })
-
-    return redirect(payment.getPaymentUrl())
-
-@main.route('/payment/mollie/webhook/<int:id>')
-@login_required
-@permission_required(Permission.MANAGE_PAYMENTS)
+@main.route('/payment/mollie/webhook/<id>', methods=['GET', 'POST'])
 def mollie_webhook(id):
-    #
-    # Initialize the Mollie API library with your API key.
-    #
-    # See: https://www.lib.nl/beheer/account/profielen/
-    #
     mollie = Mollie.API.Client()
     mollie.setApiKey(current_app.config['MOLLIE_KEY'])
 
-    payment = mollie.payments.get(id)
+    if 'id' not in request.form:
+        print "id not in request.form"
+        abort(404, 'Unknown payment id')
+
+    payment_id = request.form['id']
+    payment = mollie.payments.get(payment_id)
     order_nr = payment['metadata']['order_nr']
 
-    if payment.isPaid():
-        #
-        # At this point you'd probably want to start the process of delivering the product to the customer.
-        #
-        return 'Paid'
-    elif payment.isPending():
-        #
-        # The payment has started but is not complete yet.
-        #
-        return 'Pending'
-    elif payment.isOpen():
-        #
-        # The payment has not started yet. Wait for it.
-        #
-        return 'Open'
-    else:
-        #
-        # The payment isn't paid, pending nor open. We can assume it was aborted.
-        #
-        return 'Cancelled'
+    print "mollie webhook, id=%s, order_nr=%s" % (payment_id, order_nr)
 
-@main.route('/payment/mollie/redirect/<int:id>')
+    if payment.isPaid():
+        print 'Paid'
+        p = Payment.query.get_or_404(order_nr)
+        p.paid = True
+    elif payment.isPending():
+        # The payment has started but is not complete yet.
+        print 'Pending'
+    elif payment.isOpen():
+        # The payment has not started yet. Wait for it.
+        print 'Open'
+    else:
+        # The payment isn't paid, pending nor open. We can assume it was aborted.
+        print 'Cancelled'
+
+    return ('', 204)
+
+@main.route('/payment/mollie/redirect/<int:id>', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.MANAGE_PAYMENTS)
 def mollie_redirect(id):
-    return id
+    return redirect(url_for('.payment', id=id))

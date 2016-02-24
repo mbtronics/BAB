@@ -10,6 +10,7 @@
                 <th>User</th>
                 <th>Amount</th>
                 <th>Method</th>
+                <th>Paid</th>
                 <th>Date</th>
             </tr>
         </thead>
@@ -22,6 +23,7 @@
                 <td>{{ payment.user.name }}</td>
                 <td>{{ payment.amount }}&euro;</td>
                 <td>{{ payment.method }}</td>
+                <td>{{ payment.paid }}</td>
                 <td>{{ moment(payment.date).format('DD/MM/YYYY HH:mm') }}</td>
             </tr>
         {% endfor %}
