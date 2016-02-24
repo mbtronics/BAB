@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, abort, request
+from flask import render_template, redirect, url_for, abort, request, current_app
 from flask.ext.login import login_required, current_user
 from . import main
 from .. import db
@@ -105,7 +105,7 @@ def online_payment():
     # See: https://www.mollie.nl/beheer/account/profielen/
     #
     mollie = Mollie.API.Client()
-    mollie.setApiKey('test_rnJXrBM2pvH9PBB7kkFkssZMZSDCtN')
+    mollie.setApiKey(current_app.config['MOLLIE_KEY'])
 
     #
     # Generate a unique order number for this example. It is important to include this unique attribute
@@ -143,7 +143,7 @@ def mollie_webhook(id):
     # See: https://www.lib.nl/beheer/account/profielen/
     #
     mollie = Mollie.API.Client()
-    mollie.setApiKey('test_rnJXrBM2pvH9PBB7kkFkssZMZSDCtN')
+    mollie.setApiKey(current_app.config['MOLLIE_KEY'])
 
     payment = mollie.payments.get(id)
     order_nr = payment['metadata']['order_nr']

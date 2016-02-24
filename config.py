@@ -20,6 +20,7 @@ class Config:
     APP_ADMIN = os.environ.get('APP_ADMIN')
     APPLICATION_ROOT = os.environ.get('APPLICATION_ROOT')
     UPLOADED_PHOTOS_DEST = os.environ.get('UPLOAD_DIR')
+    MOLLIE_KEY = os.environ.get('MOLLIE_KEY')
 
     @staticmethod
     def init_app(app):
