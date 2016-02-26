@@ -2,12 +2,7 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block title %}
-    {{ config['APP_NAME'] }} -
-    {% if user %}
-        Payment made for {{ user.name }}
-    {% else %}
-        Anonymous payment
-    {% endif %}
+    {{ config['APP_NAME'] }} - Request invoice
 {% endblock %}
 
 {% block page_content %}
@@ -16,13 +11,7 @@
 
 {% if payment %}
     <div class="page-header">
-        <h1>
-            {% if user %}
-                Payment made for {{ user.name }}
-            {% else %}
-                Anonymous payment
-            {% endif %}
-        </h1>
+        <h1>Request invoice</h1>
     </div>
 
     <table class="table table-condensed table-hover">

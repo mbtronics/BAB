@@ -8,7 +8,6 @@ from ..usermodels import Permission, Role, User, Skill, Payment, PaymentDescript
 from ..resourcemodels import Reservation
 from ..decorators import permission_required, admin_required
 from sqlalchemy import func
-
 from .. import photos
 
 NumPaginationItems = 20

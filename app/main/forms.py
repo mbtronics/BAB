@@ -68,3 +68,8 @@ class EditResourceForm(Form):
     price_p_per = IntegerField('Price per period (euro)', validators=[Optional()])
     reserv_per = IntegerField('Reservation period (minutes)', validators=[Optional()])
     submit = SubmitField('Update resource')
+
+class RequestInvoiceForm(Form):
+    invoice_details = TextAreaField('Invoice details (name + address + VAT number)')
+    vat_liable = BooleanField('Do you have to pay VAT?', default=True)
+    submit = SubmitField('Request invoice')

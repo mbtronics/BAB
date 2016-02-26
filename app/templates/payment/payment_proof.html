@@ -20,14 +20,19 @@
 
     <div class="page-header">
         <img src="{{ url_for('static', filename='drk.png') }}" height="100" align="right">
-        <h1>Invoice</h1>
+        <h1>Proof of payment</h1>
     </div>
 
     <div class="row">
 
         <div class="col-md-4 pull-left">
             <h2>for:</h2>
-            <pre>{{ user.invoice_details }}</pre>
+            {% if user.invoice_details %}
+                <pre>{{ user.invoice_details }}</pre>
+            {% else %}
+                <pre>{{ user.name }}
+{{ user.organisation }}</pre>
+            {% endif %}
         </div>
 
         <div class="col-md-4 pull-right">
@@ -69,6 +74,7 @@ BE68 0688 9577 6334</pre>
             </tbody>
         </table>
         <h4><b>Total:</b> &euro;{{ payment.amount }}<br></h4>
+        <br><h4>This is not an invoice!</h4>
         </div>
     </div>
 {% endif %}
