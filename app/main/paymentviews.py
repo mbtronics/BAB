@@ -99,15 +99,20 @@ def payment_invoice(id):
     descriptions = p.paymentdescriptions.all()
 
     form = RequestInvoiceForm()
+    form.invoice_details.data = p.user.invoice_details
+    form.vat_exempt.data = False;
+
     if form.validate_on_submit():
         if not form.invoice_details.data:
             abort(404)
 
-        send_email('maartenblomme@gmail.com', 'Request invoice', 'payment/email/request_invoice', user=p.user, payment=p, descriptions=descriptions)
-        send_email(p.user.email, 'Invoice request pending', 'payment/email/invoice_request_pending', user=p.user, payment=p, descriptions=descriptions)
+        send_email('maartenblomme@gmail.com', 'Request invoice', 'payment/email/request_invoice',
+                   payment=p, descriptions=descriptions, invoice_details=form.invoice_details.data, vat_exempt=form.vat_exempt.data)
+        send_email(p.user.email, 'Invoice request pending', 'payment/email/request_invoice',
+                   payment=p, descriptions=descriptions, invoice_details=form.invoice_details.data, vat_exempt=form.vat_exempt.data)
         return redirect(url_for('.payment', id=id))
 
-    return render_template('payment/request_invoice.html', user=p.user, payment=p, descriptions=descriptions)
+    return render_template('payment/request_invoice.html', user=p.user, payment=p, descriptions=descriptions, form=form)
 
 @main.route('/payment/all')
 @login_required

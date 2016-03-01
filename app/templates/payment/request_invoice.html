@@ -41,9 +41,7 @@
         <b>Payment reference ID:</b> {{ payment.id }}
     </h4>
 
-    <br>
-    <a class="btn btn-default" href="{{ url_for('.payment_proof', id=payment.id) }}">Print proof of payment</a> This is not an invoice!<br><br>
-    <a class="btn btn-default" href="{{ url_for('.payment_invoice', id=payment.id) }}">Request invoice</a> An invoice will be mailed to you.
+    {{ wtf.quick_form(form) }}
 {% endif %}
 </div>
 

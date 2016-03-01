@@ -1,11 +1,6 @@
-Dear {{ user.username }},
+{{ payment.user.name }} requested on invoice for payment {{ payment.id }}
 
-To confirm your new email address click on the following link:
+Invoice details:
+{{ invoice_details }}
 
-{{ url_for('auth.change_email', token=token, _external=True) }}
-
-Sincerely,
-
-{{ config['APP_NAME'] }}
-
-Note: replies to this email address are not monitored.
+VAT exempt: {{ vat_exempt }}

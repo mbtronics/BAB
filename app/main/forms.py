@@ -71,5 +71,5 @@ class EditResourceForm(Form):
 
 class RequestInvoiceForm(Form):
     invoice_details = TextAreaField('Invoice details (name + address + VAT number)')
-    vat_liable = BooleanField('Do you have to pay VAT?', default=True)
+    vat_exempt = BooleanField('Are you VAT exempted (vrijstelling van BTW)?', default=False)
     submit = SubmitField('Request invoice')
