@@ -1,5 +1,32 @@
-<p><a href="{{ url_for('.user', username=payment.user.username, _external=True) }}">{{ payment.user.name }}</a>
-    requested on invoice for payment <a href="{{ url_for('.payment', id=payment.id, _external=True) }}">{{ payment.id }}</a></p>
+<p><a href="{{ url_for('.user', username=payment.user.username, _external=True) }}">{{ payment.user.name }}</a> ({{ payment.user.email }})
+    requested on invoice for payment <a href="{{ url_for('.payment', id=payment.id, _external=True) }}">{{ payment.id }}</a>.</p>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Amount (&euro;)</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for description in descriptions %}
+        <tr>
+            <td>{{ description['type'] }}</td>
+            <td>{{ description['description'] }}</td>
+            <td>{{ description['amount'] }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h4>
+    <b>Total:</b> &euro;{{ payment.amount }}<br>
+    <b>Date:</b> {{ moment(payment.date).format('DD/MM/YYYY HH:mm') }}<br>
+    <b>Method:</b> {{ payment.method }}<br>
+    <b>Operator:</b> {{ payment.operator.name }}<br>
+    <b>Payment reference ID:</b> {{ payment.id }}
+</h4>
 
 <p>Invoice details:<pre>{{ invoice_details }}</pre></p>
 <p>VAT exempt: {{ vat_exempt }}</p>

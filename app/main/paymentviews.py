@@ -99,8 +99,6 @@ def payment_invoice(id):
     descriptions = p.paymentdescriptions.all()
 
     form = RequestInvoiceForm()
-    form.invoice_details.data = p.user.invoice_details
-    form.vat_exempt.data = False;
 
     if form.validate_on_submit():
         if not form.invoice_details.data:
@@ -110,7 +108,11 @@ def payment_invoice(id):
                    payment=p, descriptions=descriptions, invoice_details=form.invoice_details.data, vat_exempt=form.vat_exempt.data)
         send_email(p.user.email, 'Invoice request pending', 'payment/email/request_invoice',
                    payment=p, descriptions=descriptions, invoice_details=form.invoice_details.data, vat_exempt=form.vat_exempt.data)
+        flash("Your invoice request has been send. You should receive it by e-mail.")
         return redirect(url_for('.payment', id=id))
+
+    form.invoice_details.data = p.user.invoice_details
+    form.vat_exempt.data = False;
 
     return render_template('payment/request_invoice.html', user=p.user, payment=p, descriptions=descriptions, form=form)
 
