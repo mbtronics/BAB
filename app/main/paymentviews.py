@@ -87,6 +87,10 @@ def payment_proof(id):
     if p.user!=current_user and not current_user.can(Permission.MANAGE_PAYMENTS):
         abort(403)
 
+    if not p.user:
+        flash('Not possible for anonymous payment')
+        abort(500)
+
     vat_number = Setting.query.get('vat_number')
     our_invoice_details = Setting.query.get('invoice_details')
     if not vat_number.value or not our_invoice_details.value:
@@ -103,6 +107,10 @@ def payment_invoice(id):
     p = Payment.query.get_or_404(id)
     if p.user!=current_user and not current_user.can(Permission.MANAGE_PAYMENTS):
         abort(403)
+
+    if not p.user:
+        flash('Not possible for anonymous payment')
+        abort(500)
 
     descriptions = p.paymentdescriptions.all()
 

@@ -31,7 +31,7 @@
                 <pre>{{ user.invoice_details }}</pre>
             {% else %}
                 <pre>{{ user.name }}
-{{ user.organisation }}</pre>
+{% if user.organisation %}{{ user.organisation }}{% endif %}</pre>
             {% endif %}
         </div>
 
