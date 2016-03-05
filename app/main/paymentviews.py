@@ -7,6 +7,7 @@ from ..paymentmodels import Payment, PaymentDescription
 from ..decorators import permission_required
 from ..email import send_email
 from forms import RequestInvoiceForm
+from ..settingsmodels import Setting
 
 NumPaginationItems = 20
 
@@ -86,8 +87,15 @@ def payment_proof(id):
     if p.user!=current_user and not current_user.can(Permission.MANAGE_PAYMENTS):
         abort(403)
 
+    vat_number = Setting.query.get('vat_number')
+    our_invoice_details = Setting.query.get('invoice_details')
+    if not vat_number.value or not our_invoice_details.value:
+        flash('Invoice settings incorrect!')
+        abort(500)
+
     descriptions = p.paymentdescriptions.all()
-    return render_template('payment/payment_proof.html', user=p.user, payment=p, descriptions=descriptions)
+    return render_template('payment/payment_proof.html', user=p.user, payment=p, descriptions=descriptions,
+                           our_invoice_details=our_invoice_details, vat_number=vat_number)
 
 @main.route('/payment/<int:id>/invoice', methods=['GET', 'POST'])
 @login_required
@@ -98,13 +106,14 @@ def payment_invoice(id):
 
     descriptions = p.paymentdescriptions.all()
 
+    invoice_email = Setting.query.get('invoice_email')
+    if not invoice_email.value:
+        flash('Invoice settings incorrect!')
+        abort(500)
+
     form = RequestInvoiceForm()
-
     if form.validate_on_submit():
-        if not form.invoice_details.data:
-            abort(404)
-
-        send_email('maartenblomme@gmail.com', 'Request invoice', 'payment/email/request_invoice',
+        send_email(invoice_email.value, 'Request invoice', 'payment/email/request_invoice',
                    payment=p, descriptions=descriptions, invoice_details=form.invoice_details.data, vat_exempt=form.vat_exempt.data)
         send_email(p.user.email, 'Invoice request pending', 'payment/email/request_invoice',
                    payment=p, descriptions=descriptions, invoice_details=form.invoice_details.data, vat_exempt=form.vat_exempt.data)

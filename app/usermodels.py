@@ -17,6 +17,7 @@ class Permission:
     MANAGE_RESOURCES =  (1<<3)
     MANAGE_RESERVATIONS=(1<<4)
     MANAGE_PAYMENTS =   (1<<5)
+    CHANGE_SETTINGS =   (1<<6)
     ADMINISTER =        0xffff
 
 roles = {

@@ -73,3 +73,9 @@ class RequestInvoiceForm(Form):
     invoice_details = TextAreaField('Invoice details (name + address + VAT number)')
     vat_exempt = BooleanField('Are you VAT exempted (vrijstelling van BTW)?', default=False)
     submit = SubmitField('Request invoice')
+
+class ChangeSettingsForm(Form):
+    invoice_details = TextAreaField('Invoice details (name + address)')
+    vat_number = StringField('VAT number')
+    invoice_email = StringField('Invoice e-mail')
+    submit = SubmitField('Change settings')
