@@ -2,13 +2,16 @@ from flask import render_template, redirect, url_for, abort, flash, request, ses
 from flask.ext.login import login_required, current_user
 from sqlalchemy import or_
 from . import main
-from .forms import EditProfileForm, EditProfileAdminForm, DeleteConfirmationForm, SearchUserForm
+from .forms import EditProfileForm, EditProfileAdminForm, DeleteConfirmationForm, SearchUserForm, ExpenseNoteForm
 from .. import db
-from ..usermodels import Permission, Role, User, Skill, Payment, PaymentDescription
+from ..usermodels import Permission, Role, User, Skill, Payment, PaymentDescription, ExpenseNote
 from ..resourcemodels import Reservation
-from ..decorators import permission_required, admin_required
+from ..decorators import permission_required, admin_required, moderator_required
 from sqlalchemy import func
-from .. import photos
+from .. import photos, expensenotes
+from ..email import send_email
+from ..settingsmodels import Setting
+
 
 NumPaginationItems = 20
 
@@ -230,3 +233,39 @@ def user_stats():
 
     return render_template('user/stats.html',   total_users=total_users, paying_users=paying_users,
                                                 total_reservations=total_reservations, total_revenue=total_revenue)
+
+@main.route('/user/<int:id>/expensenote', methods=['GET', 'POST'])
+@login_required
+@moderator_required
+def create_expensenote(id):
+
+    if id!=current_user.id:
+        abort(404)
+
+    invoice_email = Setting.query.get('invoice_email')
+    if not invoice_email.value:
+        flash('Invoice settings incorrect!')
+        abort(500)
+
+    form = ExpenseNoteForm()
+    if form.validate_on_submit():
+        e = ExpenseNote()
+        e.total = form.total.data
+        e.description = form.description.data
+        e.bank_account = form.bank_account.data
+        e.date = form.date.data
+        e.user_id = id
+
+        if form.file.data.filename:
+            e.filename = expensenotes.save(form.file.data)
+
+        db.session.add(e)
+        db.session.commit()
+
+        send_email(invoice_email.value, 'Request invoice', 'user/email/expensenote', expensenote=e)
+        flash("Your expense note has been send.")
+        return redirect(url_for('.user', username=id))
+
+    # dateformat should be compatible with format in ExpenseNoteForm
+    return render_template('user/expensenote.html', form=form, dateformat='dd/mm/yy')
+

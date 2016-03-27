@@ -1,9 +1,9 @@
 from flask.ext.wtf import Form
 from flask.ext.wtf.file import file_allowed
 from flask.ext.pagedown.fields import PageDownField
-from wtforms import StringField, TextAreaField, BooleanField, SubmitField, IntegerField
+from wtforms import StringField, TextAreaField, BooleanField, SubmitField, IntegerField, DateField
 from flask.ext.wtf.file import FileField
-from wtforms.validators import Required, Optional, Length, Email, Regexp
+from wtforms.validators import Required, Optional, Length, Regexp
 from wtforms import ValidationError
 from ..usermodels import User
 from .. import photos
@@ -79,3 +79,11 @@ class ChangeSettingsForm(Form):
     vat_number = StringField('VAT number')
     invoice_email = StringField('Invoice e-mail')
     submit = SubmitField('Change settings')
+
+class ExpenseNoteForm(Form):
+    total = IntegerField('Total cost', validators=[Required()])
+    description = StringField('Description', validators=[Required()])
+    bank_account = StringField('Bank account', validators=[Required()])
+    date = DateField('Date (costs made on)', validators=[Required()], format='%d/%m/%Y')
+    file = FileField('File', validators=[Required()])
+    submit = SubmitField('Create expense note')

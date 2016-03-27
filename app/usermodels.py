@@ -7,6 +7,7 @@ import hashlib
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from . import thumb
 from paymentmodels import PaymentDescription, Payment
+from . import expensenotes
 
 
 #Bit-style permissions
@@ -97,6 +98,7 @@ class User(UserMixin, db.Model):
     availability = db.relationship('Available', backref='user', lazy='dynamic')
     payments = db.relationship('Payment', backref='user', lazy='dynamic', foreign_keys=[Payment.user_id])
     payments_made = db.relationship('Payment', backref='operator', lazy='dynamic', foreign_keys=[Payment.operator_id])
+    expensenotes = db.relationship('ExpenseNote', backref='user', lazy='dynamic')
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -244,3 +246,23 @@ login_manager.anonymous_user = AnonymousUser
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+
+class ExpenseNote(db.Model):
+    __tablename__ = 'ExpenseNotes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    total = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.String(200), nullable=False)
+    bank_account = db.Column(db.String(50))
+    date = db.Column(db.Date)
+    date_requested = db.Column(db.Date, default=datetime.utcnow)
+    filename = db.Column(db.String(100))
+
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=True)
+
+    @property
+    def file_url(self):
+        return expensenotes.url(self.filename)
+
+    def __repr__(self):
+        return '<ExpenseNote for %s: %r>' % (self.user.name, self.total)

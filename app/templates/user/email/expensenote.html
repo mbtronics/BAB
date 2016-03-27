@@ -1,0 +1,27 @@
+<p><a href="{{ url_for('.user', username=expensenote.user.username, _external=True) }}">{{ expensenote.user.name }}</a>
+    ({{ expensenote.user.email }}) requested an expense report:</p>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Cost</th>
+            <th>Description</th>
+            <th>Bank account</th>
+            <th>Date costs</th>
+            <th>Date request</th>
+            <th>File</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ expensenote.id }}</td>
+            <td>&euro;{{ expensenote.total }}</td>
+            <td>{{ expensenote.description }}</td>
+            <td>{{ expensenote.bank_account }}</td>
+            <td>{{ expensenote.date }}</td>
+            <td>{{ expensenote.date_requested }}</td>
+            <td><a href="{{ expensenote.file_url }}">{{ expensenote.filename }}</a></td>
+        </tr>
+    </tbody>
+</table>

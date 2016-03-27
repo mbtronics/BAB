@@ -1,5 +1,5 @@
 <p><a href="{{ url_for('.user', username=payment.user.username, _external=True) }}">{{ payment.user.name }}</a> ({{ payment.user.email }})
-    requested on invoice for payment <a href="{{ url_for('.payment', id=payment.id, _external=True) }}">{{ payment.id }}</a>.</p>
+    requested an invoice for payment <a href="{{ url_for('.payment', id=payment.id, _external=True) }}">{{ payment.id }}</a>.</p>
 
 <table border="1">
     <thead>

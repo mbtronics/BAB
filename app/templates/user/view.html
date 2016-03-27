@@ -31,12 +31,48 @@
             <br>
             {% if user.invoice_details %}<p><b>Invoice details:</b> <pre>{{ user.invoice_details }}</pre></p>{% endif %}
 
-            <div class="panel panel-success">
-                <div class="panel-heading">Payments</div>
-                <div class="panel-body">
-                    {{ macros.view_payments_widget(user.payments.all(), pagination, '.user') }}
+            {% if user.payments.all() %}
+                <div class="panel panel-success">
+                    <div class="panel-heading">Payments</div>
+                    <div class="panel-body">
+                        {{ macros.view_payments_widget(user.payments.all(), pagination, '.user') }}
+                    </div>
                 </div>
-            </div>
+            {% endif %}
+
+            {% if user.expensenotes.all() %}
+                <div class="panel panel-success">
+                    <div class="panel-heading">Expense notes</div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Cost</th>
+                                    <th>Description</th>
+                                    <th>Bank account</th>
+                                    <th>Date costs</th>
+                                    <th>Date request</th>
+                                    <th>File</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for expensenote in user.expensenotes.all() %}
+                                <tr>
+                                    <td>{{ expensenote.id }}</td>
+                                    <td>&euro;{{ expensenote.total }}</td>
+                                    <td>{{ expensenote.description }}</td>
+                                    <td>{{ expensenote.bank_account }}</td>
+                                    <td>{{ moment(expensenote.date).format('DD/MM/YYYY') }}</td>
+                                    <td>{{ moment(expensenote.date_requested).format('DD/MM/YYYY') }}</td>
+                                    <td><a href="{{ expensenote.file_url }}">{{ expensenote.filename }}</a></td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
         {% endif %}
 
         {# Public information, for everyone #}
@@ -97,6 +133,10 @@
 
             {% if current_user.can(Permission.MANAGE_PAYMENTS) %}
                 <a class="btn btn-default" href="{{ url_for('.make_payment', id=user.id) }}">Make payment</a>
+            {% endif %}
+
+            {% if current_user.is_moderator() %}
+                <a class="btn btn-default" href="{{ url_for('.create_expensenote', id=user.id) }}">Create expense note</a>
             {% endif %}
         </p>
     </div>
