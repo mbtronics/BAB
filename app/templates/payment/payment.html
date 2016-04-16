@@ -50,7 +50,7 @@
         <b>Method:</b> {{ payment.method }}<br>
         <b>Operator:</b> {{ payment.operator.name }}<br>
         <b>Payment reference ID:</b> {{ payment.id }}<br>
-        <b>Paid:</b> {{ payment.paid }}
+        <b>Paid:</b> {% if payment.paid %}yes{% else %}no{% endif %}
     </h4>
 
     {% if not payment.paid %}

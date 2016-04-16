@@ -25,7 +25,8 @@
     <b>Date:</b> {{ moment(payment.date).format('DD/MM/YYYY HH:mm') }}<br>
     <b>Method:</b> {{ payment.method }}<br>
     <b>Operator:</b> {{ payment.operator.name }}<br>
-    <b>Payment reference ID:</b> {{ payment.id }}
+    <b>Payment reference ID:</b> {{ payment.id }}<br>
+    <b>Paid:</b> {% if payment.paid %}yes{% else %}no{% endif %}
 </h4>
 
 <p>Invoice details:<pre>{{ invoice_details }}</pre></p>

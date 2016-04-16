@@ -38,7 +38,8 @@
         <b>Total:</b> &euro;{{ payment.amount }}<br>
         <b>Method:</b> {{ payment.method }}<br>
         <b>Operator:</b> {{ payment.operator.name }}<br>
-        <b>Payment reference ID:</b> {{ payment.id }}
+        <b>Payment reference ID:</b> {{ payment.id }}<br>
+        <b>Paid:</b> {% if payment.paid %}yes{% else %}no{% endif %}
     </h4>
 
     {{ wtf.quick_form(form) }}
