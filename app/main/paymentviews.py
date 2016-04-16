@@ -8,8 +8,8 @@ from ..decorators import permission_required
 from ..email import send_email
 from forms import RequestInvoiceForm
 from ..settingsmodels import Setting
-
-import Mollie, time
+from .. import mollie
+import time
 
 NumPaginationItems = 20
 
@@ -155,13 +155,6 @@ def anonymous_payment():
 @login_required
 @permission_required(Permission.MANAGE_PAYMENTS)
 def online_payment():
-    #
-    # Initialize the Mollie API library with your API key.
-    #
-    # See: https://www.mollie.nl/beheer/account/profielen/
-    #
-    mollie = Mollie.API.Client()
-    mollie.setApiKey('test_rnJXrBM2pvH9PBB7kkFkssZMZSDCtN')
 
     #
     # Generate a unique order number for this example. It is important to include this unique attribute

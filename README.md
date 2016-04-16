@@ -31,6 +31,7 @@ Copy env.example to .env and fill in the variables:
 * **DATABASE_URL**: production database url
 * **FLASK_CONFIG**: the config to use (development, production)
 * **UPLOAD_DIR**: the upload dir for files
+* **MOLLIE_KEY**: Mollie payment system key
 
 If you choose *development* for **FLASK_CONFIG**, you need to fill in **DEV_DATABASE_URL**.<br>
 If you choose *production* for **FLASK_CONFIG**, you need to fill in **DATABASE_URL**.

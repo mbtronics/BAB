@@ -8,8 +8,8 @@ from flask.ext.qrcode import QRcode
 from flask.ext.pagedown import PageDown
 from flask.ext.uploads import configure_uploads, UploadSet, IMAGES, EXECUTABLES, AllExcept
 from flask.ext.thumbnails import Thumbnail
-from flask_login import login_required
 from config import config
+import Mollie
 
 bootstrap = Bootstrap()
 mail = Mail()
@@ -20,6 +20,7 @@ pagedown = PageDown()
 photos = UploadSet('photos', IMAGES)
 expensenotes = UploadSet('expensenotes', AllExcept(EXECUTABLES))
 thumb = Thumbnail()
+mollie = Mollie.API.Client()
 
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
@@ -56,6 +57,8 @@ def create_app(config_name, url_prefix):
     qrcode.init_app(app)
     pagedown.init_app(app)
     configure_uploads(app, (photos, expensenotes))
+
+    mollie.setApiKey(app.config['MOLLIE_KEY'])
 
     app.config['MEDIA_FOLDER'] = app.config['UPLOADED_PHOTOS_DEST']
     app.config['MEDIA_URL'] = media_url
