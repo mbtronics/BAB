@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}{{ config['APP_NAME'] }} - User statistics{% endblock %}
+
+{% block page_content %}
+
+    <div class="page-header">
+        <h1>User statistics</h1>
+    </div>
+
+    <div class="col-md-12">
+        <ul>
+            <li><b>Users (total):</b> {{ total_users }}</li>
+            <li><b>Users (paying):</b> {{ paying_users }}</li>
+            <li><b>Total reservations:</b> {{ total_reservations }}</li>
+            <li><b>Total revenue:</b> &euro;{{ total_revenue }}</li>
+        </ul>
+    </div>
+
+{% endblock %}

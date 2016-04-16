@@ -1,0 +1,6 @@
+{{ payment.user.name }} requested on invoice for payment {{ payment.id }}
+
+Invoice details:
+{{ invoice_details }}
+
+VAT exempt: {{ vat_exempt }}

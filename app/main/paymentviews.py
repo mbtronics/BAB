@@ -1,10 +1,13 @@
-from flask import render_template, redirect, url_for, abort, request
+from flask import render_template, redirect, url_for, abort, request, flash
 from flask.ext.login import login_required, current_user
 from . import main
 from .. import db
 from ..usermodels import Permission, User
 from ..paymentmodels import Payment, PaymentDescription
 from ..decorators import permission_required
+from ..email import send_email
+from forms import RequestInvoiceForm
+from ..settingsmodels import Setting
 
 import Mollie, time
 
@@ -78,6 +81,59 @@ def payment(id):
     descriptions = p.paymentdescriptions.all()
     return render_template('payment/payment.html', user=p.user, payment=p, descriptions=descriptions)
 
+
+@main.route('/payment/<int:id>/proof', methods=['GET', 'POST'])
+@login_required
+def payment_proof(id):
+    p = Payment.query.get_or_404(id)
+    if p.user!=current_user and not current_user.can(Permission.MANAGE_PAYMENTS):
+        abort(403)
+
+    if not p.user:
+        flash('Not possible for anonymous payment')
+        abort(500)
+
+    vat_number = Setting.query.get('vat_number')
+    our_invoice_details = Setting.query.get('invoice_details')
+    if not vat_number.value or not our_invoice_details.value:
+        flash('Invoice settings incorrect!')
+        abort(500)
+
+    descriptions = p.paymentdescriptions.all()
+    return render_template('payment/payment_proof.html', user=p.user, payment=p, descriptions=descriptions,
+                           our_invoice_details=our_invoice_details, vat_number=vat_number)
+
+@main.route('/payment/<int:id>/invoice', methods=['GET', 'POST'])
+@login_required
+def payment_invoice(id):
+    p = Payment.query.get_or_404(id)
+    if p.user!=current_user and not current_user.can(Permission.MANAGE_PAYMENTS):
+        abort(403)
+
+    if not p.user:
+        flash('Not possible for anonymous payment')
+        abort(500)
+
+    descriptions = p.paymentdescriptions.all()
+
+    invoice_email = Setting.query.get('invoice_email')
+    if not invoice_email.value:
+        flash('Invoice settings incorrect!')
+        abort(500)
+
+    form = RequestInvoiceForm()
+    if form.validate_on_submit():
+        send_email(invoice_email.value, 'Request invoice', 'payment/email/request_invoice',
+                   payment=p, descriptions=descriptions, invoice_details=form.invoice_details.data, vat_exempt=form.vat_exempt.data)
+        send_email(p.user.email, 'Invoice request pending', 'payment/email/request_invoice',
+                   payment=p, descriptions=descriptions, invoice_details=form.invoice_details.data, vat_exempt=form.vat_exempt.data)
+        flash("Your invoice request has been send. You should receive it by e-mail.")
+        return redirect(url_for('.payment', id=id))
+
+    form.invoice_details.data = p.user.invoice_details
+    form.vat_exempt.data = False;
+
+    return render_template('payment/request_invoice.html', user=p.user, payment=p, descriptions=descriptions, form=form)
 
 @main.route('/payment/all')
 @login_required

@@ -2,12 +2,16 @@ from flask import render_template, redirect, url_for, abort, flash, request, ses
 from flask.ext.login import login_required, current_user
 from sqlalchemy import or_
 from . import main
-from .forms import EditProfileForm, EditProfileAdminForm, DeleteConfirmationForm, SearchUserForm
+from .forms import EditProfileForm, EditProfileAdminForm, DeleteConfirmationForm, SearchUserForm, ExpenseNoteForm
 from .. import db
-from ..usermodels import Permission, Role, User, Skill
+from ..usermodels import Permission, Role, User, Skill, Payment, PaymentDescription, ExpenseNote
 from ..resourcemodels import Reservation
-from ..decorators import permission_required, admin_required
-from .. import photos
+from ..decorators import permission_required, admin_required, moderator_required
+from sqlalchemy import func
+from .. import photos, expensenotes
+from ..email import send_email
+from ..settingsmodels import Setting
+
 
 NumPaginationItems = 20
 
@@ -29,21 +33,32 @@ def user(username):
 
     abort(403)
 
+def profile_form_to_user(form, user):
+    user.name = form.name.data
+    user.location = form.location.data
+    user.about_me = form.about_me.data
+    user.organisation = form.organisation.data
+    user.invoice_details = form.invoice_details.data
+
+def user_to_profile_form(form, user):
+    form.name.data = user.name
+    form.location.data = user.location
+    form.about_me.data = user.about_me
+    form.organisation.data = user.organisation
+    form.invoice_details.data = user.invoice_details
 
 @main.route('/user/edit', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
     form = EditProfileForm()
+
     if form.validate_on_submit():
-        current_user.name = form.name.data
-        current_user.location = form.location.data
-        current_user.about_me = form.about_me.data
+        profile_form_to_user(form, current_user)
         db.session.add(current_user)
         flash('Your profile has been updated.')
         return redirect(url_for('.user', username=current_user.username))
-    form.name.data = current_user.name
-    form.location.data = current_user.location
-    form.about_me.data = current_user.about_me
+
+    user_to_profile_form(form, current_user)
     return render_template('user/edit.html', form=form)
 
 
@@ -58,14 +73,17 @@ def edit_profile_admin(id):
         abort(404)
 
     form = EditProfileAdminForm(user=user)
+
     if form.validate_on_submit():
-        user.email = form.email.data
+        profile_form_to_user(form, user)
         user.username = form.username.data
         user.confirmed = form.confirmed.data
-        user.role = Role.query.get(form.role.data)
-        user.name = form.name.data
-        user.location = form.location.data
-        user.about_me = form.about_me.data
+
+        if not user.is_administrator():
+            if form.moderator.data:
+                user.role = Role.query.filter_by(name='Moderator').first()
+            else:
+                user.role = Role.query.filter_by(name='User').first()
 
         if form.photo.data.filename:
             user.photo_filename = photos.save(form.photo.data)
@@ -74,13 +92,15 @@ def edit_profile_admin(id):
         flash('The profile has been updated.')
         return redirect(url_for('.user', username=user.username))
 
-    form.email.data = user.email
+    user_to_profile_form(form, user)
+
     form.username.data = user.username
     form.confirmed.data = user.confirmed
-    form.role.data = user.role_id
-    form.name.data = user.name
-    form.location.data = user.location
-    form.about_me.data = user.about_me
+
+    if user.role.name=='Moderator':
+        form.moderator.data = True
+    else:
+        form.moderator.data = False
 
     return render_template('user/edit.html', form=form, user=user)
 
@@ -197,4 +217,55 @@ def list_reservations(id):
     reservations = user.reservations.order_by(Reservation.start.desc()).all()
 
     return render_template('user/reservations.html', user=user, reservations=reservations)
+
+
+@main.route('/user/stats')
+@login_required
+@permission_required(Permission.MANAGE_USERS)
+def user_stats():
+
+    total_users = User.query.count()
+    paying_users = db.session.query(Payment)\
+                    .join(PaymentDescription, Payment.id==PaymentDescription.payment_id)\
+                    .filter(PaymentDescription.type=='membership').count()
+    total_reservations = Reservation.query.count()
+    total_revenue = round(db.session.query(func.sum(Payment.amount)).first()[0],2)
+
+    return render_template('user/stats.html',   total_users=total_users, paying_users=paying_users,
+                                                total_reservations=total_reservations, total_revenue=total_revenue)
+
+@main.route('/user/<int:id>/expensenote', methods=['GET', 'POST'])
+@login_required
+@moderator_required
+def create_expensenote(id):
+
+    if id!=current_user.id:
+        abort(404)
+
+    invoice_email = Setting.query.get('invoice_email')
+    if not invoice_email.value:
+        flash('Invoice settings incorrect!')
+        abort(500)
+
+    form = ExpenseNoteForm()
+    if form.validate_on_submit():
+        e = ExpenseNote()
+        e.total = form.total.data
+        e.description = form.description.data
+        e.bank_account = form.bank_account.data
+        e.date = form.date.data
+        e.user_id = id
+
+        if form.file.data.filename:
+            e.filename = expensenotes.save(form.file.data)
+
+        db.session.add(e)
+        db.session.commit()
+
+        send_email(invoice_email.value, 'Request invoice', 'user/email/expensenote', expensenote=e)
+        flash("Your expense note has been send.")
+        return redirect(url_for('.user', username=id))
+
+    # dateformat should be compatible with format in ExpenseNoteForm
+    return render_template('user/expensenote.html', form=form, dateformat='dd/mm/yy')
 

@@ -34,7 +34,7 @@
         </div>
 
         <p><b>Active?</b> {{ resource.active }}</p>
-        <p><b>Reservation period (hour:min):</b> {{ resource.reservation_period }}</p>
+        <p><b>Reservation period:</b> {{ resource.reservation_period_pretty }}</p>
         <p><b>Price per period:</b> {{ resource.price_p_per }}&euro;</p>
 
         {% if current_user.can(Permission.BOOK) %}

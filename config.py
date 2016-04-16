@@ -20,6 +20,7 @@ class Config:
     APP_ADMIN = os.environ.get('APP_ADMIN')
     APPLICATION_ROOT = os.environ.get('APPLICATION_ROOT')
     UPLOADED_PHOTOS_DEST = os.environ.get('UPLOAD_DIR')
+    UPLOADED_EXPENSENOTES_DEST = os.environ.get('UPLOAD_DIR') + '/expensenotes'
 
     @staticmethod
     def init_app(app):

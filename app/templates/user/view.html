@@ -16,30 +16,79 @@
     <div class="col-md-8">
 
         {# Private information, only for the user himself or moderator #}
+        <h2>Private info</h2>
         {% if current_user.can(Permission.MANAGE_USERS) or user==current_user %}
-            {% if user.location %}From <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a>{% endif %}
-            <p>E-mail: <a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
-            <p>Registered member since {{ moment(user.member_since).format('DD/MM/YYYY') }}. Last seen {{ moment(user.last_seen).fromNow() }}.</p>
-
-            <p>
-                Paid member:
+            {% if user.location %}<b>From:</b> <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a><br>{% endif %}
+            {% if user.organisation %}<b>Organisation or company:</b> {{ user.organisation }}<br>{% endif %}
+            <b>E-mail:</b> <a href="mailto:{{ user.email }}">{{ user.email }}</a><br>
+            <b>Registered member since:</b> {{ moment(user.member_since).format('DD/MM/YYYY') }}. Last seen {{ moment(user.last_seen).fromNow() }}.<br>
+            <b>Paid member:</b>
                 {% if user.membership_days_left %}
                     {{ user.membership_days_left }} days left
                 {% else %}
                     no
                 {% endif %}
-            </p>
+            <br>
+            {% if user.invoice_details %}<p><b>Invoice details:</b> <pre>{{ user.invoice_details }}</pre></p>{% endif %}
+
+            {% if user.payments.all() %}
+                <div class="panel panel-success">
+                    <div class="panel-heading">Payments</div>
+                    <div class="panel-body">
+                        {{ macros.view_payments_widget(user.payments.all(), pagination, '.user') }}
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if user.expensenotes.all() %}
+                <div class="panel panel-success">
+                    <div class="panel-heading">Expense notes</div>
+                    <div class="panel-body">
+                        <table class="table table-condensed table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Cost</th>
+                                    <th>Description</th>
+                                    <th>Bank account</th>
+                                    <th>Date costs</th>
+                                    <th>Date request</th>
+                                    <th>File</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for expensenote in user.expensenotes.all() %}
+                                <tr>
+                                    <td>{{ expensenote.id }}</td>
+                                    <td>&euro;{{ expensenote.total }}</td>
+                                    <td>{{ expensenote.description }}</td>
+                                    <td>{{ expensenote.bank_account }}</td>
+                                    <td>{{ moment(expensenote.date).format('DD/MM/YYYY') }}</td>
+                                    <td>{{ moment(expensenote.date_requested).format('DD/MM/YYYY') }}</td>
+                                    <td><a href="{{ expensenote.file_url }}">{{ expensenote.filename }}</a></td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
         {% endif %}
 
         {# Public information, for everyone #}
+        <h2>Public info</h2>
         {% if user.is_moderator() %}
-            <p>Moderator</p>
+            {% if user.is_administrator() %}
+                <h3>Administrator</h3>
+            {% else %}
+                <h3>Moderator</h3>
+            {% endif %}
         {% endif %}
 
         {% if user.about_me %}
-            <div class="panel panel-default">
+            <div class="panel panel-success">
+                <div class="panel-heading">About me</div>
                 <div class="panel-body">
-                    About me:<br>
                     {{ user.about_me }}
                 </div>
             </div>
@@ -54,6 +103,8 @@
                 {% endfor %}
             </div>
         </div>
+
+
 
         {# Buttons #}
         <p>
@@ -83,15 +134,11 @@
             {% if current_user.can(Permission.MANAGE_PAYMENTS) %}
                 <a class="btn btn-default" href="{{ url_for('.make_payment', id=user.id) }}">Make payment</a>
             {% endif %}
-        </p>
 
-        {# Private information, only for the user himself or moderator #}
-        {% if current_user.can(Permission.MANAGE_USERS) or user==current_user %}
-            {% if user.payments.all() %}
-                <br><br>Payments:
-                {{ macros.view_payments_widget(user.payments.all(), pagination, '.user') }}
+            {% if current_user.is_moderator() %}
+                <a class="btn btn-default" href="{{ url_for('.create_expensenote', id=user.id) }}">Create expense note</a>
             {% endif %}
-        {% endif %}
+        </p>
     </div>
 
     <div class="col-md-2">

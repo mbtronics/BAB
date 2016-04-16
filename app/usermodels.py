@@ -7,6 +7,7 @@ import hashlib
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from . import thumb
 from paymentmodels import PaymentDescription, Payment
+from . import expensenotes
 
 
 #Bit-style permissions
@@ -17,6 +18,7 @@ class Permission:
     MANAGE_RESOURCES =  (1<<3)
     MANAGE_RESERVATIONS=(1<<4)
     MANAGE_PAYMENTS =   (1<<5)
+    CHANGE_SETTINGS =   (1<<6)
     ADMINISTER =        0xffff
 
 roles = {
@@ -88,12 +90,15 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
     photo_filename = db.Column(db.String(100))
+    organisation = db.Column(db.String(50))
+    invoice_details = db.Column(db.Text())
 
     skills = db.relationship('Skill', secondary=UserSkills, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
     reservations = db.relationship('Reservation', backref='user', lazy='dynamic')
     availability = db.relationship('Available', backref='user', lazy='dynamic')
     payments = db.relationship('Payment', backref='user', lazy='dynamic', foreign_keys=[Payment.user_id])
     payments_made = db.relationship('Payment', backref='operator', lazy='dynamic', foreign_keys=[Payment.operator_id])
+    expensenotes = db.relationship('ExpenseNote', backref='user', lazy='dynamic')
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -217,7 +222,7 @@ class User(UserMixin, db.Model):
                     .filter(PaymentDescription.type=='membership')\
                     .order_by(Payment.date.desc()).first()
         if payment:
-            left = 365-(datetime.now()-payment.date).days
+            left = 365-(datetime.utcnow()-payment.date).days
             if left>0:
                 return left
 
@@ -241,3 +246,23 @@ login_manager.anonymous_user = AnonymousUser
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+
+class ExpenseNote(db.Model):
+    __tablename__ = 'ExpenseNotes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    total = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.String(200), nullable=False)
+    bank_account = db.Column(db.String(50))
+    date = db.Column(db.Date)
+    date_requested = db.Column(db.Date, default=datetime.utcnow)
+    filename = db.Column(db.String(100))
+
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=True)
+
+    @property
+    def file_url(self):
+        return expensenotes.url(self.filename)
+
+    def __repr__(self):
+        return '<ExpenseNote for %s: %r>' % (self.user.name, self.total)

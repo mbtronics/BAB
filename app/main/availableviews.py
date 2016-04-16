@@ -7,8 +7,8 @@ from ..resourcemodels import Available, Reservation
 from ..decorators import permission_required
 import json
 from sqlalchemy import and_, or_
-from datetime import datetime, timedelta
-
+from datetime import datetime
+import dateutil.parser
 
 @main.route('/available', methods=['GET', 'POST'])
 @login_required
@@ -63,8 +63,8 @@ def available_setdata():
     if data and 'action' in data:
 
         if data['action']=='new':
-            start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
-            end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
+            start = dateutil.parser.parse(data['start'], ignoretz=True)
+            end = dateutil.parser.parse(data['end'], ignoretz=True)
 
             if start < datetime.now() or end < datetime.now():
                 return jsonify({'err': "You can't make this resource available in the past!"})
@@ -85,8 +85,8 @@ def available_setdata():
         elif data['action']=='update':
             a=Available.query.get_or_404(data['id'])
 
-            start = datetime.fromtimestamp(data['start']) + timedelta(minutes=data['offset'])
-            end = datetime.fromtimestamp(data['end']) + timedelta(minutes=data['offset'])
+            start = dateutil.parser.parse(data['start'], ignoretz=True)
+            end = dateutil.parser.parse(data['end'], ignoretz=True)
 
             if (start!=a.start and start < datetime.now()) or (end!=a.end and end < datetime.now()):
                 return jsonify({'err': "You can't update availability in the past!"})
