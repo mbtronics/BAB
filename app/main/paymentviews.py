@@ -11,7 +11,13 @@ from ..settingsmodels import Setting
 
 NumPaginationItems = 20
 
-def make_mollie_payment(p):
+@main.route('/payment/mollie/pay/<int:id>', methods=['GET'])
+@login_required
+def pay_with_mollie(id):
+    if id!=current_user.id and not current_user.can(Permission.MANAGE_PAYMENTS):
+        abort(404)
+
+    p = Payment.query.get_or_404(id)
     payment = mollie.payments.create({
         'amount': p.amount,
         'description': 'BUDA::lab payment',
@@ -27,7 +33,7 @@ def make_payment(id):
     if id!=current_user.id and not current_user.can(Permission.MANAGE_PAYMENTS):
         abort(404)
 
-    user = User.query.get(id)
+    user = User.query.get_or_404(id)
 
     if request.form:
         try:
@@ -81,7 +87,7 @@ def make_payment(id):
         db.session.commit()
 
         if p.method == 'online':
-            return make_mollie_payment(p)
+            return redirect(url_for('.pay_with_mollie', id=p.id))
 
         return redirect(url_for('.payment', id=p.id))
 

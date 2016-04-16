@@ -54,7 +54,7 @@
     </h4>
 
     {% if not payment.paid %}
-        <a class="btn btn-default" href="">Pay online</a>
+        <a class="btn btn-default" href="{{ url_for('.pay_with_mollie', id=payment.id) }}">Pay online</a><br>
     {% endif %}
 
     <br>
