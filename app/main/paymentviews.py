@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, abort, request, current_app, flash
 from flask.ext.login import login_required, current_user
 from . import main
-from .. import db
+from .. import db, mollie
 from ..usermodels import Permission, User
 from ..paymentmodels import Payment, PaymentDescription
 from ..decorators import permission_required
@@ -9,13 +9,9 @@ from ..email import send_email
 from forms import RequestInvoiceForm
 from ..settingsmodels import Setting
 
-import Mollie, time
-
 NumPaginationItems = 20
 
 def make_mollie_payment(p):
-    mollie = Mollie.API.Client()
-    mollie.setApiKey(current_app.config['MOLLIE_KEY'])
     payment = mollie.payments.create({
         'amount': p.amount,
         'description': 'BUDA::lab payment',
@@ -176,9 +172,6 @@ def anonymous_payment():
 
 @main.route('/payment/mollie/webhook/<id>', methods=['GET', 'POST'])
 def mollie_webhook(id):
-    mollie = Mollie.API.Client()
-    mollie.setApiKey(current_app.config['MOLLIE_KEY'])
-
     if 'id' not in request.form:
         print "id not in request.form"
         abort(404, 'Unknown payment id')
