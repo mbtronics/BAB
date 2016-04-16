@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}{{ config['APP_NAME'] }} - Submit expense note{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Submit expense note</h1>
+</div>
+
+<div class="col-md-12">
+    {{ wtf.quick_form(form) }}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+    <script>
+        $(function() {
+                    $( "#date" ).datepicker({ dateFormat: '{{ dateformat }}' });
+        });
+    </script>
+{% endblock %}

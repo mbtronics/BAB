@@ -6,8 +6,9 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
 from flask.ext.qrcode import QRcode
 from flask.ext.pagedown import PageDown
-from flask.ext.uploads import configure_uploads, UploadSet, IMAGES
+from flask.ext.uploads import configure_uploads, UploadSet, IMAGES, EXECUTABLES, AllExcept
 from flask.ext.thumbnails import Thumbnail
+from flask_login import login_required
 from config import config
 
 bootstrap = Bootstrap()
@@ -17,6 +18,7 @@ db = SQLAlchemy()
 qrcode = QRcode()
 pagedown = PageDown()
 photos = UploadSet('photos', IMAGES)
+expensenotes = UploadSet('expensenotes', AllExcept(EXECUTABLES))
 thumb = Thumbnail()
 
 login_manager = LoginManager()
@@ -53,7 +55,7 @@ def create_app(config_name, url_prefix):
     login_manager.init_app(app)
     qrcode.init_app(app)
     pagedown.init_app(app)
-    configure_uploads(app, (photos))
+    configure_uploads(app, (photos, expensenotes))
 
     app.config['MEDIA_FOLDER'] = app.config['UPLOADED_PHOTOS_DEST']
     app.config['MEDIA_URL'] = media_url
@@ -69,5 +71,8 @@ def create_app(config_name, url_prefix):
 
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix=auth_prefix)
+
+    from decorators import authorise_download
+    app.view_functions['_uploads.uploaded_file'] = authorise_download(app.view_functions['_uploads.uploaded_file'])
 
     return app

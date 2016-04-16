@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, abort, flash
+from flask import render_template, redirect, url_for
 from flask.ext.login import login_required
 from . import main
 from .forms import DeleteConfirmationForm, EditSkillForm

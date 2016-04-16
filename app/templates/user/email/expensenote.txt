@@ -1,0 +1,3 @@
+{{ expensenote.user.name }} ({{ expensenote.user.email }}) requested an expense report:</p>
+
+Id: {{ expensenote.id }}

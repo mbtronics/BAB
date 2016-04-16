@@ -21,7 +21,7 @@
                     {{ payment.id }}
                 </td>
                 <td>{{ payment.user.name }}</td>
-                <td>{{ payment.amount }}&euro;</td>
+                <td>&euro;{{ payment.amount }}</td>
                 <td>{{ payment.method }}</td>
                 <td>{{ payment.paid }}</td>
                 <td>{{ moment(payment.date).format('DD/MM/YYYY HH:mm') }}</td>

@@ -2,12 +2,7 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block title %}
-    {{ config['APP_NAME'] }} -
-    {% if user %}
-        Payment made for {{ user.name }}
-    {% else %}
-        Anonymous payment
-    {% endif %}
+    {{ config['APP_NAME'] }} - Request invoice
 {% endblock %}
 
 {% block page_content %}
@@ -16,13 +11,7 @@
 
 {% if payment %}
     <div class="page-header">
-        <h1>
-            {% if user %}
-                Payment made for {{ user.name }}
-            {% else %}
-                Anonymous payment
-            {% endif %}
-        </h1>
+        <h1>Request invoice</h1>
     </div>
 
     <table class="table table-condensed table-hover">
@@ -49,17 +38,10 @@
         <b>Total:</b> &euro;{{ payment.amount }}<br>
         <b>Method:</b> {{ payment.method }}<br>
         <b>Operator:</b> {{ payment.operator.name }}<br>
-        <b>Payment reference ID:</b> {{ payment.id }}<br>
-        <b>Paid:</b> {{ payment.paid }}
+        <b>Payment reference ID:</b> {{ payment.id }}
     </h4>
 
-    {% if not payment.paid %}
-        <a class="btn btn-default" href="">Pay online</a>
-    {% endif %}
-
-    <br>
-    <a class="btn btn-default" href="{{ url_for('.payment_proof', id=payment.id) }}">Print proof of payment</a> This is not an invoice!<br><br>
-    <a class="btn btn-default" href="{{ url_for('.payment_invoice', id=payment.id) }}">Request invoice</a> An invoice will be mailed to you.
+    {{ wtf.quick_form(form) }}
 {% endif %}
 </div>
 
