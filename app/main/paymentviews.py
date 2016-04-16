@@ -11,22 +11,6 @@ from ..settingsmodels import Setting
 
 NumPaginationItems = 20
 
-@main.route('/payment/mollie/pay/<int:id>', methods=['GET'])
-@login_required
-def pay_with_mollie(id):
-    if id!=current_user.id and not current_user.can(Permission.MANAGE_PAYMENTS):
-        abort(404)
-
-    p = Payment.query.get_or_404(id)
-    payment = mollie.payments.create({
-        'amount': p.amount,
-        'description': 'BUDA::lab payment',
-        'webhookUrl':  url_for('.mollie_webhook', id=p.id, _external=True, _scheme="https"),
-        'redirectUrl': url_for('.mollie_redirect', id=p.id, _external=True, _scheme="https"),
-        'metadata': {'order_nr': p.id}
-    })
-    return redirect(payment.getPaymentUrl())
-
 @main.route('/payment/user/<int:id>', methods=['GET', 'POST'])
 @login_required
 def make_payment(id):
@@ -174,6 +158,24 @@ def list_payments():
 @permission_required(Permission.MANAGE_PAYMENTS)
 def anonymous_payment():
     return make_payment(0)
+
+
+@main.route('/payment/mollie/pay/<int:id>', methods=['GET'])
+@login_required
+def pay_with_mollie(id):
+    if id!=current_user.id and not current_user.can(Permission.MANAGE_PAYMENTS):
+        abort(404)
+
+    p = Payment.query.get_or_404(id)
+    payment = mollie.payments.create({
+        'amount': p.amount,
+        'description': 'BUDA::lab payment',
+        'webhookUrl':  url_for('.mollie_webhook', id=p.id, _external=True, _scheme="https"),
+        'redirectUrl': url_for('.mollie_redirect', id=p.id, _external=True, _scheme="https"),
+        'metadata': {'order_nr': p.id}
+    })
+    print "payment_id: %s" % payment.id
+    return redirect(payment.getPaymentUrl())
 
 
 @main.route('/payment/mollie/webhook/<id>', methods=['GET', 'POST'])
