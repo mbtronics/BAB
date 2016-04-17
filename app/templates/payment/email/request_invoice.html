@@ -26,7 +26,7 @@
     <b>Method:</b> {{ payment.method }}<br>
     <b>Operator:</b> {{ payment.operator.name }}<br>
     <b>Payment reference ID:</b> {{ payment.id }}<br>
-    <b>Paid:</b> {% if payment.paid %}yes{% else %}no{% endif %}
+    <b>Status:</b> {{ payment.status }}
 </h4>
 
 <p>Invoice details:<pre>{{ invoice_details }}</pre></p>

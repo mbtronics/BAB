@@ -9,9 +9,16 @@ class Payment(db.Model):
     amount = db.Column(db.Float)
     date = db.Column(db.DateTime(), default=datetime.utcnow)
     operator_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
-    paid = db.Column(db.Boolean, default=False)
+    status = db.Column(db.Enum('Open', 'Pending', 'Paid', 'Cancelled'), nullable=False, default='Open')
 
     paymentdescriptions = db.relationship('PaymentDescription', backref='payment', lazy='dynamic')
+
+    @property
+    def paid(self):
+        if self.status=='Paid':
+            return True
+        else:
+            return False
 
 class PaymentDescription(db.Model):
     __tablename__ = 'PaymentDescriptions'

@@ -218,6 +218,7 @@ class User(UserMixin, db.Model):
     @property
     def membership_days_left(self):
         payment = db.session.query(Payment).filter(Payment.user==self)\
+                    .filter(Payment.status=='Paid')\
                     .join(PaymentDescription, Payment.id==PaymentDescription.payment_id)\
                     .filter(PaymentDescription.type=='membership')\
                     .order_by(Payment.date.desc()).first()

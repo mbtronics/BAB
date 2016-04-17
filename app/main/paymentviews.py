@@ -55,9 +55,9 @@ def make_payment(id):
 
         p = Payment(method=request.form.get('method'), user=user, amount=total, operator=current_user)
         if p.method=='cash' or p.method=='terminal':
-            p.paid = True
+            p.status = 'Paid'
         elif p.method=='online':
-            p.paid = False
+            p.status = 'Open'
         else:
             abort(404)
 
@@ -170,39 +170,31 @@ def pay_with_mollie(id):
     payment = mollie.payments.create({
         'amount': p.amount,
         'description': 'BUDA::lab payment',
-        'webhookUrl':  url_for('.mollie_webhook', id=p.id, _external=True, _scheme="https"),
+        'webhookUrl':  url_for('.mollie_webhook', _external=True, _scheme="https"),
         'redirectUrl': url_for('.mollie_redirect', id=p.id, _external=True, _scheme="https"),
         'metadata': {'order_nr': p.id}
     })
-    print "payment_id: %s" % payment.id
     return redirect(payment.getPaymentUrl())
 
 
-@main.route('/payment/mollie/webhook/<id>', methods=['GET', 'POST'])
-def mollie_webhook(id):
+@main.route('/payment/mollie/webhook', methods=['GET', 'POST'])
+def mollie_webhook():
+
     if 'id' not in request.form:
-        print "id not in request.form"
         abort(404, 'Unknown payment id')
 
-    payment_id = request.form['id']
-    payment = mollie.payments.get(payment_id)
+    payment = mollie.payments.get(request.form['id'])
     order_nr = payment['metadata']['order_nr']
-
-    print "mollie webhook, id=%s, order_nr=%s" % (payment_id, order_nr)
+    p = Payment.query.get_or_404(order_nr)
 
     if payment.isPaid():
-        print 'Paid'
-        p = Payment.query.get_or_404(order_nr)
-        p.paid = True
+        p.status = 'Paid'
     elif payment.isPending():
-        # The payment has started but is not complete yet.
-        print 'Pending'
+        p.status = 'Pending'
     elif payment.isOpen():
-        # The payment has not started yet. Wait for it.
-        print 'Open'
+        p.status = 'Open'
     else:
-        # The payment isn't paid, pending nor open. We can assume it was aborted.
-        print 'Cancelled'
+        p.status = 'Cancelled'
 
     return ('', 204)
 

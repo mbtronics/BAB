@@ -85,7 +85,8 @@ class Reservation(db.Model):
     def paid(self):
         paid = 0
         for payment in self.paymentdescriptions:
-            paid = paid + payment.amount
+            if payment.paid:
+                paid = paid + payment.amount
 
         return paid
 
