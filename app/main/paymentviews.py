@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, abort, request, current_app, flash
+from flask import render_template, redirect, url_for, abort, request, flash
 from flask.ext.login import login_required, current_user
 from . import main
 from .. import db, mollie
@@ -17,7 +17,7 @@ def make_payment(id):
     if id!=current_user.id and not current_user.can(Permission.MANAGE_PAYMENTS):
         abort(404)
 
-    user = User.query.get_or_404(id)
+    user = User.query.get(id)
 
     if request.form:
         try:
@@ -179,7 +179,6 @@ def pay_with_mollie(id):
 
 @main.route('/payment/mollie/webhook', methods=['GET', 'POST'])
 def mollie_webhook():
-
     if 'id' not in request.form:
         abort(404, 'Unknown payment id')
 
@@ -197,6 +196,7 @@ def mollie_webhook():
         p.status = 'Cancelled'
 
     return ('', 204)
+
 
 @main.route('/payment/mollie/redirect/<int:id>', methods=['GET', 'POST'])
 @login_required
