@@ -53,7 +53,7 @@
         <b>Status:</b> {{ payment.status }}
     </h4>
 
-    {% if payment.status=='Open' or payment.status='Cancelled' %}
+    {% if payment.status=='Open' or payment.status=='Cancelled' %}
         <a class="btn btn-default" href="{{ url_for('.pay_with_mollie', id=payment.id) }}">Pay online</a><br>
     {% endif %}
 
