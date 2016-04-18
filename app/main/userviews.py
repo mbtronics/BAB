@@ -26,8 +26,7 @@ def user(username):
 
     if user==current_user or \
        current_user.can(Permission.MANAGE_USERS) or \
-       user.is_moderator():
-
+       user.is_moderator:
         skills = user.skills.order_by(Skill.name.asc()).all()
         return render_template('user/view.html', user=user, skills=skills)
 
@@ -68,7 +67,7 @@ def edit_profile():
 def edit_profile_admin(id):
     user = User.query.get_or_404(id)
 
-    if user.is_administrator() and not current_user.is_administrator():
+    if user.is_administrator and not current_user.is_administrator:
         flash('Only the administrator can access this!', 'error')
         abort(404)
 
@@ -79,7 +78,7 @@ def edit_profile_admin(id):
         user.username = form.username.data
         user.confirmed = form.confirmed.data
 
-        if not user.is_administrator():
+        if not user.is_administrator:
             if form.moderator.data:
                 user.role = Role.query.filter_by(name='Moderator').first()
             else:
@@ -110,7 +109,7 @@ def edit_profile_admin(id):
 def edit_user_skills(id):
     user = User.query.get_or_404(id)
 
-    if user.is_administrator() and not current_user.is_administrator():
+    if user.is_administrator and not current_user.is_administrator:
         flash('Only the administrator can access this!', 'error')
         abort(404)
 
@@ -146,7 +145,7 @@ def list_users():
 def delete_user(id):
     user = User.query.get_or_404(id)
 
-    if user.is_administrator():
+    if user.is_administrator:
         flash("Can not delete administrator!", 'error')
         abort(404)
 

@@ -87,8 +87,11 @@ class Reservation(db.Model):
         for payment in self.paymentdescriptions:
             if payment.paid:
                 paid = paid + payment.amount
-
         return paid
+
+    @property
+    def is_paid(self):
+        return self.paid >= self.cost
 
 class Available(db.Model):
     __tablename__ = "Availability"

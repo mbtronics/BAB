@@ -21,7 +21,7 @@ def admin_required(f):
 def moderator_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
-        if not current_user.is_moderator():
+        if not current_user.is_moderator:
             abort(403)
         return func(*args, **kwargs)
     return decorated_view
@@ -33,7 +33,7 @@ def authorise_download(func):
         if 'setname' in kwargs and kwargs['setname']=='expensenotes':
             if not current_user.is_authenticated:
                 abort(403)
-            if not current_user.is_moderator():
+            if not current_user.is_moderator:
                 abort(403)
 
         return func(*args, **kwargs)

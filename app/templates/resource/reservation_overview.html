@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% import "resource/_calendar.html" as calendar %}
+
+{% block title %}{{ config['APP_NAME'] }}{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <h1>Reservation overview</h1>
+    </div>
+
+    <div class="col-md-12">
+        {{ calendar.fullcalendar_content() }}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {{ calendar.fullcalendar_scripts('overview', resource, none, '.reservation_getdata_all', true, 'available', '') }}
+{% endblock %}

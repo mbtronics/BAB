@@ -1,5 +1,4 @@
 {% macro fullcalendar_content() %}
-
     <div id="error_msg"></div>
     <div id='calendar'></div>
     <div id="dialog" title="" style="display:none;">Are you sure want to delete it?</div>
@@ -42,10 +41,12 @@
         function postEvent(action, event) {
 
         {% if setdata %}
-            if (isOverlapping(event)) {
-                $('#calendar').fullCalendar('refetchEvents');
-                return;
-            }
+            {% if type!='available' %}
+                if (isOverlapping(event)) {
+                    $('#calendar').fullCalendar('refetchEvents');
+                    return;
+                }
+            {% endif %}
 
             var data = Object({ action: action,
                                 id: event._id,
@@ -164,12 +165,18 @@
             {% endif %}
 
                 eventClick: function(event, jsEvent, view) {
-                    {% if setdata %}
-                        if (event.title!='Reserved') {
-                            {% if type=='available' %}
-                            BootstrapDialog.confirm({
+                    {% if type=='reservation' or type=='overview' %}
+                        $(location).attr('href', '{{ url_for('.reservation', id=0) }}' + event.id);
+                    {% endif %}
+
+                    {% if type=='available' and not setdata%}
+                        $(location).attr('href', '{{ url_for('.user_by_available', id=0) }}' + event.id);
+                    {% endif %}
+
+                    {% if type=='available' and setdata %}
+                        BootstrapDialog.confirm({
                                 title: 'Remove timespan?',
-                                message: moment(event.start).format('MMMM Do YYYY, HH:mm') + '<br>' + event.title,
+                                message: moment(event.start).format('MMMM Do YYYY, HH:mm') + '<br><a href="{{ url_for('.user_by_available', id=0) }}' + event.id + '">' +  event.title + '</a>',
                                 type: BootstrapDialog.TYPE_WARNING,
                                 closable: true,
                                 draggable: true,
@@ -180,17 +187,15 @@
                                     }
                                 }
                             });
-                            {% else %}
-                                $(location).attr('href', '{{ url_for('.reservation', id=0) }}' + event.id);
-                            {% endif %}
-                        }
-                    {% else %}
-                        $(location).attr('href', '{{ url_for('.user_by_available', id=0) }}' + event.id);
                     {% endif %}
                 },
 
                 events: {
-                    url: '{{ url_for(getdata, id=resource.id) }}',
+                    {% if resource %}
+                        url: '{{ url_for(getdata, id=resource.id) }}',
+                    {% else %}
+                        url: '{{ url_for(getdata) }}',
+                    {% endif %}
                     color: '{{ eventColor }}',
                 },
 

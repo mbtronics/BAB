@@ -184,11 +184,13 @@ class User(UserMixin, db.Model):
         return self.role is not None and \
             (self.role.permissions & permissions) == permissions
 
+    @property
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
 
+    @property
     def is_moderator(self):
-        if self.is_administrator():
+        if self.is_administrator:
             return True
         else:
             return self.role.name=='Moderator'
