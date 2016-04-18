@@ -21,53 +21,63 @@ def make_reservation(id):
 
     return render_template('resource/make_reservation.html', resource=resource)
 
+def get_data_json_response(resources, start_date, end_date):
+    if start_date and end_date:
+        data = []
+        for resource in resources:
+            for r in resource.reservations.filter(and_(Reservation.start>=start_date, Reservation.end<=end_date)):
+                if r.user.id==current_user.id or current_user.can(Permission.MANAGE_RESOURCES):
+                    title = r.user.name
+                    if len(resources)>1:
+                        title += '\n' + resource.name
+                    else:
+                        title += '\n' + r.reason
+                else:
+                    title='Reserved'    #'Reserved' used in _calendar.html
+
+                if r.user.id==current_user.id:
+                    color='#378006'
+                else:
+                    color=''
+
+                data.append( {
+                    'start': r.start.strftime("%Y-%m-%d %H:%M:%S"),
+                    'end': r.end.strftime("%Y-%m-%d %H:%M:%S"),
+                    'id': r.id,
+                    'title': title,
+                    'constraint': 'available',
+                    'color': color,
+                })
+
+            for r in Available.query.filter(and_(Available.start>=start_date, Available.end<=end_date)):
+                data.append( {
+                    'start': r.start.strftime("%Y-%m-%d %H:%M:%S"),
+                    'end': r.end.strftime("%Y-%m-%d %H:%M:%S"),
+                    'id': 'available',
+                    'rendering': 'background',
+                })
+        return Response(json.dumps(data), mimetype='application/json')
+
+    abort(404)#TODO: fix json error returns
+
+@main.route('/resource/reservation/getdata', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.BOOK)
+def reservation_getdata_all():
+    resources = Resource.query.filter_by(active=True).all()
+    start_date = request.args.get('start', '')
+    end_date = request.args.get('end', '')
+    return get_data_json_response(resources, start_date, end_date)
+
 
 @main.route('/resource/reservation/<int:id>/getdata', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.BOOK)
 def reservation_getdata(id):
-    resource = Resource.query.get_or_404(id)
-
+    resources = [Resource.query.get_or_404(id)]
     start_date = request.args.get('start', '')
     end_date = request.args.get('end', '')
-
-    if start_date and end_date:
-        data = []
-        for r in resource.reservations.filter(and_(Reservation.start>=start_date, Reservation.end<=end_date)):
-
-            if r.user.id==current_user.id or current_user.can(Permission.MANAGE_RESOURCES):
-                if r.user.name:
-                    title='%s\n%s' % (r.user.name, r.reason)
-                else:
-                    title='%s\n%s' % (r.user.username, r.reason)
-            else:
-                title='Reserved'    #'Reserved' used in _calendar.html
-
-            if r.user.id==current_user.id:
-                color='#378006'
-            else:
-                color=''
-
-            data.append( {
-                'start': r.start.strftime("%Y-%m-%d %H:%M:%S"),
-                'end': r.end.strftime("%Y-%m-%d %H:%M:%S"),
-                'id': r.id,
-                'title': title,
-                'constraint': 'available',
-                'color': color,
-            })
-
-        for r in Available.query.filter(and_(Available.start>=start_date, Available.end<=end_date)):
-            data.append( {
-                'start': r.start.strftime("%Y-%m-%d %H:%M:%S"),
-                'end': r.end.strftime("%Y-%m-%d %H:%M:%S"),
-                'id': 'available',
-                'rendering': 'background',
-            })
-
-        return Response(json.dumps(data), mimetype='application/json')
-
-    abort(404)#TODO: fix json error returns
+    return get_data_json_response(resources, start_date, end_date)
 
 
 @main.route('/resource/reservation/<int:id>/setdata', methods=['GET', 'POST'])
@@ -78,7 +88,6 @@ def reservation_setdata(id):
     data = request.get_json()
 
     if data and 'action' in data:
-
         if data['action']=='new':
             start = dateutil.parser.parse(data['start'], ignoretz=True)
             end = dateutil.parser.parse(data['end'], ignoretz=True)
@@ -152,3 +161,9 @@ def reservation(id):
 
     return render_template('resource/reservation.html', reservation=reservation)
 
+
+@main.route('/reservation/overview')
+@login_required
+@permission_required(Permission.MANAGE_RESERVATIONS)
+def reservation_overview():
+    return render_template('resource/reservation_overview.html')

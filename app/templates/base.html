@@ -29,6 +29,9 @@
                         Reservations<b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
+                        {% if current_user.can(Permission.MANAGE_RESERVATIONS) %}
+                            <li><a href="{{ url_for('main.reservation_overview') }}">Overview</a></li>
+                        {% endif %}
                         {% for resource in g.resources %}
                             <li><a href="{{ url_for('main.make_reservation', id=resource.id) }}">{{ resource.name }}</a></li>
                         {% endfor %}
