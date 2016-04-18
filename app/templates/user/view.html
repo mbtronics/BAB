@@ -77,8 +77,8 @@
 
         {# Public information, for everyone #}
         <h2>Public info</h2>
-        {% if user.is_moderator() %}
-            {% if user.is_administrator() %}
+        {% if user.is_moderator %}
+            {% if user.is_administrator %}
                 <h3>Administrator</h3>
             {% else %}
                 <h3>Moderator</h3>
@@ -115,13 +115,11 @@
                 <a class="btn btn-default" href="{{ url_for('.edit_profile') }}">Edit profile</a>
             {% endif %}
 
-
-
             {% if current_user.can(Permission.MANAGE_USERS) or user==current_user %}
                 <a class="btn btn-default" href="{{ url_for('.webcam', id=user.id) }}">Take picture</a>
             {% endif %}
 
-            {% if current_user.is_administrator() %}
+            {% if current_user.is_administrator %}
                 <a class="btn btn-danger" href="{{ url_for('.delete_user', id=user.id) }}">Delete user</a>
             {% endif %}
         </p>
@@ -135,7 +133,7 @@
                 <a class="btn btn-default" href="{{ url_for('.make_payment', id=user.id) }}">Make payment</a>
             {% endif %}
 
-            {% if current_user.is_moderator() %}
+            {% if current_user.is_moderator and user==current_user %}
                 <a class="btn btn-default" href="{{ url_for('.create_expensenote', id=user.id) }}">Create expense note</a>
             {% endif %}
         </p>
