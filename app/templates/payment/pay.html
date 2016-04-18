@@ -48,7 +48,9 @@
                     <select name="reservation[]" style="max-width:30%;" onchange="reservationChange(this);">
                             <option value="0"></option>
                         {% for reservation in user.reservations.all() %}
-                            <option value="{{ reservation.id }}">{{ reservation.start }} ({{ reservation.reason }})</option>
+                            {% if not reservation.is_paid %}
+                                <option value="{{ reservation.id }}">{{ reservation.start }} ({{ reservation.reason }})</option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                 {% endif %}
