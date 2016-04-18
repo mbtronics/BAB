@@ -35,10 +35,14 @@
         </thead>
         <tbody>
         {% for description in descriptions %}
-            <tr>
-                <td>{{ description['type'] }}</td>
-                <td>{{ description['description'] }}</td>
-                <td>{{ description['amount'] }}</td>
+            <tr{% if description.reservation_id %} class="clickable-row"{% endif %}>
+                <td>{{ description.type }}
+                    {% if description.reservation_id %}
+                        <a href="{{ url_for('.reservation', id=description.reservation_id) }}"></a>
+                    {% endif %}
+                </td>
+                <td>{{ description.description }}</td>
+                <td>{{ description.amount }}</td>
             </tr>
         {% endfor %}
         </tbody>
