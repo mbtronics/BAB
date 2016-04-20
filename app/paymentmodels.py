@@ -10,6 +10,7 @@ class Payment(db.Model):
     date = db.Column(db.DateTime(), default=datetime.utcnow)
     operator_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     status = db.Column(db.Enum('Open', 'Pending', 'Paid', 'Cancelled'), nullable=False, default='Open')
+    mollie_id = db.Column(db.String(20))
 
     paymentdescriptions = db.relationship('PaymentDescription', backref='payment', lazy='dynamic')
 

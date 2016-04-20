@@ -182,9 +182,11 @@ def mollie_webhook():
     if 'id' not in request.form:
         abort(404, 'Unknown payment id')
 
-    payment = mollie.payments.get(request.form['id'])
+    mollie_id = request.form['id']
+    payment = mollie.payments.get(mollie_id)
     order_nr = payment['metadata']['order_nr']
     p = Payment.query.get_or_404(order_nr)
+    p.mollie_id = mollie_id
 
     if payment.isPaid():
         p.status = 'Paid'
