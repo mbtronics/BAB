@@ -4,7 +4,7 @@
     <div id="dialog" title="" style="display:none;">Are you sure want to delete it?</div>
 {% endmacro %}
 
-{% macro fullcalendar_scripts(type, resource, setdata, getdata, eventOverlap, selectConstraint, eventColor) %}
+{% macro fullcalendar_scripts(type, resource, setdata, getdata, selectConstraint, eventColor) %}
     <link rel='stylesheet' href='{{ url_for("static", filename="fullcalendar/fullcalendar.css") }}' />
     <script src='{{ url_for("static", filename="fullcalendar/fullcalendar.js") }}'></script>
     <script src='{{ url_for("static", filename="fullcalendar/lib/jquery-ui.custom.min.js") }}'></script>
@@ -103,7 +103,7 @@
                 defaultTimedEventDuration: duration,
                 defaultView: 'agendaWeek',
                 forceEventDuration: true,
-                eventOverlap: {% if eventOverlap %}true{% else %}false{% endif %},
+                eventOverlap: true,
                 scrollTime :  "13:00:00",
                 slotLabelFormat: "HH:mm",
                 timeFormat: "HH:mm",

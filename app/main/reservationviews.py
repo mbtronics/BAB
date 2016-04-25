@@ -7,7 +7,7 @@ from ..resourcemodels import Resource, Available, Reservation
 from ..decorators import permission_required
 import json
 from sqlalchemy import and_, or_
-from datetime import datetime
+from datetime import datetime, timedelta
 import dateutil.parser
 
 @main.route('/resource/reservation/<int:id>', methods=['GET', 'POST'])
@@ -45,7 +45,6 @@ def get_data_json_response(resources, start_date, end_date):
                     'end': r.end.strftime("%Y-%m-%d %H:%M:%S"),
                     'id': r.id,
                     'title': title,
-                    'constraint': 'available',
                     'color': color,
                 })
 
@@ -129,6 +128,19 @@ def reservation_setdata(id):
                                             .filter(Reservation.id!=r.id).all()
             if len(reservations)>0:
                 return jsonify({'err': "Overlap with existing reservation"})
+
+            #Check if in Available
+            d = start
+            delta = timedelta(0, 20*60)
+            ok = True
+            while d<end:
+                if len(Available.query.filter(and_(Available.start <= d, Available.end >= (d+delta))).all())<1:
+                    ok = False
+                    break
+                d += delta
+
+            if not ok:
+                return jsonify({'err': 'Selected range not available'})
 
             r.start = start
             r.end = end
