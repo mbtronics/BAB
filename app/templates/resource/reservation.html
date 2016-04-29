@@ -24,9 +24,9 @@
 
         {% if current_user.can(Permission.MANAGE_PAYMENTS) and not reservation.is_paid %}
             <a class="btn btn-default" href="{{ url_for('.make_payment', id=reservation.user.id) }}">Make payment</a>
-            {% if current_user.can(Permission.MANAGE_RESERVATIONS) or reservation.user==current_user %}
-                <a class="btn btn-danger" onclick="delete_reservation({{ reservation.id }});">Delete reservation</a>
-            {% endif %}
+        {% endif %}
+        {% if current_user.can(Permission.MANAGE_RESERVATIONS) or reservation.user==current_user %}
+            <a class="btn btn-danger" onclick="delete_reservation({{ reservation.id }});">Delete reservation</a>
         {% endif %}
     </div>
 
