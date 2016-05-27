@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for
+from flask import render_template, redirect, url_for, flash
 from flask.ext.login import login_required
 from . import main
 from .forms import DeleteConfirmationForm, EditSkillForm
@@ -56,6 +56,15 @@ def delete_skill(name):
 
     form = DeleteConfirmationForm()
     if form.validate_on_submit() and form.delete.data:
+
+        if skill.num_users>0:
+            flash("You can't delete a skill wich has users!")
+            return redirect(url_for('.skill', name=skill.name))
+
+        if len(skill.resources.all())>0:
+            flash("You can't delete a skill wich has resources attached!")
+            return redirect(url_for('.skill', name=skill.name))
+
         db.session.delete(skill)
         db.session.commit()
         return redirect(url_for('.list_skills'))
