@@ -3,7 +3,7 @@ from flask.ext.wtf.file import file_allowed
 from flask.ext.pagedown.fields import PageDownField
 from wtforms import StringField, TextAreaField, BooleanField, SubmitField, IntegerField, DateField, FloatField
 from flask.ext.wtf.file import FileField
-from wtforms.validators import Required, Optional, Length, Regexp
+from wtforms.validators import Required, Optional, Length, Regexp, InputRequired
 from wtforms import ValidationError
 from ..usermodels import User
 from .. import photos
@@ -65,8 +65,8 @@ class EditResourceForm(Form):
     description = PageDownField('Description', validators=[Required()])
     active = BooleanField('Active', validators=[Optional()])
     photo = FileField('Photo', validators=[Optional(), file_allowed(photos, "Images only!")])
-    price_p_per = IntegerField('Price per period (euro)', validators=[Optional()])
-    reserv_per = IntegerField('Reservation period (minutes)', validators=[Optional()])
+    price_p_per = IntegerField('Price per period (euro)', validators=[InputRequired()])
+    reserv_per = IntegerField('Reservation period (minutes)', validators=[Required()])
     submit = SubmitField('Update resource')
 
 class RequestInvoiceForm(Form):

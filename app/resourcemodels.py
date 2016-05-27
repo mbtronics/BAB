@@ -25,6 +25,9 @@ class Resource(db.Model):
 
     @property
     def reservation_period_pretty(self):
+        if not self.reserv_per:
+            return ""
+
         if (self.reserv_per % 60)==0:
             return "%s hours" % (self.reserv_per/60)
         else:
