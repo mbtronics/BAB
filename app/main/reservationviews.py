@@ -155,7 +155,8 @@ def reservation_setdata(id):
                 return jsonify({'err': "Permission denied"})
 
             if r.start < datetime.now() or r.end < datetime.now():
-                return jsonify({'err': "You can't delete reservations in the past!"})
+                if not current_user.can(Permission.MANAGE_RESERVATIONS):
+                    return jsonify({'err': "Only moderators can delete past or busy reservations!"})
 
             if r.is_paid:
                 return jsonify({'err': "You can't delete paid reservations!"})
