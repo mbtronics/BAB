@@ -5,6 +5,8 @@
 
 {% block page_content %}
 
+    <div id="error_msg"></div>
+
     <div class="page-header">
         <h1>Reservation {{ reservation.id }}</h1>
     </div>
@@ -25,7 +27,7 @@
         {% if current_user.can(Permission.MANAGE_PAYMENTS) and not reservation.is_paid %}
             <a class="btn btn-default" href="{{ url_for('.make_payment', id=reservation.user.id) }}">Make payment</a>
         {% endif %}
-        {% if current_user.can(Permission.MANAGE_RESERVATIONS) or reservation.user==current_user %}
+        {% if (current_user.can(Permission.MANAGE_RESERVATIONS) or reservation.user==current_user) and not reservation.is_paid %}
             <a class="btn btn-danger" onclick="delete_reservation({{ reservation.id }});">Delete reservation</a>
         {% endif %}
     </div>
@@ -42,6 +44,16 @@
         <link href='{{ url_for("static", filename="bootstrap-dialog/css/bootstrap-dialog.min.css") }}' rel="stylesheet" type="text/css" />
         <script src='{{ url_for("static", filename="bootstrap-dialog/js/bootstrap-dialog.min.js") }}'></script>
         <script>
+
+            function showErrorMsg(msg) {
+                $('#error_msg').html('<div class="container">'+
+                                        '<div class="alert alert-warning">'+
+                                            '<button type="button" class="close" data-dismiss="alert">&times;</button>'+
+                                            msg+
+                                        '</div>'+
+                                    '</div>');
+            }
+
             function delete_reservation(id) {
 
                 BootstrapDialog.confirm({
@@ -64,7 +76,11 @@
                                 url: '{{ url_for('.reservation_setdata', id=reservation.resource.id) }}',
 
                                 success: function(response) {
-                                    $(location).attr('href', '{{ url_for('.make_reservation', id=reservation.resource.id) }}');
+                                    if (response.err) {
+                                        showErrorMsg(response.err);
+                                    } else {
+                                        $(location).attr('href', '{{ url_for('.make_reservation', id=reservation.resource.id) }}');
+                                    }
                                 },
                             });
                         }

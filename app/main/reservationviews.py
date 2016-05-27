@@ -157,6 +157,9 @@ def reservation_setdata(id):
             if r.start < datetime.now() or r.end < datetime.now():
                 return jsonify({'err': "You can't delete reservations in the past!"})
 
+            if r.is_paid:
+                return jsonify({'err': "You can't delete paid reservations!"})
+
             db.session.delete(r)
             return jsonify()
 
