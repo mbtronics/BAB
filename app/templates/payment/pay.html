@@ -90,10 +90,12 @@
     {% if user %}
         var reservations = [
             {% for reservation in user.reservations.all() %}
-                {
-                    'reason': '{{ reservation.reason }}',
-                    'cost': {{ reservation.cost }}
-                },
+                {% if not reservation.is_paid %}
+                    {
+                        'reason': '{{ reservation.reason }}',
+                        'cost': {{ reservation.cost }}
+                    },
+                {% endif %}
             {% endfor %}
         ];
 
