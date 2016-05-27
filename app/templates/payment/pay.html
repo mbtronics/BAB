@@ -148,6 +148,14 @@
             });
         });
 
+    {% if force_membership %}
+        var row = $('.payment-row').clone();
+        row.clone().insertBefore($('#end'));
+        var type = document.getElementsByName('type[]')[0];
+        type.value = "membership";
+        typeChange(type);
+    {% endif %}
+
     </script>
 
 {% endblock %}

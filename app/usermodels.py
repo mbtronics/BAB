@@ -231,6 +231,13 @@ class User(UserMixin, db.Model):
 
         return 0
 
+    @property
+    def has_valid_membership(self):
+        if self.membership_days_left>0 or self.is_moderator or self.is_administrator:
+            return True
+        else:
+            return False
+
     def __repr__(self):
         return '<User %r>' % self.username
 

@@ -53,6 +53,10 @@ def make_payment(id):
             total = total + amounts[i]
             i+=1
 
+        if user and not user.has_valid_membership and not 'membership' in types:
+            flash("This user has no valid membership! Add a membership payment or payment will not work!")
+            abort(500)
+
         p = Payment(method=request.form.get('method'), user=user, amount=total, operator=current_user)
         if p.method=='cash' or p.method=='terminal':
             p.status = 'Paid'
@@ -75,8 +79,14 @@ def make_payment(id):
 
         return redirect(url_for('.payment', id=p.id))
 
+    if user and not user.has_valid_membership:
+        flash("This user has no valid membership! A membership payment is automatically added, payment will not work without!")
+        force_membership = True
+    else:
+        force_membership = False
+
     methods = [val for val in Payment.method.property.columns[0].type.enums]
-    return render_template('payment/pay.html', user=user, methods=methods)
+    return render_template('payment/pay.html', user=user, methods=methods, force_membership=force_membership)
 
 
 @main.route('/payment/<int:id>', methods=['GET', 'POST'])
