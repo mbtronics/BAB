@@ -29,8 +29,8 @@
     {{ super() }}
 
     {% if current_user.can(Permission.MANAGE_RESOURCES) %}
-        {{ calendar.fullcalendar_scripts('available', none, '.available_setdata', '.available_getdata', false, '#378006') }}
+        {{ calendar.fullcalendar_scripts('available', none, '.available_setdata', '.available_getdata', '#378006') }}
     {% else %}
-        {{ calendar.fullcalendar_scripts('available', none, none, '.available_getdata', false, '#378006') }}
+        {{ calendar.fullcalendar_scripts('available', none, none, '.available_getdata', '#378006') }}
     {% endif %}
 {% endblock %}

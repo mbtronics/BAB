@@ -4,7 +4,7 @@
     <div id="dialog" title="" style="display:none;">Are you sure want to delete it?</div>
 {% endmacro %}
 
-{% macro fullcalendar_scripts(type, resource, setdata, getdata, selectConstraint, eventColor) %}
+{% macro fullcalendar_scripts(type, resource, setdata, getdata, eventColor) %}
     <link rel='stylesheet' href='{{ url_for("static", filename="fullcalendar/fullcalendar.css") }}' />
     <script src='{{ url_for("static", filename="fullcalendar/fullcalendar.js") }}'></script>
     <script src='{{ url_for("static", filename="fullcalendar/lib/jquery-ui.custom.min.js") }}'></script>
@@ -111,10 +111,6 @@
                 columnFormat: 'ddd D/M',
                 nowIndicator: true,
                 timezone: 'false',
-
-                {% if selectConstraint %}
-                    selectConstraint: '{{ selectConstraint }}',
-                {% endif %}
 
             {% if setdata %}
                 draggable: true,

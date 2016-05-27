@@ -79,6 +79,29 @@ def reservation_getdata(id):
     return get_data_json_response(resources, start_date, end_date)
 
 
+def reservation_in_available(start, end):
+    d = start
+    delta = timedelta(0, 20 * 60)
+    while d < end:
+        if len(Available.query.filter(and_(Available.start <= d, Available.end >= (d + delta))).all()) < 1:
+            return False
+            break
+        d += delta
+    return True
+
+def reservation_overlaps(resource, start, end, r):
+    reservations_bq = Reservation.query.filter(Reservation.resource == resource).filter(or_( \
+        and_(Reservation.start <= start, Reservation.end >= end), \
+        and_(Reservation.start >= start, Reservation.start < end), \
+        and_(Reservation.end > start, Reservation.end <= end)))
+
+    if r:
+        reservations = reservations_bq.filter(Reservation.id != r.id).all()
+    else:
+        reservations = reservations_bq.all()
+
+    return len(reservations)>0
+
 @main.route('/resource/reservation/<int:id>/setdata', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.BOOK)
@@ -94,13 +117,11 @@ def reservation_setdata(id):
             if start < datetime.now() or end < datetime.now():
                 return jsonify({'err': "You can't make reservations in the past!"})
 
-            #Check for overlap
-            reservations = Reservation.query.filter(Reservation.resource==resource).filter(or_(\
-                                                        and_(Reservation.start<=start, Reservation.end>=end), \
-                                                        and_(Reservation.start>=start, Reservation.start<end), \
-                                                        and_(Reservation.end>start, Reservation.end<=end))).all()
-            if len(reservations)>0:
+            if reservation_overlaps(resource, start, end, None):
                 return jsonify({'err': "Overlap with existing reservation"})
+
+            if not reservation_in_available(start, end):
+                return jsonify({'err': 'Selected range not available'})
 
             r=Reservation(start=start, end=end, resource=resource, user=current_user, reason=data['reason'])
             r.cost = r.calculated_cost
@@ -120,26 +141,10 @@ def reservation_setdata(id):
             if (start!=r.start and start < datetime.now()) or (end!=r.end and end < datetime.now()):
                 return jsonify({'err': "You can't update reservations in the past!"})
 
-            #Check for overlap
-            reservations = Reservation.query.filter(Reservation.resource==resource).filter(or_(\
-                                                        and_(Reservation.start<=start, Reservation.end>=end), \
-                                                        and_(Reservation.start>=start, Reservation.start<end), \
-                                                        and_(Reservation.end>start, Reservation.end<=end)))\
-                                            .filter(Reservation.id!=r.id).all()
-            if len(reservations)>0:
+            if reservation_overlaps(resource, start, end, r):
                 return jsonify({'err': "Overlap with existing reservation"})
 
-            #Check if in Available
-            d = start
-            delta = timedelta(0, 20*60)
-            ok = True
-            while d<end:
-                if len(Available.query.filter(and_(Available.start <= d, Available.end >= (d+delta))).all())<1:
-                    ok = False
-                    break
-                d += delta
-
-            if not ok:
+            if not reservation_in_available(start, end):
                 return jsonify({'err': 'Selected range not available'})
 
             r.start = start
