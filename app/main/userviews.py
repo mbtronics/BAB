@@ -30,7 +30,7 @@ def user(username):
         skills = user.skills.order_by(Skill.name.asc()).all()
 
         if not user.has_valid_membership:
-            flash("You have not yet paid your membership. You can make reservations, but a membership payment will be automatically added at your first payement.")
+            flash("You have not yet paid your membership. You can make reservations, but a membership payment will be automatically added at your first payment.")
 
         return render_template('user/view.html', user=user, skills=skills)
 
