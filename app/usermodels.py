@@ -261,7 +261,7 @@ class ExpenseNote(db.Model):
     __tablename__ = 'ExpenseNotes'
 
     id = db.Column(db.Integer, primary_key=True)
-    total = db.Column(db.Integer, nullable=False)
+    total = db.Column(db.Float, nullable=False)
     description = db.Column(db.String(200), nullable=False)
     bank_account = db.Column(db.String(50))
     date = db.Column(db.Date)
