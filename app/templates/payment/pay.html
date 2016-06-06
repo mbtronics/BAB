@@ -23,6 +23,7 @@
         </h1>
     </div>
 
+{% if not user %}
     <div class="panel panel-danger">
         <div class="panel-heading">WARNING</div>
         <div class="panel-body">
@@ -30,6 +31,7 @@
             It can not be used for reservations or memberships.</h2>
         </div>
     </div>
+{% endif %}
 
     <form action="" method="post" class="form" role="form">
         <fieldset>
