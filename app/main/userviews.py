@@ -265,7 +265,7 @@ def create_expensenote(id):
         db.session.add(e)
         db.session.commit()
 
-        send_email(invoice_email.value, 'Request invoice', 'user/email/expensenote', expensenote=e)
+        send_email(invoice_email.value, 'Request expense note', 'user/email/expensenote', expensenote=e)
         flash("Your expense note has been send.")
         return redirect(url_for('.user', username=id))
 
