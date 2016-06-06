@@ -22,7 +22,7 @@
             </tr>
         </thead>
         <tbody>
-        {% for reservation in reservations %}
+        {% for reservation in reservations|sort(attribute='id', reverse=True) %}
             <tr class="clickable-row">
                 <td><a href="{{ url_for('.reservation', id=reservation.id) }}"></a>{{ reservation.id }}</td>
                 <td>{{ reservation.resource.name }}</td>

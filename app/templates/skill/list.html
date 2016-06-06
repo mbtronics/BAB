@@ -20,7 +20,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for skill in skills %}
+            {% for skill in skills|sort(attribute='id', reverse=True) %}
                 <tr class="clickable-row">
                     <td><a href="{{ url_for('main.skill', name=skill.name) }}"></a>{{ skill.name }}</td>
                     <td>{{ skill.description }}</td>

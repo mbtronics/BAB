@@ -57,7 +57,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            {% for expensenote in user.expensenotes.all() %}
+                            {% for expensenote in user.expensenotes.all()|sort(attribute='id', reverse=True) %}
                                 <tr>
                                     <td>{{ expensenote.id }}</td>
                                     <td>&euro;{{ expensenote.total }}</td>

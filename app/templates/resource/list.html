@@ -21,7 +21,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for resource in resources %}
+            {% for resource in resources|sort(attribute='id', reverse=True) %}
                 <tr class="clickable-row">
                     <td><img src="{{ resource.photo_url(100) or url_for('static', filename='no.png') }}" width="100"></td>
                     <td><a href="{{ url_for('main.resource', name=resource.name) }}"></a>{{ resource.name }}</td>
