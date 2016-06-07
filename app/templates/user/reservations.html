@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}{{ config['APP_NAME'] }} - List reservations for {{ user.username }}{% endblock %}
+{% block title %}{{ config['APP_NAME'] }} - List reservations for {{ user.name }}{% endblock %}
 
 {% block page_content %}
 
 <div class="page-header">
-    <h1>List reservations for {{ user.name }} ({{ user.username }})</h1>
+    <h1>List reservations for {{ user.name }}</h1>
 </div>
 
 <div class="col-md-12">
