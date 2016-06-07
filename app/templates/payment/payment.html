@@ -49,6 +49,7 @@
     </table>
 
     <h4>
+        <b>User:</b> <a href="{{ url_for('.user', username=user.username) }}">{{ user.name }}</a><br>
         <b>Date:</b> {{ moment(payment.date).format('DD/MM/YYYY HH:mm') }}<br>
         <b>Total:</b> &euro;{{ payment.amount }}<br>
         <b>Method:</b> {{ payment.method }}<br>

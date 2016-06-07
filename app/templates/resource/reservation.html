@@ -14,13 +14,17 @@
     <div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-body">
-                <p><b>User: </b>{{ reservation.user.name }} (<a href="{{ url_for('.user', username=reservation.user.username) }}">{{ reservation.user.username }}</a>)</p>
+                <p><b>User: </b><a href="{{ url_for('.user', username=reservation.user.username) }}">{{ reservation.user.name }}</a></p>
                 <p><b>Resource: </b><a href="{{ url_for('.resource', name=reservation.resource.name) }}">{{ reservation.resource.name }}</a></p>
                 <p><b>Date: </b>{{ moment(reservation.start, local=True).format('DD/MM/YYYY HH:mm') }}</p>
                 <p><b>Reason: </b>{{ reservation.reason }}</p>
                 <p><b>Duration: </b>{{ reservation.duration_str }}</p>
                 <p><b>Cost: </b> &euro;{{ reservation.cost }}</p>
                 <p><b>Paid: </b>&euro;{{ reservation.paid }}</p>
+
+                {% if reservation.paymentdescriptions.all() %}
+                <p><b>Payment: </b><a href="{{ url_for(".payment", id=reservation.paymentdescriptions[0].payment.id) }}">{{ reservation.paymentdescriptions[0].payment.id }}</a></p>
+                {% endif %}
             </div>
         </div>
 
