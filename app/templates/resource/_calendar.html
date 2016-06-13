@@ -128,7 +128,7 @@
                             buttons: [{
                                         label: 'Save',
                                         action: function(dialogRef) {
-                                            var reason = dialogRef.getModalBody().find('input').val();
+                                            var reason = $.trim(dialogRef.getModalBody().find('input').val());
                                             if (reason=='') {
                                                 return false;
                                             }
