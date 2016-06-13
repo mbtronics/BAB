@@ -24,7 +24,7 @@ def make_payment(id):
             types = request.form.getlist('type[]')
 
             if not types:
-                flash("You can't make a payment without description rows!")
+                flash("You can't make a payment without adding rows!")
                 abort(500)
 
             if user:
@@ -68,13 +68,12 @@ def make_payment(id):
             flash("This user has no valid membership! Add a membership payment or payment will not work!")
             abort(500)
 
-        p = Payment(method=request.form.get('method'), user=user, amount=total, operator=current_user)
-        if p.method=='cash' or p.method=='terminal':
-            p.status = 'Paid'
-        elif p.method=='online':
-            p.status = 'Open'
-        else:
-            abort(404)
+        method = request.form.get('method')
+        if method=='credits' and user.credits<total:
+            flash("User has not enough credits!")
+            abort(500)
+
+        p = Payment(method=method, user=user, amount=total, operator=current_user)
 
         db.session.add(p)
         db.session.flush()
@@ -83,6 +82,17 @@ def make_payment(id):
             if payment['type']=='reservation' and payment['reservation'] and payment['reservation']!=0:
                 pd.reservation_id = payment['reservation']
             db.session.add(pd)
+
+        if p.method=='cash' or p.method=='terminal':
+            payment_verified(p)
+        elif p.method=='online':
+            p.status = 'Open'
+        elif p.method=='credits':
+            user.credits -= total
+            payment_verified(p)
+        else:
+            abort(404)
+
         db.session.commit()
 
         if p.method == 'online':
@@ -210,7 +220,7 @@ def mollie_webhook():
     p.mollie_id = mollie_id
 
     if payment.isPaid():
-        p.status = 'Paid'
+        payment_verified(p)
     elif payment.isPending():
         p.status = 'Pending'
     elif payment.isOpen():
@@ -226,3 +236,11 @@ def mollie_webhook():
 @permission_required(Permission.MANAGE_PAYMENTS)
 def mollie_redirect(id):
     return redirect(url_for('.payment', id=id))
+
+
+def payment_verified(p):
+    p.status = 'Paid'
+
+    for pd in p.paymentdescriptions:
+        if pd.type == 'credits':
+            p.user.credits += pd.amount

@@ -23,7 +23,11 @@
         </h1>
     </div>
 
-{% if not user %}
+{% if user %}
+    <div class="panel panel-info">
+        <div class="panel-body">{{ user.name }} has &euro;{{ user.credits }} credits left</div>
+    </div>
+{% else %}
     <div class="panel panel-danger">
         <div class="panel-heading">WARNING</div>
         <div class="panel-body">
@@ -43,6 +47,7 @@
                     {% if user %}
                     <option value="reservation">reservation</option>
                     <option value="membership">membership</option>
+                    <option value="credits">credits</option>
                     {% endif %}
                 </select>
 
@@ -125,6 +130,9 @@
             if (type.value=='membership') {
                 document.getElementsByName('amount[]')[i].value = 12;
                 document.getElementsByName('description[]')[i].value = 'Membership {{ user.name }}';
+            } else if (type.value=='credits') {
+                document.getElementsByName('amount[]')[i].value = 30;
+                document.getElementsByName('description[]')[i].value = 'Add credits';
             }
         }
 

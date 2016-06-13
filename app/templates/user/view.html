@@ -29,6 +29,7 @@
                     no
                 {% endif %}
             <br>
+            <b>Credits:</b> &euro;{{ user.credits }}<br>
             {% if user.invoice_details %}<p><b>Invoice details:</b> <pre>{{ user.invoice_details }}</pre></p>{% endif %}
 
             {% if user.payments.all() %}

@@ -92,6 +92,7 @@ class User(UserMixin, db.Model):
     photo_filename = db.Column(db.String(100))
     organisation = db.Column(db.String(50))
     invoice_details = db.Column(db.Text())
+    credits = db.Column(db.Float, nullable=False, default=0)
 
     skills = db.relationship('Skill', secondary=UserSkills, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
     reservations = db.relationship('Reservation', backref='user', lazy='dynamic')
@@ -276,3 +277,6 @@ class ExpenseNote(db.Model):
 
     def __repr__(self):
         return '<ExpenseNote for %s: %r>' % (self.user.name, self.total)
+
+
+
