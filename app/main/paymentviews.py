@@ -23,6 +23,10 @@ def make_payment(id):
         try:
             types = request.form.getlist('type[]')
 
+            if not types:
+                flash("You can't make a payment without description rows!")
+                abort(500)
+
             if user:
                 reservations = []
                 for r in request.form.getlist('reservation[]'):
@@ -47,11 +51,18 @@ def make_payment(id):
             }
             if user:
                 payment['reservation'] = reservations[i]
+                if type=='reservation' and not payment['reservation']:
+                    flash("You selected type reserveration without selecting an actual reservation!")
+                    abort(500)
             else:
                 payment['reservation'] = None
             payments.append(payment)
             total = total + amounts[i]
             i+=1
+
+        if not total:
+            flash("You can't make a payment without amounts!")
+            abort(500)
 
         if user and not user.has_valid_membership and not 'membership' in types:
             flash("This user has no valid membership! Add a membership payment or payment will not work!")

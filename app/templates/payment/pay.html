@@ -63,6 +63,8 @@
 
                 <label>Amount:</label>
                 <input type="float" name="amount[]" required style="width: 50px;" value="0"/>
+
+                <span class="glyphicon glyphicon-remove" onclick="removeRow(this);"></span>
             </div>
             <div id="end"></div>
 
@@ -75,7 +77,7 @@
             </select>
 
             <br>
-            <input class="btn btn-default" type="button" id="add-row" name="add-row" value="Add row" />
+            <input class="btn btn-default" type="button" value="Add row" onclick="addRow();" />
             <input class="btn btn-default" type="submit" value="Pay">
 
         </fieldset>
@@ -130,7 +132,7 @@
             var i = getElementIdInArray(reservation, 'reservation[]');
             var type = document.getElementsByName('type[]')[i].value;
 
-            if (type=='reservation') {
+            if (type == 'reservation') {
                 if (reservation.selectedIndex == 0) {
                     document.getElementsByName('description[]')[i].value = '';
                     document.getElementsByName('amount[]')[i].value = '';
@@ -144,17 +146,17 @@
         }
     {% endif %}
 
-        jQuery(function($){
-            var button = $('#add-row');
-            var row = $('.payment-row').clone();
+        var row = $('.payment-row').clone();
 
-            button.click(function(){
-                row.clone().insertBefore($('#end'));
-            });
-        });
+        function addRow() {
+            row.clone().insertBefore($('#end'));
+        }
+
+        function removeRow(row) {
+            $(row).parent().remove();
+        }
 
     {% if force_membership %}
-        var row = $('.payment-row').clone();
         row.clone().insertBefore($('#end'));
         var type = document.getElementsByName('type[]')[0];
         type.value = "membership";
