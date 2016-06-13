@@ -1,6 +1,6 @@
 {% import "_macros.html" as macros with context %}
 
-{% macro view_payments_widget(payments, pagination, endpoint) %}
+{% macro view_payments_widget(payments, pagination, endpoint, show_operator=false) %}
 
 {% if payments %}
     <table class="table table-condensed table-hover">
@@ -8,6 +8,9 @@
             <tr>
                 <th>Id</th>
                 <th>User</th>
+                {% if show_operator %}
+                    <th>Operator</th>
+                {% endif %}
                 <th>Amount</th>
                 <th>Method</th>
                 <th>Status</th>
@@ -21,6 +24,9 @@
                     {{ payment.id }}
                 </td>
                 <td>{{ payment.user.name }}</td>
+                {% if show_operator %}
+                    <td>{{ payment.operator.name }}</td>
+                {% endif %}
                 <td>&euro;{{ payment.amount }}</td>
                 <td>{{ payment.method }}</td>
                 <td>{{ payment.status }}</td>
