@@ -277,6 +277,3 @@ class ExpenseNote(db.Model):
 
     def __repr__(self):
         return '<ExpenseNote for %s: %r>' % (self.user.name, self.total)
-
-
-

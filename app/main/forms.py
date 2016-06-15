@@ -6,7 +6,6 @@ from flask.ext.wtf.file import FileField
 from wtforms.validators import Required, Optional, Length, Regexp, InputRequired
 from wtforms import ValidationError
 from ..usermodels import User
-from ..paymentmodels import Payment
 from .. import photos
 
 class EditProfileFormBasic(Form):
