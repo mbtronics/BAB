@@ -69,7 +69,7 @@ def make_payment(id):
             abort(500)
 
         method = request.form.get('method')
-        if method=='credits' and user.credits<total:
+        if method=='credits' and (not user or user.credits<total):
             flash("User has not enough credits!")
             abort(500)
 
@@ -108,7 +108,11 @@ def make_payment(id):
 
     # We can get the methods from the db model, but this way we can change the order
     #methods = [val for val in Payment.method.property.columns[0].type.enums]
-    methods = [u'online', u'terminal', u'cash', u'credits']
+    if user:
+        methods = ['credits', 'online', 'terminal', 'cash']
+    else:
+        methods = ['online', 'terminal', 'cash']
+
     return render_template('payment/pay.html', user=user, methods=methods, force_membership=force_membership)
 
 
