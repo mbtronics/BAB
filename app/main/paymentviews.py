@@ -109,9 +109,9 @@ def make_payment(id):
     # We can get the methods from the db model, but this way we can change the order
     #methods = [val for val in Payment.method.property.columns[0].type.enums]
     if user:
-        methods = ['credits', 'online', 'terminal', 'cash']
+        methods = ['credits', 'online', 'cash']
     else:
-        methods = ['online', 'terminal', 'cash']
+        methods = ['online', 'cash']
 
     return render_template('payment/pay.html', user=user, methods=methods, force_membership=force_membership)
 
