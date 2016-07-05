@@ -285,3 +285,11 @@ def view_expensenote(id):
         flash("Expense note updated")
 
     return render_template('user/expensenote.html', form=form, expensenote=e)
+
+
+@main.route('/expensenote/list', methods=['GET'])
+@login_required
+@permission_required(Permission.MANAGE_EXPENSENOTES)
+def list_expensenotes():
+    expensenotes = ExpenseNote.query.all()
+    return render_template('user/list_expensenotes.html', expensenotes=expensenotes)

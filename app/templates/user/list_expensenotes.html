@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% import "user/_macros.html" as macros with context %}
+
+{% block title %}{{ config['APP_NAME'] }} - List expense notes{% endblock %}
+
+{% block page_content %}
+
+<div class="page-header">
+    <h1>List expense notes</h1>
+</div>
+
+<div class="col-md-12">
+    <table class="table table-condensed table-hover">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>User</th>
+                <th>Cost</th>
+                <th>Description</th>
+                <th>Bank account</th>
+                <th>Date costs</th>
+                <th>Date request</th>
+                <th>Paid</th>
+                <th>File</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for expensenote in expensenotes|sort(attribute='id', reverse=True) %}
+            <tr class="clickable-row">
+                <td>
+                    <a href="{{ url_for('.view_expensenote', id=expensenote.id) }}"></a>
+                    {{ expensenote.id }}
+                </td>
+                <td><a href="{{ url_for('.user', username=expensenote.user.username) }}">{{ expensenote.user.name }}</a></td>
+                <td>&euro;{{ expensenote.total }}</td>
+                <td>{{ expensenote.description }}</td>
+                <td>{{ expensenote.bank_account }}</td>
+                <td>{{ moment(expensenote.date).format('DD/MM/YYYY') }}</td>
+                <td>{{ moment(expensenote.date_requested).format('DD/MM/YYYY') }}</td>
+                <td>{{ expensenote.paid }}</td>
+                <td><a href="{{ expensenote.file_url }}">{{ expensenote.filename }}</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
