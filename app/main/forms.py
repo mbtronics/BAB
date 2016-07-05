@@ -87,3 +87,7 @@ class ExpenseNoteForm(Form):
     date = DateField('Date (costs made on)', validators=[Required()], format='%d/%m/%Y')
     file = FileField('File', validators=[Required()])
     submit = SubmitField('Create expense note')
+
+class PayExpenseNoteForm(Form):
+    paid = BooleanField('Paid', validators=[Optional()])
+    submit = SubmitField('Save')

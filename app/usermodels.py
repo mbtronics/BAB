@@ -19,12 +19,14 @@ class Permission:
     MANAGE_RESERVATIONS=(1<<4)
     MANAGE_PAYMENTS =   (1<<5)
     CHANGE_SETTINGS =   (1<<6)
+    MANAGE_EXPENSENOTES=(1<<7)
     ADMINISTER =        0xffff
 
 roles = {
     'User': (Permission.BOOK, True),
     'Moderator': (Permission.BOOK | Permission.MANAGE_USERS | Permission.MANAGE_SKILLS |
-                  Permission.MANAGE_RESOURCES | Permission.MANAGE_RESERVATIONS | Permission.MANAGE_PAYMENTS, False),
+                  Permission.MANAGE_RESOURCES | Permission.MANAGE_RESERVATIONS | Permission.MANAGE_PAYMENTS |
+                  Permission.MANAGE_EXPENSENOTES, False),
     'Administrator': (Permission.ADMINISTER, False)
 }
 
@@ -268,6 +270,7 @@ class ExpenseNote(db.Model):
     date = db.Column(db.Date)
     date_requested = db.Column(db.Date, default=datetime.utcnow)
     filename = db.Column(db.String(100))
+    paid = db.Column(db.Boolean, nullable=False, default=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=True)
 

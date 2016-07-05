@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, abort, flash, request, ses
 from flask.ext.login import login_required, current_user
 from sqlalchemy import or_
 from . import main
-from .forms import EditProfileForm, EditProfileAdminForm, DeleteConfirmationForm, SearchUserForm, ExpenseNoteForm
+from .forms import EditProfileForm, EditProfileAdminForm, DeleteConfirmationForm, SearchUserForm, ExpenseNoteForm, PayExpenseNoteForm
 from .. import db
 from ..usermodels import Permission, Role, User, Skill, Payment, PaymentDescription, ExpenseNote
 from ..resourcemodels import Reservation
@@ -246,7 +246,7 @@ def create_expensenote(id):
         abort(404)
 
     invoice_email = Setting.query.get('invoice_email')
-    if not invoice_email.value:
+    if not invoice_email or not invoice_email.value:
         flash('Invoice settings incorrect!')
         abort(500)
 
@@ -263,12 +263,25 @@ def create_expensenote(id):
             e.filename = expensenotes.save(form.file.data)
 
         db.session.add(e)
-        db.session.commit()
+        db.session.commit() #needed because we send a mail about it
 
         send_email(invoice_email.value, 'Request expense note', 'user/email/expensenote', expensenote=e)
         flash("Your expense note has been send.")
         return redirect(url_for('.user', username=id))
 
     # dateformat should be compatible with format in ExpenseNoteForm
-    return render_template('user/expensenote.html', form=form, dateformat='dd/mm/yy')
+    return render_template('user/new_expensenote.html', form=form, dateformat='dd/mm/yy')
 
+@main.route('/expensenote/<int:id>', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.MANAGE_EXPENSENOTES)
+def view_expensenote(id):
+    e = ExpenseNote.query.get_or_404(id)
+
+    form = PayExpenseNoteForm()
+    if form.validate_on_submit():
+        e.paid = form.paid.data
+        db.session.add(e)
+        flash("Expense note updated")
+
+    return render_template('user/expensenote.html', form=form, expensenote=e)

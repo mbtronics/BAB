@@ -10,7 +10,6 @@
             <th>Bank account</th>
             <th>Date costs</th>
             <th>Date request</th>
-            <th>File</th>
         </tr>
     </thead>
     <tbody>
@@ -21,7 +20,8 @@
             <td>{{ expensenote.bank_account }}</td>
             <td>{{ expensenote.date }}</td>
             <td>{{ expensenote.date_requested }}</td>
-            <td><a href="{{ expensenote.file_url }}">{{ expensenote.filename }}</a></td>
         </tr>
     </tbody>
 </table>
+
+<a href="{{ url_for('.view_expensenote', id=expensenote.id, _external=True) }}">{{ url_for('.view_expensenote', id=expensenote.id, _external=True) }}</a>
