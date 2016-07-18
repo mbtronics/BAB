@@ -26,7 +26,7 @@ class PaymentDescription(db.Model):
     __tablename__ = 'PaymentDescriptions'
     id = db.Column(db.Integer, primary_key=True)
     payment_id = db.Column(db.Integer, db.ForeignKey('Payments.id'), nullable=False)
-    type = db.Column(db.Enum(u'reservation', u'membership', u'custom', u'credits'), index=True, nullable=False) #Sync with pay.html
+    type = db.Column(db.Enum(u'reservation', u'membership', u'custom', u'credits', u'consumption'), index=True, nullable=False) #Sync with pay.html
     description = db.Column(db.String(100), unique=False)
     reservation_id = db.Column(db.Integer, db.ForeignKey('Reservations.id'), nullable=True)
     amount = db.Column(db.Float)
