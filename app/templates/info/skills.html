@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}{{ config['APP_NAME'] }} - Info: skills{% endblock %}
+
+{% block page_content %}
+
+<div class="page-header">
+    <h1>Info: skills</h1>
+</div>
+
+<div class="col-md-12">
+    <p>To be able to reserve and use a machine, you need to necessary skill.<br>
+    A skill can be assigned to your account by a moderator.<br>
+        You can browse the available skills <a href="{{ url_for('main.list_skills') }}">here</a>,
+        and you can see your assigned skills on <a href="{{ url_for('main.user', username=current_user.username) }}">your profile page</a>.</p>
+
+    <p>To get a skill, you can follow a initiation course. Please contact <a href="mailto:info@budalab.be">info@budalab.be</a> for more details.</p>
+    <p>If you believe you don't need an initiation, please contact us at <a href="mailto:info@budalab.be">info@budalab.be</a>.</p>
+</div>
+
+{% endblock %}

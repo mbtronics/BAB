@@ -1,14 +1,26 @@
-from flask import render_template, request, Response, abort, jsonify
+from flask import render_template, request, Response, abort, jsonify, flash, url_for
 from flask.ext.login import login_required, current_user
 from . import main
 from .. import db
 from ..usermodels import Permission
-from ..resourcemodels import Resource, Available, Reservation
+from ..resourcemodels import Resource, Available, Reservation, SkillsResources
 from ..decorators import permission_required
 import json
 from sqlalchemy import and_, or_
 from datetime import datetime, timedelta
 import dateutil.parser
+
+def is_user_skilled(resource):
+
+    if current_user.is_moderator:
+        return True
+
+    skilled = False
+    for skill in current_user.skills:
+        if resource in skill.resources:
+            skilled = True
+            break
+    return skilled
 
 @main.route('/resource/reservation/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -19,7 +31,12 @@ def make_reservation(id):
     if not resource.active and not current_user.can(Permission.MANAGE_RESOURCES):
         abort(403)
 
-    return render_template('resource/make_reservation.html', resource=resource)
+    skilled = is_user_skilled(resource)
+
+    if not skilled:
+        flash("Warning! You don't have the needed skill to use this machine. <a href='" + url_for('main.info_skills') + "'>Click here for more info.</a>")
+
+    return render_template('resource/make_reservation.html', resource=resource, skilled=skilled)
 
 def get_data_json_response(resources, start_date, end_date):
     if start_date and end_date:
@@ -108,6 +125,9 @@ def reservation_overlaps(resource, start, end, r):
 def reservation_setdata(id):
     resource = Resource.query.get_or_404(id)
     data = request.get_json()
+
+    if not is_user_skilled(resource):
+        abort(404)
 
     if data and 'action' in data:
         if data['action']=='new':
