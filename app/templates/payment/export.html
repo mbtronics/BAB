@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}{{ config['APP_NAME'] }} - Submit expense note{% endblock %}
+{% block title %}{{ config['APP_NAME'] }} - Export payments{% endblock %}
 
 {% block page_content %}
+
 <div class="page-header">
-    <h1>Submit expense note</h1>
+    <h1>Export payments</h1>
 </div>
 
-<div class="col-md-12">
+<div class="col-md-2">
     {{ wtf.quick_form(form) }}
 </div>
 
@@ -22,7 +23,8 @@
 
     <script>
         $(function() {
-            $( "#date" ).datepicker({ dateFormat: '{{ dateformat }}' });
+            $( "#start" ).datepicker({ dateFormat: '{{ dateformat }}' });
+            $( "#end" ).datepicker({ dateFormat: '{{ dateformat }}' });
         });
     </script>
 {% endblock %}
