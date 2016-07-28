@@ -20,13 +20,7 @@ class Payment(db.Model):
             return True
         else:
             return False
-
-    @staticmethod
-    def get_column_names():
-        return ['Id', 'Method', 'User', 'Operator', 'Amount', 'Date', 'Status', 'Mollie id']
-
-    def get_row(self):
-        return [self.id, self.method, self.user.name, self.operator.name, self.amount, self.date, self.status, self.mollie_id]
+        
 
 class PaymentDescription(db.Model):
     __tablename__ = 'PaymentDescriptions'
@@ -36,6 +30,15 @@ class PaymentDescription(db.Model):
     description = db.Column(db.String(100), unique=False)
     reservation_id = db.Column(db.Integer, db.ForeignKey('Reservations.id'), nullable=True)
     amount = db.Column(db.Float)
+
+    @staticmethod
+    def get_column_names():
+        return ['Id', 'Type', 'Description', 'Amount', 'Method', 'User',
+                'Operator', 'Date', 'Status', 'Payment id', 'Mollie id']
+
+    def get_row(self):
+        return [self.id, self.type, self.description, self.amount, self.payment.method, getattr(self.payment.user, 'name', ''),
+                getattr(self.payment.operator, 'name', ''), self.payment.date, self.payment.status, self.payment_id, self.payment.mollie_id]
 
 
 class CreditHistory(db.Model):

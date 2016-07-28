@@ -196,10 +196,16 @@ def list_payments():
 def export_payments():
     form = ExportPayementsForm()
     if form.is_submitted():
-        q = Payment.query.join(User, Payment.user_id==User.id)
-        response = make_response(create_csv(q, Payment))
+        q = PaymentDescription.query
+        response = make_response(create_csv(q, PaymentDescription))
         response.headers["Content-Disposition"] = "attachment; filename=data.csv"
         return response
+
+    try:
+        form.start.data = Payment.query.order_by('date asc').limit(1).first().date
+        form.end.data = Payment.query.order_by('date desc').limit(1).first().date
+    except:
+        pass
 
     return render_template('payment/export.html', form=form, dateformat='dd/mm/yy')
 
