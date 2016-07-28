@@ -198,6 +198,10 @@ def export_payments():
     form = ExportPayementsForm()
     if form.is_submitted():
         q = PaymentDescription.query.join(Payment).order_by(asc(Payment.date))
+
+        if form.only_paid.data:
+            q = q.filter(Payment.status=='Paid')
+
         response = make_response(create_csv(q, PaymentDescription))
         response.headers["Content-Disposition"] = "attachment; filename=data.csv"
         return response
