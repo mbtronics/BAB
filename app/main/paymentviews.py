@@ -9,6 +9,7 @@ from ..email import send_email
 from forms import RequestInvoiceForm, ExportPayementsForm
 from ..settingsmodels import Setting
 from ..csv import create_csv
+from sqlalchemy import asc
 
 NumPaginationItems = 20
 
@@ -196,7 +197,7 @@ def list_payments():
 def export_payments():
     form = ExportPayementsForm()
     if form.is_submitted():
-        q = PaymentDescription.query
+        q = PaymentDescription.query.join(Payment).order_by(asc(Payment.date))
         response = make_response(create_csv(q, PaymentDescription))
         response.headers["Content-Disposition"] = "attachment; filename=data.csv"
         return response
