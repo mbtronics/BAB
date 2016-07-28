@@ -21,6 +21,12 @@ class Payment(db.Model):
         else:
             return False
 
+    @staticmethod
+    def get_column_names():
+        return ['Id', 'Method', 'User', 'Operator', 'Amount', 'Date', 'Status', 'Mollie id']
+
+    def get_row(self):
+        return [self.id, self.method, self.user.name, self.operator.name, self.amount, self.date, self.status, self.mollie_id]
 
 class PaymentDescription(db.Model):
     __tablename__ = 'PaymentDescriptions'
