@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, abort, request, flash
+from flask import render_template, redirect, url_for, abort, request, flash, make_response
 from flask.ext.login import login_required, current_user
 from . import main
 from .. import db, mollie
@@ -6,8 +6,10 @@ from ..usermodels import Permission, User
 from ..paymentmodels import Payment, PaymentDescription
 from ..decorators import permission_required
 from ..email import send_email
-from forms import RequestInvoiceForm
+from forms import RequestInvoiceForm, ExportPayementsForm
 from ..settingsmodels import Setting
+from ..csv import create_csv
+from sqlalchemy import asc
 
 NumPaginationItems = 20
 
@@ -176,12 +178,12 @@ def payment_invoice(id):
         return redirect(url_for('.payment', id=id))
 
     form.invoice_details.data = p.user.invoice_details
-    form.vat_exempt.data = False;
+    form.vat_exempt.data = False
 
     return render_template('payment/request_invoice.html', user=p.user, payment=p, descriptions=descriptions, form=form)
 
+
 @main.route('/payment/all')
-@login_required
 @permission_required(Permission.MANAGE_PAYMENTS)
 def list_payments():
     page = request.args.get('page', 1, type=int)
@@ -190,8 +192,30 @@ def list_payments():
     return render_template('payment/list.html', payments=payments, pagination=pagination)
 
 
+@permission_required(Permission.MANAGE_PAYMENTS)
+@main.route('/payment/export', methods=['GET', 'POST'])
+def export_payments():
+    form = ExportPayementsForm()
+    if form.is_submitted():
+        q = PaymentDescription.query.join(Payment).order_by(asc(Payment.date))
+
+        if form.only_paid.data:
+            q = q.filter(Payment.status=='Paid')
+
+        response = make_response(create_csv(q, PaymentDescription))
+        response.headers["Content-Disposition"] = "attachment; filename=data.csv"
+        return response
+
+    try:
+        form.start.data = Payment.query.order_by('date asc').limit(1).first().date
+        form.end.data = Payment.query.order_by('date desc').limit(1).first().date
+    except:
+        pass
+
+    return render_template('payment/export.html', form=form, dateformat='dd/mm/yy')
+
+
 @main.route('/payment/new', methods=['GET', 'POST'])
-@login_required
 @permission_required(Permission.MANAGE_PAYMENTS)
 def anonymous_payment():
     return make_payment(0)

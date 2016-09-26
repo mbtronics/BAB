@@ -91,3 +91,9 @@ class ExpenseNoteForm(Form):
 class PayExpenseNoteForm(Form):
     paid = BooleanField('Paid', validators=[Optional()])
     submit = SubmitField('Save')
+
+class ExportPayementsForm(Form):
+    start = DateField('Start date', validators=[Required()], format='%d/%m/%Y')
+    end = DateField('End date', validators=[Required()], format='%d/%m/%Y')
+    only_paid = BooleanField('Only paid', validators=[Optional()])
+    submit = SubmitField('Export')

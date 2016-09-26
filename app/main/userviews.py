@@ -232,7 +232,7 @@ def user_stats():
                     .join(PaymentDescription, Payment.id==PaymentDescription.payment_id)\
                     .filter(PaymentDescription.type=='membership').count()
     total_reservations = Reservation.query.count()
-    total_revenue = round(db.session.query(func.sum(Payment.amount)).first()[0],2)
+    total_revenue = round(db.session.query(func.sum(Payment.amount)).filter(Payment.status=='Paid').first()[0],2)
 
     return render_template('user/stats.html',   total_users=total_users, paying_users=paying_users,
                                                 total_reservations=total_reservations, total_revenue=total_revenue)
