@@ -16,8 +16,8 @@
     <div class="col-md-8">
 
         {# Private information, only for the user himself or moderator #}
-        <h2>Private info</h2>
         {% if current_user.can(Permission.MANAGE_USERS) or user==current_user %}
+            <h2>Private info</h2>
             {% if user.location %}<b>From:</b> <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a><br>{% endif %}
             {% if user.organisation %}<b>Organisation or company:</b> {{ user.organisation }}<br>{% endif %}
             <b>E-mail:</b> <a href="mailto:{{ user.email }}">{{ user.email }}</a><br>
