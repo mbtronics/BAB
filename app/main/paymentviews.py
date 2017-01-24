@@ -224,7 +224,7 @@ def anonymous_payment():
 @main.route('/payment/mollie/pay/<int:id>', methods=['GET'])
 @login_required
 def pay_with_mollie(id):
-    if id!=current_user.id and not current_user.can(Permission.MANAGE_PAYMENTS):
+    if not current_user.can(Permission.MANAGE_PAYMENTS):
         abort(404)
 
     p = Payment.query.get_or_404(id)
