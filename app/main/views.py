@@ -30,6 +30,26 @@ def server_shutdown():
     return 'Shutting down...'
 
 
-@main.route('/', methods=['GET', 'POST'])
+@main.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
+    return render_template('main/index.html')
+
+
+@main.route('/calendar', methods=['GET'])
+def calendar():
+    return render_template('main/calendar.html')
+
+
+@main.route('/membership', methods=['GET'])
+def membership():
+    return render_template('main/membership.html')
+
+
+@main.route('/offer', methods=['GET'])
+def offer():
+    return render_template('main/offer.html')
+
+
+@main.route('/practical', methods=['GET'])
+def practical():
+    return render_template('main/practical.html')

@@ -6,151 +6,166 @@
 {{ super() }}
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-{% endblock %}
-
-{% block navbar %}
-<div class="navbar navbar-inverse" role="navigation">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">{{ config['APP_NAME'] }}</a>
-        </div>
-        <div class="navbar-collapse collapse">
-
-            <ul class="nav navbar-nav navbar-left">
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        Reservations<b class="caret"></b>
-                    </a>
-                    <ul class="dropdown-menu">
-                        {% if current_user.can(Permission.MANAGE_RESERVATIONS) %}
-                            <li><a href="{{ url_for('main.reservation_overview') }}">Overview</a></li>
-                        {% endif %}
-                        {% for resource in g.resources %}
-                            <li><a href="{{ url_for('main.make_reservation', id=resource.id) }}">{{ resource.name }}</a></li>
-                        {% endfor %}
-                    </ul>
-                </li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        Resources<b class="caret"></b>
-                    </a>
-                    <ul class="dropdown-menu">
-                        {% for resource in g.resources %}
-                            <li><a href="{{ url_for('main.resource', name=resource.name) }}">{{ resource.name }}</a></li>
-                        {% endfor %}
-                    </ul>
-                </li>
-            </ul>
-
-            <ul class="nav navbar-nav navbar-right">
-
-                {%  if current_user.is_authenticated and current_user.can(Permission.MANAGE_USERS) %}
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            Users<b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('auth.register') }}">Register user</a></li>
-                            <li><a href="{{ url_for('main.list_users') }}">List users</a></li>
-                            <li><a href="{{ url_for('main.search_users') }}">Search users</a></li>
-                            <li><a href="{{ url_for('main.list_expensenotes') }}">List expense notes</a></li>
-                            <li><a href="{{ url_for('main.user_stats') }}">Statistics</a></li>
-                        </ul>
-                    </li>
-                {%  endif %}
-
-                {%  if current_user.is_authenticated and current_user.can(Permission.MANAGE_SKILLS) %}
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            Skills<b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('main.list_skills') }}">List skills</a></li>
-                            <li><a href="{{ url_for('main.add_skill') }}">Add skill</a></li>
-                        </ul>
-                    </li>
-                {%  endif %}
-
-                {%  if current_user.is_authenticated and current_user.can(Permission.MANAGE_RESOURCES) %}
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            Resources<b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('main.list_resources') }}">List resources</a></li>
-                            <li><a href="{{ url_for('main.add_resource') }}">Add resource</a></li>
-                        </ul>
-                    </li>
-                {%  endif %}
-
-                {%  if current_user.is_authenticated and current_user.can(Permission.MANAGE_PAYMENTS) %}
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            Payments<b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('main.anonymous_payment') }}">Make anonymous payment</a></li>
-                            <li><a href="{{ url_for('main.list_payments') }}">List payments</a></li>
-                            <li><a href="{{ url_for('main.export_payments') }}">Export payments</a></li>
-                        </ul>
-                    </li>
-                {%  endif %}
-
-                {%  if current_user.is_authenticated and current_user.can(Permission.CHANGE_SETTINGS) %}
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            Settings<b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('main.change_settings') }}">Change</a></li>
-                        </ul>
-                    </li>
-                {%  endif %}
-
-                {% if current_user.is_authenticated %}
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <img src="{{ current_user.photo_url(size=18) }}">
-                        {{ current_user.username }} <b class="caret"></b>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
-                        <li><a href="{{ url_for('main.list_reservations', id=current_user.id) }}">Reservations</a></li>
-                        <li><a href="{{ url_for('auth.change_password') }}">Change password</a></li>
-                        <li><a href="{{ url_for('auth.change_email_request') }}">Change email</a></li>
-                        <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
-                    </ul>
-                </li>
-                {% else %}
-                <li><a href="{{ url_for('auth.login') }}">Log In</a></li>
-                <li><a href="{{ url_for('auth.register') }}">Register</a></li>
-                {% endif %}
-
-            </ul>
-        </div>
-    </div>
-</div>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/business-casual.css') }}">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block content %}
-<div class="container">
-<h1>Opening hours are limited because we move to the second floor!</h1>
-    {% for message in get_flashed_messages() %}
-    <div class="alert alert-warning">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-        {{ message }}
-    </div>
-    {% endfor %}
 
-    {% block page_content %}{% endblock %}
-</div>
+    <div class="brand">BUDA::lab</div>
+    <div class="address-bar">voor makers - door makers</div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <!-- navbar-brand is hidden on larger screens, but visible when the menu is collapsed -->
+                <a class="navbar-brand" href="index.html">BUDA::lab</a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+                <ul class="nav navbar-nav">
+                    <li><a href="{{ url_for("main.index") }}">Over BUDA::lab</a></li>
+                    <li><a href="{{ url_for("main.calendar") }}">Kalender</a></li>
+                    <li><a href="{{ url_for("main.membership") }}">Lidmaatschap</a></li>
+                    <li><a href="{{ url_for("main.offer") }}">Aanbod</a></li>
+                    <li><a href="{{ url_for("main.practical") }}">Praktisch</a></li>
+                    {% if not current_user.is_authenticated %}
+                        <li><a href="{{ url_for("auth.login") }}">Inloggen</a></li>
+                    {% endif %}
+                </ul>
+
+                {% if current_user.is_authenticated %}
+                    <ul class="nav navbar-nav navbar-left">
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                Reserveren<b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                {% if current_user.can(Permission.MANAGE_RESERVATIONS) %}
+                                    <li><a href="{{ url_for('main.reservation_overview') }}">Overview</a></li>
+                                {% endif %}
+                                {% for resource in g.resources %}
+                                    <li><a href="{{ url_for('main.make_reservation', id=resource.id) }}">{{ resource.name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                Resources<b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                {% for resource in g.resources %}
+                                    <li><a href="{{ url_for('main.resource', name=resource.name) }}">{{ resource.name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+
+                        {%  if current_user.can(Permission.MANAGE_USERS) %}
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    Gebruikers<b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{{ url_for('auth.register') }}">Register user</a></li>
+                                    <li><a href="{{ url_for('main.list_users') }}">List users</a></li>
+                                    <li><a href="{{ url_for('main.search_users') }}">Search users</a></li>
+                                    <li><a href="{{ url_for('main.list_expensenotes') }}">List expense notes</a></li>
+                                    <li><a href="{{ url_for('main.user_stats') }}">Statistics</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+
+                        {% if current_user.can(Permission.MANAGE_SKILLS) %}
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    Skills<b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{{ url_for('main.list_skills') }}">List skills</a></li>
+                                    <li><a href="{{ url_for('main.add_skill') }}">Add skill</a></li>
+                                </ul>
+                            </li>
+                        {%  endif %}
+
+                       {% if current_user.can(Permission.MANAGE_RESOURCES) %}
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    Resources<b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{{ url_for('main.list_resources') }}">List resources</a></li>
+                                    <li><a href="{{ url_for('main.add_resource') }}">Add resource</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+
+                        {% if current_user.can(Permission.MANAGE_PAYMENTS) %}
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    Payments<b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{{ url_for('main.anonymous_payment') }}">Make anonymous payment</a></li>
+                                    <li><a href="{{ url_for('main.list_payments') }}">List payments</a></li>
+                                    <li><a href="{{ url_for('main.export_payments') }}">Export payments</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+
+                        {% if current_user.can(Permission.CHANGE_SETTINGS) %}
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    Settings<b class="caret"></b>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{{ url_for('main.change_settings') }}">Change</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <img src="{{ current_user.photo_url(size=18) }}">
+                                {{ current_user.username }} <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
+                                <li><a href="{{ url_for('main.list_reservations', id=current_user.id) }}">Reservations</a></li>
+                                <li><a href="{{ url_for('auth.change_password') }}">Change password</a></li>
+                                <li><a href="{{ url_for('auth.change_email_request') }}">Change email</a></li>
+                                <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="box">
+                {% block page_content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block scripts %}
