@@ -233,7 +233,7 @@ def user_stats():
                     .filter(PaymentDescription.type=='membership').count()
     total_reservations = Reservation.query.count()
 
-    total_reservations_year = Reservation.query.filter(Payment.date >= datetime.date(datetime.date.today().year, 1, 1)).count()
+    total_reservations_year = Reservation.query.filter(Reservation.start >= datetime.date(datetime.date.today().year, 1, 1)).count()
 
     total_revenue = round(db.session.query(func.sum(Payment.amount)).filter(Payment.status=='Paid').first()[0],2)
 
