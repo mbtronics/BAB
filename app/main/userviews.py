@@ -232,6 +232,9 @@ def user_stats():
                     .join(PaymentDescription, Payment.id==PaymentDescription.payment_id)\
                     .filter(PaymentDescription.type=='membership').count()
     total_reservations = Reservation.query.count()
+
+    total_reservations_year = Reservation.query.filter(Payment.date >= datetime.date(datetime.date.today().year, 1, 1)).count()
+
     total_revenue = round(db.session.query(func.sum(Payment.amount)).filter(Payment.status=='Paid').first()[0],2)
 
     total_revenue_year = db.session.query(func.sum(Payment.amount)). \
@@ -244,7 +247,7 @@ def user_stats():
 
     return render_template('user/stats.html',   total_users=total_users, paying_users=paying_users,
                                                 total_reservations=total_reservations, total_revenue=total_revenue,
-                                                total_revenue_year=total_revenue_year)
+                                                total_revenue_year=total_revenue_year, total_reservations_year=total_reservations_year)
 
 
 @main.route('/user/<int:id>/expensenote', methods=['GET', 'POST'])
