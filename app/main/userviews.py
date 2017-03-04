@@ -11,7 +11,7 @@ from sqlalchemy import func
 from .. import photos, expensenotes
 from ..email import send_email
 from ..settingsmodels import Setting
-
+import datetime
 
 NumPaginationItems = 20
 
@@ -234,8 +234,18 @@ def user_stats():
     total_reservations = Reservation.query.count()
     total_revenue = round(db.session.query(func.sum(Payment.amount)).filter(Payment.status=='Paid').first()[0],2)
 
+    total_revenue_year = db.session.query(func.sum(Payment.amount)). \
+                            filter(Payment.date >= datetime.date(datetime.date.today().year, 1, 1)). \
+                            filter(Payment.status == 'Paid').first()[0]
+    if total_revenue_year:
+        total_revenue_year = round(total_revenue_year, 2)
+    else:
+        total_revenue_year = 0
+
     return render_template('user/stats.html',   total_users=total_users, paying_users=paying_users,
-                                                total_reservations=total_reservations, total_revenue=total_revenue)
+                                                total_reservations=total_reservations, total_revenue=total_revenue,
+                                                total_revenue_year=total_revenue_year)
+
 
 @main.route('/user/<int:id>/expensenote', methods=['GET', 'POST'])
 @login_required
