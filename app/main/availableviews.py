@@ -54,6 +54,16 @@ def available_getdata():
     abort(404)
 
 
+def check_previous_timeblock(start):
+    availables = Reservation.query.filter(Available.end==start).filter(Available.user==current_user).all()
+    return len(availables)>0
+
+
+def check_next_timeblock(end):
+    availables = Reservation.query.filter(Available.start==end).filter(Available.user==current_user).all()
+    return len(availables) > 0
+
+
 @main.route('/available/setdata', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.MANAGE_RESOURCES)
@@ -68,6 +78,12 @@ def available_setdata():
 
             if start < datetime.now() or end < datetime.now():
                 return jsonify({'err': "You can't make this resource available in the past!"})
+
+            if check_previous_timeblock(start):
+                return jsonify({'err': 'You should extend the previous period, not create a new one. You can drag the bottom of a period down to extend it.'})
+
+            if check_next_timeblock(end):
+                return jsonify({'err': 'You should move the next period up and extend it, not create a new one. You can drag the bottom of the a period down to extend it.'})
 
             a=Available(start=start, end=end, user=current_user)
             db.session.add(a)

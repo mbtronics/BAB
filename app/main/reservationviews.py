@@ -102,6 +102,16 @@ def reservation_overlaps(resource, start, end, r):
 
     return len(reservations)>0
 
+def check_previous_timeblock(resource, start):
+    reservations = Reservation.query.filter(Reservation.resource==resource).\
+        filter(Reservation.end==start).filter(Reservation.user==current_user).all()
+    return len(reservations)>0
+
+def check_next_timeblock(resource, end):
+    reservations = Reservation.query.filter(Reservation.resource==resource).\
+        filter(Reservation.start==end).filter(Reservation.user==current_user).all()
+    return len(reservations) > 0
+
 @main.route('/resource/reservation/<int:id>/setdata', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.BOOK)
@@ -122,6 +132,12 @@ def reservation_setdata(id):
 
             if not reservation_in_available(start, end):
                 return jsonify({'err': 'Selected range not available'})
+
+            if check_previous_timeblock(resource, start):
+                return jsonify({'err': 'You should extend the previous reservation, not create a new one. You can drag the bottom of a reservation down to extend it.'})
+
+            if check_next_timeblock(resource, end):
+                return jsonify({'err': 'You should move the next reservation up and extend it, not create a new one. You can drag the bottom of the a reservation down to extend it.'})
 
             r=Reservation(start=start, end=end, resource=resource, user=current_user, reason=data['reason'])
             r.cost = r.calculated_cost
