@@ -125,6 +125,10 @@
                 <a class="btn btn-default" href="{{ url_for('.webcam', id=user.id) }}">Take picture</a>
             {% endif %}
 
+            {% if not user.confirmed and (current_user.can(Permission.MANAGE_USERS) or user==current_user) %}
+                <a class="btn btn-default" href="{{ url_for('auth.resend_confirmation') }}">Send confirmation mail</a>
+            {% endif %}
+
             {% if current_user.is_administrator %}
                 <a class="btn btn-danger" href="{{ url_for('.delete_user', id=user.id) }}">Delete user</a>
             {% endif %}
