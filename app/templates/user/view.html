@@ -126,7 +126,7 @@
             {% endif %}
 
             {% if not user.confirmed and (current_user.can(Permission.MANAGE_USERS) or user==current_user) %}
-                <a class="btn btn-default" href="{{ url_for('auth.resend_confirmation') }}">Send confirmation mail</a>
+                <a class="btn btn-default" href="{{ url_for('auth.resend_confirmation', id=user.id) }}">Send confirmation mail</a>
             {% endif %}
 
             {% if current_user.is_administrator %}

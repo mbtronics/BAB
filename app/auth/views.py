@@ -1,8 +1,8 @@
-from flask import render_template, redirect, request, url_for, flash
+from flask import render_template, redirect, request, url_for, flash, abort
 from flask.ext.login import login_user, logout_user, login_required, current_user
 from . import auth
 from .. import db
-from ..usermodels import User
+from ..usermodels import User, Permission
 from ..email import send_email
 from .forms import LoginForm, RegistrationForm, ChangePasswordForm, PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm
 
@@ -73,11 +73,20 @@ def confirm(token):
 
 
 @auth.route('/confirm')
+@auth.route('/confirm/<int:id>')
 @login_required
-def resend_confirmation():
-    token = current_user.generate_confirmation_token()
-    send_email(current_user.email, 'Confirm Your Account', 'auth/email/confirm', user=current_user, token=token)
-    flash('A new confirmation email has been sent to you by email.')
+def resend_confirmation(id=None):
+    if id:
+        user = User.query.get_or_404(id)
+
+        if user!=current_user and not current_user.can(Permission.MANAGE_USERS):
+            abort(404)
+    else:
+        user = current_user
+
+    token = user.generate_confirmation_token()
+    send_email(user.email, 'Confirm Your Account', 'auth/email/confirm', user=user, token=token)
+    flash('A new confirmation email has been sent to %s' % user.email)
     return redirect(url_for('main.index'))
 
 
