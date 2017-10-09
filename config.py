@@ -22,6 +22,7 @@ class Config:
     UPLOADED_PHOTOS_DEST = os.environ.get('UPLOAD_DIR')
     UPLOADED_EXPENSENOTES_DEST = os.environ.get('UPLOAD_DIR') + '/expensenotes'
     MOLLIE_KEY = os.environ.get('MOLLIE_KEY')
+    LOCKS_KEY = os.environ.get('LOCKS_KEY')
 
     @staticmethod
     def init_app(app):

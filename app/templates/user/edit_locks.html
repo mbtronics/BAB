@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}{{ config['APP_NAME'] }} - Edit locks{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Edit locks</h1>
+</div>
+
+<div class="col-md-12">
+{% if locks %}
+    <form action method="POST" class="form" role="form">
+        <table class="table table-condensed table-hover">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Lock</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lock in locks %}
+                    <tr>
+                        <td><input type="checkbox" name="{{ lock.name }}" {%  if lock.name in user_locks %}checked{% endif %}></td>
+                        <td>{{ lock.name }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <input type="submit" id="submitbtn" class="btn btn-default" value="Update locks">
+    </form>
+{% endif %}
+</div>
+
+{% endblock %}

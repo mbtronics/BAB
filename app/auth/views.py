@@ -1,10 +1,12 @@
-from flask import render_template, redirect, request, url_for, flash, abort
+from flask import render_template, redirect, request, url_for, flash, abort, current_app
 from flask.ext.login import login_user, logout_user, login_required, current_user
 from . import auth
 from .. import db
 from ..usermodels import User, Permission
+from ..accessmodels import Lock
 from ..email import send_email
 from .forms import LoginForm, RegistrationForm, ChangePasswordForm, PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm
+
 
 @auth.before_app_request
 def before_request():
@@ -168,3 +170,21 @@ def change_email(token):
     else:
         flash('Invalid request.')
     return redirect(url_for('main.index'))
+
+
+@auth.route('/lock/<string:key>/<int:lock_id>/<int:keycard>')
+def auth_lock(key, lock_id, keycard):
+
+    if key!=current_app.config['LOCKS_KEY']:
+        abort(401)
+
+    user = User.query.filter_by(keycard=keycard)
+    if not user:
+        abort(401)
+
+    lock = Lock.query.get_or_404(lock_id)
+
+    if lock in user.locks.all():
+        return current_app.config['LOCKS_KEY']
+
+    abort(401)

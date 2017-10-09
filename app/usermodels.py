@@ -95,8 +95,10 @@ class User(UserMixin, db.Model):
     organisation = db.Column(db.String(50))
     invoice_details = db.Column(db.Text())
     credits = db.Column(db.Float, nullable=False, default=0)
+    keycard = db.Column(db.Integer, nullable=True)
 
     skills = db.relationship('Skill', secondary=UserSkills, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
+    locks = db.relationship('Lock', secondary=UserLocks, backref=db.backref('users', lazy='dynamic'), lazy='dynamic')
     reservations = db.relationship('Reservation', backref='user', lazy='dynamic')
     availability = db.relationship('Available', backref='user', lazy='dynamic')
     payments = db.relationship('Payment', backref='user', lazy='dynamic', foreign_keys=[Payment.user_id])

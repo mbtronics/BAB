@@ -5,6 +5,7 @@ from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, DeleteConfirmationForm, SearchUserForm, ExpenseNoteForm, PayExpenseNoteForm
 from .. import db
 from ..usermodels import Permission, Role, User, Skill, Payment, PaymentDescription, ExpenseNote
+from ..accessmodels import Lock
 from ..resourcemodels import Reservation
 from ..decorators import permission_required, admin_required, moderator_required
 from sqlalchemy import func
@@ -13,7 +14,9 @@ from ..email import send_email
 from ..settingsmodels import Setting
 import datetime
 
+
 NumPaginationItems = 20
+
 
 @main.route('/user/<username>')
 @login_required
@@ -28,11 +31,12 @@ def user(username):
        current_user.can(Permission.MANAGE_USERS) or \
        user.is_moderator:
         skills = user.skills.order_by(Skill.name.asc()).all()
+        locks = user.locks.order_by(Lock.name.asc()).all()
 
         if not user.has_valid_membership:
             flash("You have not yet paid your membership. You can make reservations, but a membership payment will be automatically added at your first payment.")
 
-        return render_template('user/view.html', user=user, skills=skills)
+        return render_template('user/view.html', user=user, skills=skills, locks=locks)
 
     abort(403)
 
@@ -81,6 +85,7 @@ def edit_profile_admin(id):
         profile_form_to_user(form, user)
         user.username = form.username.data
         user.confirmed = form.confirmed.data
+        user.keycard = form.keycard.data
 
         if not user.is_administrator:
             if form.moderator.data:
@@ -133,6 +138,35 @@ def edit_user_skills(id):
     else:
         user_skills = [ skill.name for skill in user.skills.all() ]
         return render_template('user/edit_skills.html', user=user, skills=skills, user_skills=user_skills)
+
+
+@main.route('/user/<int:id>/edit-locks', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.MANAGE_USERS)
+def edit_user_locks(id):
+    user = User.query.get_or_404(id)
+
+    if user.is_administrator and not current_user.is_administrator:
+        flash('Only the administrator can access this!', 'error')
+        abort(404)
+
+    locks = Lock.query.order_by(Lock.name.asc()).all()
+
+    if request.method == 'POST':
+        for lock in locks:
+            if lock.name in request.form.keys():
+                if not lock in user.locks.all():
+                    user.locks.append(lock)
+            else:
+                if lock in user.locks.all():
+                    user.locks.remove(lock)
+
+        db.session.commit()
+        return redirect(url_for('.user', username=user.username))
+    else:
+        user_locks = [ lock.name for lock in user.locks.all() ]
+        return render_template('user/edit_locks.html', user=user, locks=locks, user_locks=user_locks)
+
 
 @main.route('/users')
 @login_required
