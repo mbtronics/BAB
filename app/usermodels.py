@@ -8,6 +8,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from . import thumb
 from paymentmodels import PaymentDescription, Payment
 from . import expensenotes
+from accessmodels import UserLocks
 
 
 #Bit-style permissions

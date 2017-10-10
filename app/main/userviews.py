@@ -104,6 +104,7 @@ def edit_profile_admin(id):
 
     form.username.data = user.username
     form.confirmed.data = user.confirmed
+    form.keycard.data = user.keycard
 
     if user.role.name=='Moderator':
         form.moderator.data = True

@@ -178,7 +178,7 @@ def auth_lock(key, lock_id, keycard):
     if key!=current_app.config['LOCKS_KEY']:
         abort(401)
 
-    user = User.query.filter_by(keycard=keycard)
+    user = User.query.filter_by(keycard=int(keycard)).first()
     if not user:
         abort(401)
 

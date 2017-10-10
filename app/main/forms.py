@@ -26,7 +26,7 @@ class EditProfileAdminForm(EditProfileFormBasic):
                                           'numbers, dots or underscores')])
     confirmed = BooleanField('Confirmed')
     moderator = BooleanField('Moderator (not applicable for the admin)')
-    keycard = IntegerField('Keycard code')
+    keycard = StringField('Keycard code')
 
     photo = FileField('Photo', validators=[Optional(), file_allowed(photos, "Images only!")])
 

@@ -1,8 +1,7 @@
 from . import db
 
-
 class Lock(db.Model):
-    __tablenname__ = 'Locks'
+    __tablename__ = 'Locks'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True)
 

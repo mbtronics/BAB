@@ -18,6 +18,7 @@
         {# Private information, only for the user himself or moderator #}
         {% if current_user.can(Permission.MANAGE_USERS) or user==current_user %}
             <h2>Private info</h2>
+            {% if user.keycard %}<b>Keycard:</b> {{ user.keycard }}<br>{% endif %}
             {% if user.location %}<b>From:</b> <a href="http://maps.google.com/?q={{ user.location }}">{{ user.location }}</a><br>{% endif %}
             {% if user.organisation %}<b>Organisation or company:</b> {{ user.organisation }}<br>{% endif %}
             <b>E-mail:</b> <a href="mailto:{{ user.email }}">{{ user.email }}</a><br>
@@ -115,7 +116,7 @@
             <div class="panel-heading">Locks</div>
             <div class="panel-body">
                 {% for lock in locks %}
-                    {{ lock.name }}
+                    <span class="btn btn-info">{{ lock.name }}</span>
                 {% endfor %}
             </div>
         </div>
