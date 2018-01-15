@@ -118,9 +118,10 @@ def available_setdata():
             reservations = Reservation.query.filter(and_(Reservation.start>=a.start, Reservation.end<=a.end)).all()
             if len(reservations)>0:
                 for reservation in reservations:
-                    availabilities = Available.query.filter(and_(Available.start <= reservation.start, Available.end >= reservation.end)).all()
-                    if len(availabilities)==1:
-                        return jsonify({'err': 'There are reservations in this availability range'})
+                    if not reservation.user.is_moderator:
+                        availabilities = Available.query.filter(and_(Available.start <= reservation.start, Available.end >= reservation.end)).all()
+                        if len(availabilities)==1:
+                            return jsonify({'err': 'There are reservations in this availability range'})
 
             db.session.delete(a)
 
