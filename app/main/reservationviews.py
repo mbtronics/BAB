@@ -130,7 +130,7 @@ def reservation_setdata(id):
             if reservation_overlaps(resource, start, end, None):
                 return jsonify({'err': "Overlap with existing reservation"})
 
-            if not reservation_in_available(start, end):
+            if not current_user.is_moderator and not reservation_in_available(start, end):
                 return jsonify({'err': 'Selected range not available'})
 
             if check_previous_timeblock(resource, start):
@@ -160,7 +160,7 @@ def reservation_setdata(id):
             if reservation_overlaps(resource, start, end, r):
                 return jsonify({'err': "Overlap with existing reservation"})
 
-            if not reservation_in_available(start, end):
+            if not current_user.is_moderator and not reservation_in_available(start, end):
                 return jsonify({'err': 'Selected range not available'})
 
             r.start = start
