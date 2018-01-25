@@ -121,6 +121,10 @@ def reservation_setdata(id):
 
     if data and 'action' in data:
         if data['action']=='new':
+
+            if not current_user.is_moderator and not current_user.has_skill(resource):
+                return jsonify({'err': "You don't have the necessary skill to make a reservation for this! Contact info@budalab.be if you think this is an error."})
+
             start = dateutil.parser.parse(data['start'], ignoretz=True)
             end = dateutil.parser.parse(data['end'], ignoretz=True)
 

@@ -244,6 +244,13 @@ class User(UserMixin, db.Model):
         else:
             return False
 
+    def has_skill(self, resource):
+        for skill in self.skills:
+            if resource in skill.resources:
+                return True
+        return False
+
+
     def __repr__(self):
         return '<User %r>' % self.username
 
