@@ -41,7 +41,75 @@ def deploy():
 
     # create user roles
     Role.insert_roles()
-    
+
+
+def update_skill_resource_payments(skill, resource):
+    print resource
+    print skill
+
+    num = 0
+    for user in User.query.all():
+        if user.has_skill(resource):
+            num += 1
+    print "num users: %d" % num
+
+    for user in User.query.all():
+        for payment in user.payments.filter_by(status='Paid').all():
+            for payment_description in payment.paymentdescriptions:
+                if payment_description.reservation and payment_description.reservation.resource==resource:
+                    user.skills.append(skill)
+                    break
+
+    num = 0
+    for user in User.query.all():
+        if user.has_skill(resource):
+            num += 1
+    print "num users: %d" % num
+
+
+def update_skill_resource_reservations(skill, resource):
+    print resource
+    print skill
+
+    num = 0
+    for user in User.query.all():
+        if user.has_skill(resource):
+            num += 1
+    print "num users: %d" % num
+
+    for user in User.query.all():
+        for reservation in user.reservations:
+            if reservation.resource==resource:
+                user.skills.append(skill)
+                break
+
+    num = 0
+    for user in User.query.all():
+        if user.has_skill(resource):
+            num += 1
+    print "num users: %d" % num
+
+
+@manager.command
+def update_skills():
+    from app.usermodels import User, Skill
+    from app.resourcemodels import Resource
+
+    resource = Resource.query.get(1)
+    skill = Skill.query.get(8)
+    update_skill_resource_payments(skill, resource)
+
+    resource = Resource.query.get(4)
+    skill = Skill.query.get(3)
+    update_skill_resource_reservations(skill, resource)
+
+    resource = Resource.query.get(7)
+    skill = Skill.query.get(3)
+    update_skill_resource_reservations(skill, resource)
+
+    resource = Resource.query.get(8)
+    skill = Skill.query.get(3)
+    update_skill_resource_reservations(skill, resource)
 
 if __name__ == '__main__':
     manager.run()
