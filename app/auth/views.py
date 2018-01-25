@@ -47,6 +47,16 @@ def logout():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
+
+        if form.organisation.data and form.organisation.data=='google':
+            abort(404)
+
+        if form.email.data \
+                and form.email.data.endswith('.ru') \
+                or form.email.data.endswith('.xyz') \
+                or form.email.data.endswith('baburn.com'):
+            abort(404)
+
         user = User(email=form.email.data,
                     username=form.username.data,
                     name=form.first_name.data + " " + form.last_name.data,
