@@ -245,8 +245,12 @@ class User(UserMixin, db.Model):
             return False
 
     def has_skill(self, resource):
+
+        if not resource.skills.all():
+            return True
+
         for skill in self.skills:
-            if resource in skill.resources:
+            if resource in skill.resources.all():
                 return True
         return False
 
