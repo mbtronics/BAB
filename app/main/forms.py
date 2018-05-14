@@ -20,10 +20,11 @@ class EditProfileForm(EditProfileFormBasic):
     submit = SubmitField('Update information')
 
 class EditProfileAdminForm(EditProfileFormBasic):
-    username = StringField('Username', validators=[
-        Required(), Length(1, 64), Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
-                                          'Usernames must have only letters, '
-                                          'numbers, dots or underscores')])
+    username = StringField('Username (only letters, numbers, dots or underscores, should start with a letter or number)',
+                           validators=[Required(),
+                                       Length(1, 64),
+                                       Regexp('^[A-Za-z0-9][A-Za-z0-9_.]*$', 0,
+                                              'Usernames must have only letters, numbers, dots or underscores and should start with a letter or number')])
     confirmed = BooleanField('Confirmed')
     moderator = BooleanField('Moderator (not applicable for the admin)')
     keycard = StringField('Keycard code')
