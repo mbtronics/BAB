@@ -20,10 +20,11 @@ class RegistrationForm(Form):
     first_name = StringField('First name', validators=[Required(), Regexp('^([A-Z])', 0, 'Names must start with a capital')])
     last_name = StringField('Last name', validators=[Required(), Regexp('^([A-Z])', 0, 'Names must start with a capital')])
 
-    username = StringField('Username (only letters, numbers, dots or underscores)', validators=[
-        Required(), Length(1, 64), Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
-                                          'Usernames must have only letters, '
-                                          'numbers, dots or underscores')])
+    username = StringField('Username (only letters, numbers, dots or underscores, should start with a letter or number)',
+                           validators=[Required(),
+                                       Length(1, 64),
+                                       Regexp('^[A-Za-z0-9][A-Za-z0-9_.]*$', 0,
+                                              'Usernames must have only letters, numbers, dots or underscores and should start with a letter or number')])
     password = PasswordField('Password', validators=[
         Required(), EqualTo('password2', message='Passwords must match.')])
     password2 = PasswordField('Confirm password', validators=[Required()])
