@@ -8,16 +8,18 @@ from wtforms import ValidationError
 from ..usermodels import User
 from .. import photos
 
+
 class EditProfileFormBasic(Form):
     name = StringField('Real name', validators=[Length(0, 64)])
-    organisation = StringField('Organisation or company')
     organisation = StringField('Organisation or company')
     invoice_details = TextAreaField('Invoice details (name + address + VAT number)')
     location = StringField('Location', validators=[Length(0, 64)])
     about_me = TextAreaField('About me')
 
+
 class EditProfileForm(EditProfileFormBasic):
     submit = SubmitField('Update information')
+
 
 class EditProfileAdminForm(EditProfileFormBasic):
     username = StringField('Username (only letters, numbers, dots or underscores, should start with a letter or number)',

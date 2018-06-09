@@ -178,6 +178,16 @@ def list_users():
     users = pagination.items
     return render_template('user/list.html', users=users, pagination=pagination)
 
+@main.route('/moderators')
+@login_required
+@permission_required(Permission.MANAGE_USERS)
+def list_moderators():
+    page = request.args.get('page', 1, type=int)
+    role_moderator = Role.query.filter_by(name='Moderator').first()
+    pagination = User.query.filter_by(role=role_moderator).order_by(User.member_since.desc()).paginate(page, per_page=NumPaginationItems, error_out=False)
+    users = pagination.items
+    return render_template('user/list.html', users=users, pagination=pagination)
+
 @main.route('/user/<int:id>/delete', methods=['GET', 'POST'])
 @login_required
 @admin_required
