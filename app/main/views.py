@@ -33,3 +33,8 @@ def server_shutdown():
 @main.route('/', methods=['GET', 'POST'])
 def index():
     return render_template('index.html')
+
+
+@main.route('/calendar', methods=['GET', 'POST'])
+def calendar():
+    return render_template('calendar.html')

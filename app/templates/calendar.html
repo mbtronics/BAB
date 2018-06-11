@@ -1,0 +1,24 @@
+{% extends "base_stripped.html" %}
+{% import "resource/_calendar.html" as calendar %}
+
+{% block title %}{{ config['APP_NAME'] }}{% endblock %}
+
+{% block page_content %}
+    <br>
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h3 align="center">After <a href="{{ url_for('auth.register') }}">registration</a> and <a href="{{ url_for('auth.login') }}">login</a>,
+                you can make <a href="{{ url_for('main.list_resources') }}">reservations</a> or
+                <a href="{{ url_for('main.edit_profile') }}">manage your account</a>.</h3>
+            </div>
+        </div>
+
+        {{ calendar.fullcalendar_content() }}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {{ calendar.fullcalendar_scripts('available', none, none, '.available_getdata', '#378006') }}
+{% endblock %}
