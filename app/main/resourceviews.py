@@ -9,7 +9,6 @@ from ..decorators import permission_required
 from .. import photos
 
 @main.route('/resource/<name>')
-@login_required
 def resource(name):
     resource = Resource.query.filter_by(name=name).first_or_404()
 
@@ -86,7 +85,6 @@ def delete_resource(name):
 
 
 @main.route('/resources')
-@login_required
 def list_resources():
     resources = Resource.query.order_by(Resource.name.asc()).all()
     return render_template('resource/list.html', resources=resources)
