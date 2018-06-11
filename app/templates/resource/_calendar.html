@@ -12,6 +12,8 @@
     <link href='{{ url_for("static", filename="bootstrap-dialog/css/bootstrap-dialog.min.css") }}' rel="stylesheet" type="text/css" />
     <script src='{{ url_for("static", filename="bootstrap-dialog/js/bootstrap-dialog.min.js") }}'></script>
 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.2/jquery.scrollTo.min.js"></script>
+
     <script>
 
         function isOverlapping(event) {
@@ -104,14 +106,27 @@
                 defaultView: 'agendaWeek',
                 forceEventDuration: true,
                 eventOverlap: true,
-                scrollTime : '17:00:00',
                 slotLabelFormat: "HH:mm",
                 timeFormat: "HH:mm",
                 allDaySlot: false,
                 columnFormat: 'ddd D/M',
                 nowIndicator: true,
                 timezone: 'false',
-                height: 600,
+                height: 800,
+
+                eventAfterAllRender: function(view){
+                    if($('.fc-time-grid-event').length>0){
+                        var firstEventOffsetTop = 2000;
+                        $('div.fc-event-container a').each(function(i, e) {
+                            console.log(e.offsetTop);
+                            if (e.offsetTop < firstEventOffsetTop) {
+                                firstEventOffsetTop = e.offsetTop;
+                            }
+                        });
+
+                        $('div.fc-scroller').scrollTo(firstEventOffsetTop+'px');
+                    }
+                },
 
             {% if setdata %}
                 draggable: true,
@@ -159,6 +174,7 @@
                 eventDrop: function(event, delta, revertFunc) {
                     postEvent('update', event);
                 },
+
             {% endif %}
 
                 eventClick: function(event, jsEvent, view) {
