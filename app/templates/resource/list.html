@@ -17,6 +17,7 @@
                 <th></th>
                 <th>Resource</th>
                 <th>Description</th>
+                <th>Skill required</th>
                 <th>Active</th>
             </tr>
         </thead>
@@ -26,6 +27,7 @@
                     <td><img src="{{ resource.photo_url(100) or url_for('static', filename='no.png') }}" width="100"></td>
                     <td><a href="{{ url_for('main.resource', name=resource.name) }}"></a>{{ resource.name }}</td>
                     <td>{{ resource.description_html | safe }}</td>
+                    <td>{{ resource.skill_required }}</td>
                     <td>{{ resource.active }}</td>
                 </tr>
             {% endfor %}
