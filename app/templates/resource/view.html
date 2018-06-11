@@ -37,9 +37,7 @@
         <p><b>Reservation period:</b> {{ resource.reservation_period_pretty }}</p>
         <p><b>Price per period:</b> {{ resource.price_p_per }}&euro;</p>
 
-        {% if current_user.can(Permission.BOOK) %}
-            <a class="btn btn-warning" href="{{ url_for('.make_reservation', id=resource.id) }}">Make reservation</a>
-        {% endif %}
+        <a class="btn btn-warning" href="{{ url_for('.make_reservation', id=resource.id) }}">Make reservation</a>
 
         {% if current_user.can(Permission.MANAGE_RESOURCES) %}
             <a class="btn btn-default" href="{{ url_for('.edit_resource', name=resource.name) }}">Edit resource</a>
