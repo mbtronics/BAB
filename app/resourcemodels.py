@@ -19,6 +19,7 @@ class Resource(db.Model):
     price_p_per = db.Column(db.Integer, default=0)         # price per period in euro
     reserv_per = db.Column(db.Integer, default=20)          # reservation period in minutes
     photo_filename = db.Column(db.String(100))
+    skill_required = db.Column(db.Boolean, nullable=False, default=False)
 
     skills = db.relationship('Skill', secondary=SkillsResources, backref=db.backref('resources', lazy='dynamic'), lazy='dynamic')
     reservations = db.relationship('Reservation', backref='resource', lazy='dynamic')

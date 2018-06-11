@@ -1,4 +1,4 @@
-from flask import render_template, request, Response, abort, jsonify
+from flask import render_template, request, Response, abort, jsonify, flash
 from flask.ext.login import login_required, current_user
 from . import main
 from .. import db
@@ -19,7 +19,12 @@ def make_reservation(id):
     if not resource.active and not current_user.can(Permission.MANAGE_RESOURCES):
         abort(403)
 
-    return render_template('resource/make_reservation.html', resource=resource)
+    can_reserve = True
+    if resource.skill_required and not current_user.has_skill(resource):
+        can_reserve = False
+        flash("You don't have the necessary skill to make a reservation for this! Contact info@budalab.be if you think this is an error.")
+
+    return render_template('resource/make_reservation.html', resource=resource, can_reserve=can_reserve)
 
 def get_data_json_response(resources, start_date, end_date):
     if start_date and end_date:
@@ -85,7 +90,7 @@ def reservation_in_available(start, end):
     while d < end:
         if len(Available.query.filter(and_(Available.start <= d, Available.end >= (d + delta))).all()) < 1:
             return False
-            break
+
         d += delta
     return True
 
@@ -122,7 +127,7 @@ def reservation_setdata(id):
     if data and 'action' in data:
         if data['action']=='new':
 
-            if not current_user.is_moderator and not current_user.has_skill(resource):
+            if resource.skill_required and not current_user.has_skill(resource):
                 return jsonify({'err': "You don't have the necessary skill to make a reservation for this! Contact info@budalab.be if you think this is an error."})
 
             start = dateutil.parser.parse(data['start'], ignoretz=True)

@@ -49,5 +49,9 @@
 
 {% block scripts %}
     {{ super() }}
-    {{ calendar.fullcalendar_scripts('reservation', resource, '.reservation_setdata', '.reservation_getdata', '') }}
+    {% if can_reserve %}
+        {{ calendar.fullcalendar_scripts('reservation', resource, '.reservation_setdata', '.reservation_getdata', '') }}
+    {% else %}
+        {{ calendar.fullcalendar_scripts('reservation', resource, none, '.reservation_getdata', '') }}
+    {% endif %}
 {% endblock %}

@@ -29,6 +29,7 @@ def add_resource():
         resource.name = form.name.data
         resource.description = form.description.data
         resource.active = form.active.data
+        resource.skill_required = form.skill_required.data
         resource.price_p_per = form.price_p_per.data
         resource.reserv_per = form.reserv_per.data
 
@@ -52,6 +53,7 @@ def edit_resource(name):
         resource.name = form.name.data
         resource.description = form.description.data
         resource.active = form.active.data
+        resource.skill_required = form.skill_required.data
         resource.price_p_per = form.price_p_per.data
         resource.reserv_per = form.reserv_per.data
 
@@ -64,6 +66,7 @@ def edit_resource(name):
     form.name.data = resource.name
     form.description.data = resource.description
     form.active.data = resource.active
+    form.skill_required = resource.skill_required
     form.price_p_per.data = resource.price_p_per
     form.reserv_per.data = resource.reserv_per
     return render_template('resource/edit.html', form=form)

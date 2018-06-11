@@ -68,6 +68,7 @@ class EditResourceForm(Form):
     name = StringField('Name', validators=[Required()])
     description = PageDownField('Description', validators=[Required()])
     active = BooleanField('Active', validators=[Optional()])
+    skill_required = BooleanField('Skill required', validators=[Optional()])
     photo = FileField('Photo', validators=[Optional(), file_allowed(photos, "Images only!")])
     price_p_per = IntegerField('Price per period (euro)', validators=[InputRequired()])
     reserv_per = IntegerField('Reservation period (minutes)', validators=[Required()])
