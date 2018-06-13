@@ -10,6 +10,10 @@
 {% endblock %}
 
 {% block navbar %}
+<div class="header">
+    <img src="https://www.budalab.be/wp-content/uploads/2018/06/budalab-logoverkleind2-1.jpg">
+</div>
+
 <div class="navbar navbar-inverse" role="navigation">
     <div class="container">
         <div class="navbar-header">
@@ -19,14 +23,14 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">{{ config['APP_NAME'] }}</a>
+            <a class="navbar-brand" href="https://www.budalab.be">BUDA::LAB</a>
         </div>
         <div class="navbar-collapse collapse">
 
             <ul class="nav navbar-nav navbar-left">
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        Reservations<b class="caret"></b>
+                        RESERVATIONS <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
                         {% if current_user.can(Permission.MANAGE_RESERVATIONS) %}
@@ -39,7 +43,7 @@
                 </li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        Resources<b class="caret"></b>
+                        RESOURCES <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
                         {% for resource in g.resources %}
@@ -54,7 +58,7 @@
                 {%  if current_user.is_authenticated and current_user.can(Permission.MANAGE_USERS) %}
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            Users<b class="caret"></b>
+                            USERS <b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a href="{{ url_for('auth.register') }}">Register user</a></li>
@@ -70,7 +74,7 @@
                 {%  if current_user.is_authenticated and current_user.can(Permission.MANAGE_SKILLS) %}
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            Skills<b class="caret"></b>
+                            SKILLS <b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a href="{{ url_for('main.list_skills') }}">List skills</a></li>
@@ -82,7 +86,7 @@
                 {%  if current_user.is_authenticated and current_user.can(Permission.MANAGE_RESOURCES) %}
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            Resources<b class="caret"></b>
+                            RESOURCES <b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a href="{{ url_for('main.list_resources') }}">List resources</a></li>
@@ -94,7 +98,7 @@
                 {%  if current_user.is_authenticated and current_user.can(Permission.MANAGE_PAYMENTS) %}
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            Payments<b class="caret"></b>
+                            PAYMENTS <b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a href="{{ url_for('main.anonymous_payment') }}">Make anonymous payment</a></li>
@@ -107,7 +111,7 @@
                 {%  if current_user.is_authenticated and current_user.can(Permission.CHANGE_SETTINGS) %}
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            Settings<b class="caret"></b>
+                            SETTINGS <b class="caret"></b>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a href="{{ url_for('main.change_settings') }}">Change</a></li>
@@ -119,7 +123,7 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <img src="{{ current_user.photo_url(size=18) }}">
-                        {{ current_user.username }} <b class="caret"></b>
+                        PROFILE <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
@@ -130,8 +134,8 @@
                     </ul>
                 </li>
                 {% else %}
-                <li><a href="{{ url_for('auth.login') }}">Log In</a></li>
-                <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+                <li><a href="{{ url_for('auth.login') }}">LOG IN</a></li>
+                <li><a href="{{ url_for('auth.register') }}">REGISTER</a></li>
                 {% endif %}
 
             </ul>
