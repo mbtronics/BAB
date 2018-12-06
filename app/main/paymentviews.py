@@ -37,7 +37,7 @@ def make_payment(id):
                     except:
                         reservations.append(0)
             descriptions = request.form.getlist('description[]')
-            amounts = [float(a) for a in request.form.getlist('amount[]')]
+            amounts = [float(a.replace(',', '.')) for a in request.form.getlist('amount[]')]
         except Exception, e:
             print e
             abort(404)
