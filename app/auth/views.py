@@ -1,11 +1,13 @@
-from flask import render_template, redirect, request, url_for, flash, abort, current_app
-from flask.ext.login import login_user, logout_user, login_required, current_user
+from flask import abort, current_app, flash, redirect, render_template, request, session, url_for
+from flask_login import current_user, login_required, login_user, logout_user
+
 from . import auth
 from .. import db
-from ..usermodels import User, Permission
 from ..accessmodels import Lock
-from ..email import send_email
-from .forms import LoginForm, RegistrationForm, ChangePasswordForm, PasswordResetRequestForm, PasswordResetForm, ChangeEmailForm
+from ..send_email import send_email
+from ..usermodels import Permission, User
+from .forms import (ChangeEmailForm, ChangePasswordForm, LoginForm, PasswordResetForm, PasswordResetRequestForm,
+                    RegistrationForm)
 
 
 @auth.before_app_request
@@ -29,7 +31,9 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user is not None and user.verify_password(form.password.data):
-            login_user(user, form.remember_me.data)
+            login_user(user, remember=True)
+            user.ping()
+            session.permanent = True
             return redirect(request.args.get('next') or url_for('main.index'))
         flash('Invalid username or password.')
     return render_template('auth/login.html', form=form)

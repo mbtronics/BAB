@@ -1,5 +1,6 @@
 from . import db
 
+
 class Setting(db.Model):
     __tablename__ = 'Settings'
     name = db.Column(db.String(50), nullable=False, primary_key=True)

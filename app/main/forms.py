@@ -1,15 +1,15 @@
-from flask.ext.wtf import Form
-from flask.ext.wtf.file import file_allowed
-from flask.ext.pagedown.fields import PageDownField
-from wtforms import StringField, TextAreaField, BooleanField, SubmitField, IntegerField, DateField, FloatField
-from flask.ext.wtf.file import FileField
-from wtforms.validators import Required, Optional, Length, Regexp, InputRequired
-from wtforms import ValidationError
-from ..usermodels import User
+from flask_pagedown.fields import PageDownField
+from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, file_allowed
+from wtforms import (BooleanField, DateField, FloatField, IntegerField, StringField, SubmitField, TextAreaField,
+                     ValidationError)
+from wtforms.validators import InputRequired, Length, Optional, Regexp, Required
+
 from .. import photos
+from ..usermodels import User
 
 
-class EditProfileFormBasic(Form):
+class EditProfileFormBasic(FlaskForm):
     name = StringField('Real name', validators=[Length(0, 64)])
     organisation = StringField('Organisation or company')
     invoice_details = TextAreaField('Invoice details (name + address + VAT number)')
@@ -49,22 +49,22 @@ class EditProfileAdminForm(EditProfileFormBasic):
                 User.query.filter_by(username=field.data).first():
             raise ValidationError('Username already in use.')
 
-class DeleteConfirmationForm(Form):
+class DeleteConfirmationForm(FlaskForm):
     delete = BooleanField('Are you sure?')
     deletebutton = SubmitField('Delete')
 
 
-class SearchUserForm(Form):
+class SearchUserForm(FlaskForm):
     name = StringField('Name', validators=[Optional()])
     id = IntegerField('Id', validators=[Optional()])
     searchbutton = SubmitField('Search')
 
-class EditSkillForm(Form):
+class EditSkillForm(FlaskForm):
     name = StringField('Name', validators=[Required()])
     description = TextAreaField('Description', validators=[Required()])
     submit = SubmitField('Update skill')
 
-class EditResourceForm(Form):
+class EditResourceForm(FlaskForm):
     name = StringField('Name', validators=[Required()])
     description = PageDownField('Description', validators=[Required()])
     active = BooleanField('Active', validators=[Optional()])
@@ -74,18 +74,18 @@ class EditResourceForm(Form):
     reserv_per = IntegerField('Reservation period (minutes)', validators=[Required()])
     submit = SubmitField('Update resource')
 
-class RequestInvoiceForm(Form):
+class RequestInvoiceForm(FlaskForm):
     invoice_details = TextAreaField('Invoice details (name + address + VAT number)')
     vat_exempt = BooleanField('Are you VAT exempted (vrijstelling van BTW)?', default=False)
     submit = SubmitField('Request invoice')
 
-class ChangeSettingsForm(Form):
+class ChangeSettingsForm(FlaskForm):
     invoice_details = TextAreaField('Invoice details (name + address)')
     vat_number = StringField('VAT number')
     invoice_email = StringField('Invoice e-mail')
     submit = SubmitField('Change settings')
 
-class ExpenseNoteForm(Form):
+class ExpenseNoteForm(FlaskForm):
     total = FloatField('Total cost', validators=[Required()])
     description = StringField('Description', validators=[Required()])
     bank_account = StringField('Bank account', validators=[Required()])
@@ -93,11 +93,11 @@ class ExpenseNoteForm(Form):
     file = FileField('File', validators=[Required()])
     submit = SubmitField('Create expense note')
 
-class PayExpenseNoteForm(Form):
+class PayExpenseNoteForm(FlaskForm):
     paid = BooleanField('Paid', validators=[Optional()])
     submit = SubmitField('Save')
 
-class ExportPayementsForm(Form):
+class ExportPayementsForm(FlaskForm):
     start = DateField('Start date', validators=[Required()], format='%d/%m/%Y')
     end = DateField('End date', validators=[Required()], format='%d/%m/%Y')
     only_paid = BooleanField('Only paid', validators=[Optional()])

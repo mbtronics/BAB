@@ -1,14 +1,14 @@
-from . import db, login_manager
-from flask.ext.login import UserMixin, AnonymousUserMixin
-from datetime import datetime
-from flask import current_app, request
-from werkzeug.security import generate_password_hash, check_password_hash
 import hashlib
+from datetime import datetime
+
+from flask import current_app, request
+from flask_login import AnonymousUserMixin, UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from . import thumb
-from paymentmodels import PaymentDescription, Payment
-from . import expensenotes
-from accessmodels import UserLocks
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from . import db, expensenotes, login_manager, thumb
+from .accessmodels import UserLocks
+from .paymentmodels import Payment, PaymentDescription
 
 
 #Bit-style permissions
@@ -207,9 +207,12 @@ class User(UserMixin, db.Model):
 
     def photo_url(self, size=100):
         if self.photo_filename:
-            thumb_url=thumb.thumbnail(self.photo_filename, '%dx%d' % (size, size))
-            if thumb_url:
-                return '/' + thumb_url
+            try:
+                thumb_url=thumb.get_thumbnail(self.photo_filename, '%dx%d' % (size, size))
+                if thumb_url:
+                    return '/' + thumb_url
+            except FileNotFoundError:
+                pass
 
         return self.gravatar(size)
 

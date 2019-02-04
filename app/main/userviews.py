@@ -1,19 +1,19 @@
-from flask import render_template, redirect, url_for, abort, flash, request, session
-from flask.ext.login import login_required, current_user
-from sqlalchemy import or_
-from . import main
-from .forms import EditProfileForm, EditProfileAdminForm, DeleteConfirmationForm, SearchUserForm, ExpenseNoteForm, PayExpenseNoteForm
-from .. import db
-from ..usermodels import Permission, Role, User, Skill, Payment, PaymentDescription, ExpenseNote
-from ..accessmodels import Lock
-from ..resourcemodels import Reservation
-from ..decorators import permission_required, admin_required, moderator_required
-from sqlalchemy import func
-from .. import photos, expensenotes
-from ..email import send_email
-from ..settingsmodels import Setting
 import datetime
 
+from flask import abort, flash, redirect, render_template, request, session, url_for
+from flask_login import current_user, login_required
+from sqlalchemy import func, or_
+
+from . import main
+from .. import db, expensenotes, photos
+from ..accessmodels import Lock
+from ..decorators import admin_required, moderator_required, permission_required
+from ..send_email import send_email
+from ..resourcemodels import Reservation
+from ..settingsmodels import Setting
+from ..usermodels import ExpenseNote, Payment, PaymentDescription, Permission, Role, Skill, User
+from .forms import (DeleteConfirmationForm, EditProfileAdminForm, EditProfileForm, ExpenseNoteForm, PayExpenseNoteForm,
+                    SearchUserForm)
 
 NumPaginationItems = 20
 
@@ -127,7 +127,7 @@ def edit_user_skills(id):
 
     if request.method == 'POST':
         for skill in skills:
-            if skill.name in request.form.keys():
+            if skill.name in list(request.form.keys()):
                 if not skill in user.skills.all():
                     user.skills.append(skill)
             else:
@@ -155,7 +155,7 @@ def edit_user_locks(id):
 
     if request.method == 'POST':
         for lock in locks:
-            if lock.name in request.form.keys():
+            if lock.name in list(request.form.keys()):
                 if not lock in user.locks.all():
                     user.locks.append(lock)
             else:

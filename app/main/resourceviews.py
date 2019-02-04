@@ -1,12 +1,13 @@
-from flask import render_template, redirect, url_for, request, abort
-from flask.ext.login import login_required, current_user
+from flask import abort, redirect, render_template, request, url_for
+from flask_login import current_user, login_required
+
 from . import main
-from .forms import DeleteConfirmationForm, EditResourceForm
-from .. import db
-from ..usermodels import Permission, Skill
-from ..resourcemodels import Resource
+from .. import db, photos
 from ..decorators import permission_required
-from .. import photos
+from ..resourcemodels import Resource
+from ..usermodels import Permission, Skill
+from .forms import DeleteConfirmationForm, EditResourceForm
+
 
 @main.route('/resource/<name>')
 def resource(name):
@@ -103,7 +104,7 @@ def edit_resource_skills(id):
 
     if request.method == 'POST':
         for skill in skills:
-            if skill.name in request.form.keys():
+            if skill.name in list(request.form.keys()):
                 if not skill in resource.skills.all():
                     resource.skills.append(skill)
             else:
@@ -115,4 +116,3 @@ def edit_resource_skills(id):
     else:
         resource_skills = [ skill.name for skill in resource.skills.all() ]
         return render_template('resource/edit_skills.html', resource=resource, skills=skills, resource_skills=resource_skills)
-

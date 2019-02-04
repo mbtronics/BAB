@@ -1,11 +1,13 @@
-from flask import render_template, redirect, url_for, flash
-from flask.ext.login import login_required
+from flask import flash, redirect, render_template, url_for
+from flask_login import login_required
+
 from . import main
-from .forms import DeleteConfirmationForm, EditSkillForm
 from .. import db
-from ..usermodels import Permission, Skill
-from ..resourcemodels import Resource
 from ..decorators import permission_required
+from ..resourcemodels import Resource
+from ..usermodels import Permission, Skill
+from .forms import DeleteConfirmationForm, EditSkillForm
+
 
 @main.route('/skill/<name>')
 @login_required

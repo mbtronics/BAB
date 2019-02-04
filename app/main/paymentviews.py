@@ -1,15 +1,16 @@
-from flask import render_template, redirect, url_for, abort, request, flash, make_response
-from flask.ext.login import login_required, current_user
+from flask import abort, flash, make_response, redirect, render_template, request, url_for
+from flask_login import current_user, login_required
+from sqlalchemy import asc
+
 from . import main
 from .. import db, mollie
-from ..usermodels import Permission, User
-from ..paymentmodels import Payment, PaymentDescription
+from ..create_csv import create_csv
 from ..decorators import permission_required
-from ..email import send_email
-from forms import RequestInvoiceForm, ExportPayementsForm
+from ..send_email import send_email
+from ..paymentmodels import Payment, PaymentDescription
 from ..settingsmodels import Setting
-from ..csv import create_csv
-from sqlalchemy import asc
+from ..usermodels import Permission, User
+from .forms import ExportPayementsForm, RequestInvoiceForm
 
 NumPaginationItems = 20
 
@@ -38,8 +39,8 @@ def make_payment(id):
                         reservations.append(0)
             descriptions = request.form.getlist('description[]')
             amounts = [float(a.replace(',', '.')) for a in request.form.getlist('amount[]')]
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
             abort(404)
 
         payments = []

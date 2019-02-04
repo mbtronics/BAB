@@ -1,15 +1,17 @@
-from flask import Flask
-from flask.ext.bootstrap import Bootstrap
-from flask.ext.mail import Mail
-from flask.ext.moment import Moment
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import LoginManager
-from flask.ext.qrcode import QRcode
-from flask.ext.pagedown import PageDown
-from flask.ext.uploads import configure_uploads, UploadSet, IMAGES, EXECUTABLES, AllExcept
-from flask.ext.thumbnails import Thumbnail
 from config import config
-import Mollie
+from flask import Flask
+from flask_bootstrap import Bootstrap
+from flask_login import LoginManager
+from flask_mail import Mail
+from flask_moment import Moment
+from flask_pagedown import PageDown
+from flask_qrcode import QRcode
+from flask_sqlalchemy import SQLAlchemy
+from flask_thumbnails import Thumbnail
+from flask_uploads import EXECUTABLES, IMAGES, AllExcept, UploadSet, configure_uploads
+from flask_wtf import CSRFProtect
+from mollie.api.client import Client
+
 
 bootstrap = Bootstrap()
 mail = Mail()
@@ -20,7 +22,8 @@ pagedown = PageDown()
 photos = UploadSet('photos', IMAGES)
 expensenotes = UploadSet('expensenotes', AllExcept(EXECUTABLES))
 thumb = Thumbnail()
-mollie = Mollie.API.Client()
+mollie = Client()
+csrf = CSRFProtect()
 
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
@@ -62,10 +65,11 @@ def create_app(config_name, url_prefix):
     app.config['MEDIA_URL'] = media_url
 
     thumb.init_app(app)
-    mollie.setApiKey(app.config['MOLLIE_KEY'])
+    mollie.set_api_key(app.config['MOLLIE_KEY'])
+    csrf.init_app(app)
 
     if not app.debug and not app.testing and not app.config['SSL_DISABLE']:
-        from flask.ext.sslify import SSLify
+        from flask_sslify import SSLify
         sslify = SSLify(app)
 
     from .main import main as main_blueprint
@@ -74,7 +78,7 @@ def create_app(config_name, url_prefix):
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix=auth_prefix)
 
-    from decorators import authorise_download
+    from .decorators import authorise_download
     app.view_functions['_uploads.uploaded_file'] = authorise_download(app.view_functions['_uploads.uploaded_file'])
 
     return app

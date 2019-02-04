@@ -19,7 +19,7 @@ def upgrade():
     op.create_table('PaymentDescriptions',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('payment_id', sa.Integer(), nullable=False),
-    sa.Column('type', sa.Enum(u'reservation', u'membership', u'custom'), nullable=False),
+    sa.Column('type', sa.Enum('reservation', 'membership', 'custom'), nullable=False),
     sa.Column('description', sa.String(length=100), nullable=True),
     sa.Column('reservation_id', sa.Integer(), nullable=True),
     sa.Column('amount', sa.Float(), nullable=True),

@@ -31,9 +31,9 @@ def downgrade():
     op.create_table('junk',
     sa.Column('user_id', mysql.INTEGER(display_width=11), autoincrement=False, nullable=True),
     sa.Column('skill_id', mysql.INTEGER(display_width=11), autoincrement=False, nullable=True),
-    sa.ForeignKeyConstraint(['skill_id'], [u'Skills.id'], name=u'junk_ibfk_1'),
-    sa.ForeignKeyConstraint(['user_id'], [u'Users.id'], name=u'junk_ibfk_2'),
-    mysql_default_charset=u'latin1',
-    mysql_engine=u'InnoDB'
+    sa.ForeignKeyConstraint(['skill_id'], ['Skills.id'], name='junk_ibfk_1'),
+    sa.ForeignKeyConstraint(['user_id'], ['Users.id'], name='junk_ibfk_2'),
+    mysql_default_charset='latin1',
+    mysql_engine='InnoDB'
     )
     ### end Alembic commands ###

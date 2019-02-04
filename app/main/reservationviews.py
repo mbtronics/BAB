@@ -1,14 +1,17 @@
-from flask import render_template, request, Response, abort, jsonify, flash
-from flask.ext.login import login_required, current_user
+import json
+from datetime import datetime, timedelta
+
+import dateutil.parser
+from flask import Response, abort, flash, jsonify, render_template, request
+from flask_login import current_user, login_required
+from sqlalchemy import and_, or_
+
 from . import main
 from .. import db
-from ..usermodels import Permission
-from ..resourcemodels import Resource, Available, Reservation
 from ..decorators import permission_required
-import json
-from sqlalchemy import and_, or_
-from datetime import datetime, timedelta
-import dateutil.parser
+from ..resourcemodels import Available, Reservation, Resource
+from ..usermodels import Permission
+
 
 @main.route('/resource/reservation/<int:id>', methods=['GET', 'POST'])
 @login_required

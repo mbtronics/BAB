@@ -1,4 +1,5 @@
 import os
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -23,6 +24,7 @@ class Config:
     UPLOADED_EXPENSENOTES_DEST = os.environ.get('UPLOAD_DIR') + '/expensenotes'
     MOLLIE_KEY = os.environ.get('MOLLIE_KEY')
     LOCKS_KEY = os.environ.get('LOCKS_KEY')
+    WTF_CSRF_TIME_LIMIT = None
 
     @staticmethod
     def init_app(app):
@@ -32,6 +34,8 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL')
+    WTF_CSRF_METHODS = []
+    WTF_CSRF_ENABLED = False
 
 
 class ProductionConfig(Config):

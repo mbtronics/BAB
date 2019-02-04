@@ -15,9 +15,9 @@ if not os.getenv('APP_ADMIN') or\
     raise Exception('Environment settings invalid!')
 
 from app import create_app, db
-from app.usermodels import User, Role, Permission
-from flask.ext.script import Manager, Shell
-from flask.ext.migrate import Migrate, MigrateCommand
+from app.usermodels import Permission, Role, User
+from flask_migrate import Migrate, MigrateCommand
+from flask_script import Manager, Shell
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default', os.getenv('APP_URL_PREFIX') or '/')
 manager = Manager(app)
@@ -34,7 +34,7 @@ manager.add_command('db', MigrateCommand)
 @manager.command
 def deploy():
     """Run deployment tasks."""
-    from flask.ext.migrate import upgrade
+    from flask_migrate import upgrade
     from app.usermodels import Role
 
     upgrade()

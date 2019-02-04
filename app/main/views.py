@@ -1,7 +1,9 @@
-from flask import abort, request, current_app, render_template, g
-from flask.ext.sqlalchemy import get_debug_queries
+from flask import abort, current_app, g, render_template, request
+from flask_sqlalchemy import get_debug_queries
+
 from . import main
 from ..resourcemodels import Resource
+
 
 @main.after_app_request
 def after_request(response):

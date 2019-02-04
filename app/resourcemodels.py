@@ -1,8 +1,9 @@
-from . import db
 import math
-from markdown import markdown
+
 import bleach
-from . import thumb
+from markdown import markdown
+
+from . import db, thumb
 
 SkillsResources = db.Table('SkillsResources',
     db.Column('resource_id', db.Integer, db.ForeignKey('Resources.id')),
@@ -47,9 +48,12 @@ class Resource(db.Model):
 
     def photo_url(self, size=100):
         if self.photo_filename:
-            thumb_url=thumb.thumbnail(self.photo_filename, '%dx%d' % (size, size))
-            if thumb_url:
-                return '/' + thumb_url
+            try:
+                thumb_url=thumb.get_thumbnail(self.photo_filename, '%dx%d' % (size, size))
+                if thumb_url:
+                    return '/' + thumb_url
+            except FileNotFoundError:
+                pass
         return ''
 
 
