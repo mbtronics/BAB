@@ -35,6 +35,7 @@ def create_app(config_name, url_prefix):
     if url_prefix == "" or url_prefix == "/":
         main_prefix=None
         auth_prefix='/auth'
+        bas_prefix = '/bas'
         static_prefix='/static'
         media_url='_uploads/photos/'
     else:
@@ -42,6 +43,7 @@ def create_app(config_name, url_prefix):
             url_prefix=url_prefix[:-1]
         main_prefix=url_prefix
         auth_prefix=url_prefix+'/auth'
+        bas_prefix=url_prefix+'/bas'
         static_prefix='%s/static' % url_prefix
         media_url='%s/_uploads/photos/' % url_prefix[1:]
 
@@ -77,6 +79,9 @@ def create_app(config_name, url_prefix):
 
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix=auth_prefix)
+
+    from .bas.views import bas as bas_blueprint
+    app.register_blueprint(bas_blueprint, url_prefix=bas_prefix)
 
     from .decorators import authorise_download
     app.view_functions['_uploads.uploaded_file'] = authorise_download(app.view_functions['_uploads.uploaded_file'])

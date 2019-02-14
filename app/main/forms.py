@@ -6,7 +6,7 @@ from wtforms import (BooleanField, DateField, FloatField, IntegerField, StringFi
 from wtforms.validators import InputRequired, Length, Optional, Regexp, Required
 
 from .. import photos
-from ..usermodels import User
+from models.usermodels import User
 
 
 class EditProfileFormBasic(FlaskForm):

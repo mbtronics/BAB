@@ -9,8 +9,8 @@ from sqlalchemy import and_, or_
 from . import main
 from .. import db
 from ..decorators import permission_required
-from ..resourcemodels import Available, Reservation, Resource
-from ..usermodels import Permission
+from models.resourcemodels import Available, Reservation, Resource
+from models.usermodels import Permission
 
 
 @main.route('/resource/reservation/<int:id>', methods=['GET', 'POST'])

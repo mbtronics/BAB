@@ -7,9 +7,9 @@ from .. import db, mollie
 from ..create_csv import create_csv
 from ..decorators import permission_required
 from ..send_email import send_email
-from ..paymentmodels import Payment, PaymentDescription
-from ..settingsmodels import Setting
-from ..usermodels import Permission, User
+from models.paymentmodels import Payment, PaymentDescription
+from models.settingsmodels import Setting
+from models.usermodels import Permission, User
 from .forms import ExportPayementsForm, RequestInvoiceForm
 
 NumPaginationItems = 20

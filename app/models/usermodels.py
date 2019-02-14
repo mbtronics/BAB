@@ -6,9 +6,10 @@ from flask_login import AnonymousUserMixin, UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from . import db, expensenotes, login_manager, thumb
+from app import db, expensenotes, login_manager, thumb
 from .accessmodels import UserLocks
 from .paymentmodels import Payment, PaymentDescription
+from .resourcemodels import Reservation
 
 
 #Bit-style permissions

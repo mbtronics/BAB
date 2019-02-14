@@ -25,6 +25,8 @@ class Config:
     MOLLIE_KEY = os.environ.get('MOLLIE_KEY')
     LOCKS_KEY = os.environ.get('LOCKS_KEY')
     WTF_CSRF_TIME_LIMIT = None
+    WTF_CSRF_METHODS = []
+    WTF_CSRF_ENABLED = False
 
     @staticmethod
     def init_app(app):
@@ -34,8 +36,6 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL')
-    WTF_CSRF_METHODS = []
-    WTF_CSRF_ENABLED = False
 
 
 class ProductionConfig(Config):

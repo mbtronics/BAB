@@ -4,8 +4,8 @@ from flask_login import login_required
 from . import main
 from .. import db
 from ..decorators import permission_required
-from ..resourcemodels import Resource
-from ..usermodels import Permission, Skill
+from models.resourcemodels import Resource
+from models.usermodels import Permission, Skill
 from .forms import DeleteConfirmationForm, EditSkillForm
 
 

@@ -1,4 +1,5 @@
-from . import db
+from app import db
+
 
 class Lock(db.Model):
     __tablename__ = 'Locks'

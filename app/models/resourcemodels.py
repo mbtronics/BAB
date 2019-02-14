@@ -3,7 +3,7 @@ import math
 import bleach
 from markdown import markdown
 
-from . import db, thumb
+from app import db, thumb
 
 SkillsResources = db.Table('SkillsResources',
     db.Column('resource_id', db.Integer, db.ForeignKey('Resources.id')),

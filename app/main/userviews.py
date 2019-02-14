@@ -6,12 +6,12 @@ from sqlalchemy import func, or_
 
 from . import main
 from .. import db, expensenotes, photos
-from ..accessmodels import Lock
+from models.accessmodels import Lock
 from ..decorators import admin_required, moderator_required, permission_required
 from ..send_email import send_email
-from ..resourcemodels import Reservation
-from ..settingsmodels import Setting
-from ..usermodels import ExpenseNote, Payment, PaymentDescription, Permission, Role, Skill, User
+from models.resourcemodels import Reservation
+from models.settingsmodels import Setting
+from models.usermodels import ExpenseNote, Payment, PaymentDescription, Permission, Role, Skill, User
 from .forms import (DeleteConfirmationForm, EditProfileAdminForm, EditProfileForm, ExpenseNoteForm, PayExpenseNoteForm,
                     SearchUserForm)
 
@@ -141,7 +141,7 @@ def edit_user_skills(id):
         return render_template('user/edit_skills.html', user=user, skills=skills, user_skills=user_skills)
 
 
-@main.route('/user/<int:id>/edit-locks', methods=['GET', 'POST'])
+@main.route('/user/<int:id>/edit-bas', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.MANAGE_USERS)
 def edit_user_locks(id):

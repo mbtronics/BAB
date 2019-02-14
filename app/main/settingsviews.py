@@ -3,8 +3,8 @@ from flask import flash, render_template
 from . import main
 from .. import db
 from ..decorators import permission_required
-from ..settingsmodels import Setting
-from ..usermodels import Permission
+from models.settingsmodels import Setting
+from models.usermodels import Permission
 from .forms import ChangeSettingsForm
 
 settings = ['invoice_details', 'vat_number', 'invoice_email']

@@ -3,7 +3,7 @@ from functools import wraps
 from flask import abort
 from flask_login import current_user
 
-from .usermodels import Permission
+from models.usermodels import Permission
 
 
 def permission_required(permission):
