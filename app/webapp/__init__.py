@@ -1,3 +1,5 @@
+import os
+
 from config import config
 from flask import Flask
 from flask_bootstrap import Bootstrap
@@ -11,7 +13,6 @@ from flask_thumbnails import Thumbnail
 from flask_uploads import EXECUTABLES, IMAGES, AllExcept, UploadSet, configure_uploads
 from flask_wtf import CSRFProtect
 from mollie.api.client import Client
-
 
 bootstrap = Bootstrap()
 mail = Mail()
@@ -82,3 +83,6 @@ def create_app(config_name, url_prefix):
     app.view_functions['_uploads.uploaded_file'] = authorise_download(app.view_functions['_uploads.uploaded_file'])
 
     return app
+
+
+app = create_app(os.getenv('FLASK_CONFIG') or 'default', os.getenv('APP_URL_PREFIX') or '/')

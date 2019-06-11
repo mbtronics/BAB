@@ -2,6 +2,17 @@ import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+if os.path.exists('.env'):
+    print('Importing environment from .env...')
+    for line in open('.env'):
+        var = line.strip().split('=')
+        if len(var) == 2:
+            os.environ[var[0]] = var[1]
+
+if not os.getenv('APP_ADMIN') or\
+    not os.getenv('FLASK_CONFIG') or\
+    not os.getenv('SECRET_KEY'):
+    raise Exception('Environment settings invalid!')
 
 class Config:
     SSL_DISABLE = False
