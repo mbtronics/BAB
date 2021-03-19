@@ -18,7 +18,7 @@ Flask-Uploads==0.2.0
 Flask-WTF==0.12
 html5lib==0.9999999
 itsdangerous==0.24
-Jinja2==2.8
+Jinja2==2.11.3
 Mako==1.0.3
 Markdown==2.6.5
 MarkupSafe==0.23
